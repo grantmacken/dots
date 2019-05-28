@@ -1,0 +1,5 @@
+; https://asciinema.org/docs/config
+
+[record]
+; Limit recorded terminal inactivity to max n seconds, default: off
+idle_time_limit = 1

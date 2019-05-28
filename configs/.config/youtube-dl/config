@@ -1,0 +1,6 @@
+# Lines starting with # are comments
+# Save all videos under Movies directory in your home directory
+--output ~/Videos/%(title)s.%(ext)s
+--format bestvideo[height<=?1080]+bestaudio/best
+--newline
+
