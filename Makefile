@@ -107,4 +107,13 @@ init-ssh:
 .PHONY: snaps
 snaps: bin/my-snaps.list
 	@echo 'TASK: install snaps'
-	@snap install google-cloud-sdk
+	@echo https://docs.snapcraft.io/getting-started
+	@#snap install google-cloud-sdk
+	@snap install --channel=edge travis 
+	@travis login --github-token $(shell cat ../.github-access-token)
+
+.PHONY: clean-snaps
+clean-snaps: bin/my-snaps.list
+	@echo 'TASK: install snaps'
+	@#snap remove google-cloud-sdk
+	@snap remove travis
