@@ -1,9 +1,7 @@
 # dotfiles
 
-Work In Progress [dotfiles](https://github.com/webpro/awesome-dotfiless) hacked by Grant Mackenzie
-## How I have organized this stuff
-
-After a brief search on how best to organize my dotfiles under git control, I set
-upon using [stow](http://mywiki.wooledge.org/DotFiles) ]
+Using [make](https://www.gnu.org/software/make) with 
+[stow](http://mywiki.wooledge.org/DotFiles)] to organize my [dotfiles](https://github.com/webpro/awesome-dotfiless)
+under [git control](https://github.com/grantmacken/dot://github.com/grantmacken/dots)
 
 
