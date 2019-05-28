@@ -25,6 +25,10 @@ source <(kitty + complete setup bash)
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
+# Use bash-completion, if available
+[[ $PS1 && -f /usr/share/bash-completion/bash_completion ]] && \
+    . /usr/share/bash-completion/bash_completion
+
 # added by travis gem
 #[ -f /home/gmack/.travis/travis.sh ] && source /home/gmack/.travis/travis.sh
 
