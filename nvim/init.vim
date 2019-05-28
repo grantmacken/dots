@@ -193,4 +193,8 @@ set completeopt-=preview
 " set completeopt+=longest
 " set completeopt+=preview
 " }}}
+"
+source $VIMPATH/commands.vim
+source $VIMPATH/mappings.vim
+source $VIMPATH/autocmds.vim
 
