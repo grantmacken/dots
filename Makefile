@@ -89,8 +89,9 @@ clean-projects:
 init: bin/my-solus-packages.list
 	@echo 'TASK: install my solus essentials'
 	@mkdir -p  ~/.local/bin
-	@sudo bin/install-solus-packages.sh $<
-	@setxkbmap -option caps:swapescape
+	@#sudo bin/install-solus-packages.sh $<
+	@#setxkbmap -option caps:swapescape
+	@#git remote add origin git@github.com:grantmacken/dots.git
 
 .PHONY: init-ssh
 init-ssh:
