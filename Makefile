@@ -31,7 +31,6 @@ UP DIR: $(UP_TARG_DIR)
 =========================================================
 endef
 
-.PHONY: home projects
 
 default: help
 help: export mkHelp:=$(mkHelp)
@@ -85,11 +84,11 @@ clean-projects:
 	@stow -D -v -t ~/.local/bin bin
 	@cd projects;stow -D -v  -t ../../ .
 
-.PHONY: init
-init: bin/my-solus-packages.list
+.PHONY: solus
+solus: bin/my-solus-packages.list
 	@echo 'TASK: install my solus essentials'
-	@mkdir -p  ~/.local/bin
-	@#sudo bin/install-solus-packages.sh $<
+	@#mkdir -p  ~/.local/bin
+	@sudo bin/install-solus-packages.sh $<
 	@#setxkbmap -option caps:swapescape
 	@#git remote add origin git@github.com:grantmacken/dots.git
 

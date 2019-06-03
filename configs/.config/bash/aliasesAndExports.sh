@@ -56,6 +56,9 @@ if [ -n "${GIT_USER}" ]; then
   # EXPORT ACCESS TOKENS stores in projects dir
   GITHUB_ACCESS_TOKEN=$(<"${PROJECTS}/.github-access-token")
   export GITHUB_ACCESS_TOKEN=$GITHUB_ACCESS_TOKEN
+  # EXPORT ACCESS TOKENS stores in projects dir
+  # HUB ENVIROMENT VARIABLE
+  export GITHUB_TOKEN=$GITHUB_ACCESS_TOKEN
   GIT_USER=$(git config user.name)
   export GIT_USER=$GIT_USER
   #DOCKER

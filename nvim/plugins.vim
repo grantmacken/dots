@@ -3,12 +3,16 @@ function! DoRemote(arg)
 endfunction
 call plug#begin( expand( $DATAPATH . '/plugged'))
 " Themes and Colorscheme {{{
+Plug 'itchyny/lightline.vim'
 Plug 'junegunn/seoul256.vim'
+Plug 'shinchu/lightline-seoul256.vim'
 " }}}
+"
 " File_And_Project_Management {{{
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'junegunn/fzf.vim'
-"GF: site/after/plugin/fzf.vim
+Plug 'airblade/vim-gitgutter'
+" Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+" Plug 'junegunn/fzf.vim'
+"GF: site/after/plugin/fzf.vim/
 Plug 'justinmk/vim-dirvish' 
 "URL: https://github.com/justinmk/vim-dirvish/blob/master/doc/dirvish.txt
 "GF: site/after/ftplugin/dirvish.vim
@@ -48,7 +52,7 @@ Plug 'tweekmonster/nvim-api-viewer'
 "Plug 'Konfekt/FastFold'    "recomended Shougo plugin
 "Plug 'Shougo/neco-vim'          " VIM autocompletions https://github.com/Shougo/neco-syntax
 "Plug 'neoclide/coc-neco'
-"Plug 'neoclide/coc.nvim', {'tag': '*', 'do': './install.sh'}
+Plug 'neoclide/coc.nvim', {'tag': '*', 'do': './install.sh'}
 " Plug 'Shougo/deoplete.nvim', { 'do': function('DoRemote') }
 " Plug 'Shougo/echodoc'  " recomended plugin .. to look at function auguments
 " Plug 'Shougo/context_filetype.vim'
