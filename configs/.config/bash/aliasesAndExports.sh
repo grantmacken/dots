@@ -41,40 +41,8 @@ if [ -n "${GIT_USER}" ]; then
   export GIT_USER="${GIT_USER}"
   PROJECTS="$HOME/projects/${GIT_USER}"
   export PROJECTS="${PROJECTS}"
-  # make sure projects bin on PATH
-  # @see Makefile in ${PROJECTS}/mk-tasks
-  if [[ ! "$PATH" == *${PROJECTS}/bin* ]]; then
-    export PATH="$PATH:${PROJECTS}/bin"
-  fi
-  # dev node bin for my projects
-  # @see package.json in ${PROJECTS}/
-  # @see Makefile in ${PROJECTS}/mk-tasks
-  if [[ ! "$PATH" == *${PROJECTS}/node_modules/.bin* ]]; then
-    export PATH="$PATH:${PROJECTS}/node_modules/.bin"
-  fi
 
-  # EXPORT ACCESS TOKENS stores in projects dir
-  GITHUB_ACCESS_TOKEN=$(<"${PROJECTS}/.github-access-token")
-  export GITHUB_ACCESS_TOKEN=$GITHUB_ACCESS_TOKEN
-  # EXPORT ACCESS TOKENS stores in projects dir
-  # HUB ENVIROMENT VARIABLE
-  export GITHUB_TOKEN=$GITHUB_ACCESS_TOKEN
-  GIT_USER=$(git config user.name)
-  export GIT_USER=$GIT_USER
-  #DOCKER
-  # DOCKER_USERNAME=$(git config user.name)
-  # export DOCKER_USERNAME=$DOCKER_USERNAME
-  # export DOCKER_PASSWORD=$(<"${PROJECTS}/.github-access-token")
-  # DOCKER_EMAIL=$(git config user.email)
-  # export DOCKER_EMAIL=$DOCKER_EMAIL
 
-  EXIST_AUTH=$(echo -n "$GIT_USER:$GITHUB_ACCESS_TOKEN" | base64)
-  export EXIST_AUTH="$EXIST_AUTH"
-
-  # JWT_AUTH_TOKEN=$(<"${PROJECTS}/.site-access-token")
-  # this is used by httpie
-  # export JWT_AUTH_TOKEN=$JWT_AUTH_TOKEN
-  # export SITE_ACCESS_TOKEN=$JWT_AUTH_TOKEN
 
   LEDGER_FILE=${PROJECTS}/accounts/main.ledger
   export LEDGER_FILE="${LEDGER_FILE}"
@@ -88,8 +56,6 @@ if [ -n "${GIT_USER}" ]; then
   export LEDGER_DATE_FORMAT="${LEDGER_DATE_FORMAT}"
 fi
 
-# to build exist we need to
-# JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:/bin/java::")
-# export JAVA_HOME=${JAVA_HOME}
+
 
 

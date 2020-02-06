@@ -3,19 +3,11 @@ scriptencoding utf-8
 " nvim -u NORC
 " PATHS {{{
 " XDG Paths {{{
-if exists('$XDG_CONFIG_HOME')
-  let $VIMPATH=expand('$XDG_CONFIG_HOME/nvim')
-  let $CACHEPATH=expand('$XDG_CACHE_HOME/nvim')
-  let $DATAPATH=expand('$XDG_DATA_HOME/nvim/site')
-else
   let $VIMPATH=expand('$HOME/.config/nvim')
   let $CACHEPATH=expand('$HOME/.cache/nvim')
   let $DATAPATH=expand('$HOME/.local/share/nvim/site')
-endif
 "}}}
 let $PROJECTS_PATH=expand( $HOME . '/projects/grantmacken' )
-" pip3 install --user pandas
-" GF: nvim/plugins.vim
 source $VIMPATH/plugins.vim
 "}}}
 " Colors {{{
@@ -35,6 +27,64 @@ highlight Pmenu     guifg=#d7d7af guibg=#585858
 highlight PmenuSel  guifg=#4e4e4e  guibg=#d7d7af
 highlight VertSplit guifg=#585858 guibg=#585858
 " }}}
+
+" Sessions and Undo {{{
+" " What not to save in sessions:
+" set sessionoptions-=options  neovim default
+set sessionoptions-=globals
+set sessionoptions-=help
+" http://vim.wikia.com/wiki/Quick_tips_for_using_tab_pages
+" set sessionoptions=blank,buffers,curdirs,tabpages,winsize
+" if hidden is not set, TextEdit might fail.
+set hidden
+" Some servers have issues with backup files, see #649
+set noswapfile
+set nobackup
+set undofile
+" set undodir=expand($CACHEPATH . '/undo') nvim set by default
+set undolevels=5000
+set undoreload=10000
+augroup vimrc
+  autocmd BufWritePre /tmp/* setlocal noundofile
+augroup END
+" http://robots.thoughtbot.com/post/18739402579/global-gitignore#comment-45841328i
+" set autowriteall  "Save buffer automatically when changing files
+set autoread      "Always reload buffer when external changes detected
+" https://bluz71.github.io/2017/05/15/vim-tips-tricks.html
+
+" }}}
+
+" Buffer Typography: Widths, Tabs, Indents and Folds {{{
+" ---------------------------------------
+set textwidth=120   " Text width maximum 120 chars before wrapping
+" @see lengthmatters
+
+" /usr/share/nvim/runtime/ftplugin/make.vim
+" set nosmarttab
+"" tabstop:         Width of tab character
+" softtabstop:      Fine tunes the amount of white space to be added
+" shiftwidth        Determines the amount of whitespace to add in normal mode
+" expandtab:        When on uses space instead of tabs
+"                    expand tabs to spaces except for Make see runtime
+set tabstop     =2
+set softtabstop =2
+set shiftwidth  =2
+set expandtab
+set autoindent      " Use same indenting on new lines
+set smartindent     " Smart autoindenting on new lines
+set shiftround      " Round indent to multiple of 'shiftwidth'
+" folds
+set foldmethod=marker
+set foldnestmax=1
+" Changing characters to fill special ui elements
+set breakindent
+set showbreak=↪
+set list                " Show hidden characters
+" set fillchars=vert:│,fold:─
+" nvim defaults set listchars=tab:\⋮\ ,extends:⟫,precedes:⟪,nbsp:.,trail:·
+"}}}
+
+
 " Mouse and Clipboard {{{
 set mouse=a
 set clipboard=unnamed
@@ -91,110 +141,8 @@ set colorcolumn=120     " Highlight the 120 th character limit
 set synmaxcol=200
 set scrolloff=2         " Keep at least 2 lines above/below
 set sidescrolloff=2     " Keep at least 2 lines left/right
-set signcolumn=yes    " keep signcolumn open
+set signcolumn=yes      " keep signcolumn open
 
 " }}}
-" Spelling: {{{
-" --------
-" let g:spell_add=expand($CACHEPATH . '/spell/en.utf-8.add')
-" exec "set spellfile=" . g:spell_add
-" }}}
-" Searching and Grepping{{{
-" ------
-" set wildmode=longest,full
-" set wildignorecase
-set gdefault            " Force Vim to always do global substitutions.
-set inccommand=nosplit  " Neovim highlight
-set grepprg=rg\ --vimgrep
-"   "                 |
-"   "                 `------------ Format results for Vim, include multiple matches per line
-set grepformat=%f:%l:%c:%m
 
-" }}}
-" Buffer Typography: Widths, Tabs, Indents and Folds {{{
-" ---------------------------------------
-set textwidth=120   " Text width maximum 120 chars before wrapping
-" @see lengthmatters
-
-" /usr/share/nvim/runtime/ftplugin/make.vim
-" set nosmarttab
-"" tabstop:         Width of tab character
-" softtabstop:      Fine tunes the amount of white space to be added
-" shiftwidth        Determines the amount of whitespace to add in normal mode
-" expandtab:        When on uses space instead of tabs
-"                    expand tabs to spaces except for Make see runtime
-set tabstop     =4
-set softtabstop =4
-set shiftwidth  =4
-set expandtab
-set autoindent      " Use same indenting on new lines
-set smartindent     " Smart autoindenting on new lines
-set shiftround      " Round indent to multiple of 'shiftwidth'
-" folds
-set foldmethod=marker
-set foldnestmax=1
-" Changing characters to fill special ui elements
-set breakindent
-set showbreak=↪
-set list                " Show hidden characters
-" set fillchars=vert:│,fold:─
-" nvim defaults set listchars=tab:\⋮\ ,extends:⟫,precedes:⟪,nbsp:.,trail:·
-"}}}
-" Sessions and Undo {{{
-" " What not to save in sessions:
-" set sessionoptions-=options  neovim default
-set sessionoptions-=globals
-set sessionoptions-=help
-" http://vim.wikia.com/wiki/Quick_tips_for_using_tab_pages
-" set sessionoptions=blank,buffers,curdirs,tabpages,winsize
-" if hidden is not set, TextEdit might fail.
-set hidden
-" Some servers have issues with backup files, see #649
-set noswapfile
-set nobackup
-set undofile
-" set undodir=expand($CACHEPATH . '/undo') nvim set by default
-set undolevels=5000
-set undoreload=10000
-augroup vimrc
-  autocmd BufWritePre /tmp/* setlocal noundofile
-augroup END
-" http://robots.thoughtbot.com/post/18739402579/global-gitignore#comment-45841328i
-" set autowriteall  "Save buffer automatically when changing files
-set autoread      "Always reload buffer when external changes detected
-" https://bluz71.github.io/2017/05/15/vim-tips-tricks.html
-
-" }}}
-" Completions {{{
-" ================
-"  Popup Menu Styling
-"  ------------------
-" set shortmess+=c
-" set shortmess=aoOTI     " Shorten messages and don't show intro
-" set shortmess+=c        " https://github.com/roxma/nvim-completion-manager
-" ------------------
-set pumheight=20        " Pop-up menu's line height
-set previewheight=2     " Completion preview height
-
-" Complete Options
-" ----------------
-" :h complet
-"  (default: ".,w,b,u,t")
-"  current buffer, window buffers, unloaded buffers, tags
-" below are async defualt
-set completeopt+=noinsert       " auto select feature like neocomplete
-set completeopt+=menuone
-set completeopt+=noselect
-
-set completeopt-=longest
-set completeopt-=menu
-set completeopt-=preview
-" xxx
-" set completeopt+=longest
-" set completeopt+=preview
-" }}}
-"
-source $VIMPATH/commands.vim
-source $VIMPATH/mappings.vim
-source $VIMPATH/autocmds.vim
 
