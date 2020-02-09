@@ -27,7 +27,6 @@ highlight Pmenu     guifg=#d7d7af guibg=#585858
 highlight PmenuSel  guifg=#4e4e4e  guibg=#d7d7af
 highlight VertSplit guifg=#585858 guibg=#585858
 " }}}
-
 " Sessions and Undo {{{
 " " What not to save in sessions:
 " set sessionoptions-=options  neovim default
@@ -53,7 +52,6 @@ set autoread      "Always reload buffer when external changes detected
 " https://bluz71.github.io/2017/05/15/vim-tips-tricks.html
 
 " }}}
-
 " Buffer Typography: Widths, Tabs, Indents and Folds {{{
 " ---------------------------------------
 set textwidth=120   " Text width maximum 120 chars before wrapping
@@ -83,8 +81,6 @@ set list                " Show hidden characters
 " set fillchars=vert:│,fold:─
 " nvim defaults set listchars=tab:\⋮\ ,extends:⟫,precedes:⟪,nbsp:.,trail:·
 "}}}
-
-
 " Mouse and Clipboard {{{
 set mouse=a
 set clipboard=unnamed
@@ -144,5 +140,33 @@ set sidescrolloff=2     " Keep at least 2 lines left/right
 set signcolumn=yes      " keep signcolumn open
 
 " }}}
+" Completions {{{
+" ================
+"  Popup Menu Styling
+"  ------------------
+" set shortmess+=c
+" set shortmess=aoOTI     " Shorten messages and don't show intro
+" set shortmess+=c        " https://github.com/roxma/nvim-completion-manager
+" ------------------
+set pumheight=20        " Pop-up menu's line height
+set previewheight=2     " Completion preview height
 
+" Complete Options
+" ----------------
+" :h complet
+"  (default: ".,w,b,u,t")
+"  current buffer, window buffers, unloaded buffers, tags
+" below are async defualt
+set completeopt+=noinsert       " auto select feature like neocomplete
+set completeopt+=menuone
+set completeopt+=noselect
 
+set completeopt-=longest
+set completeopt-=menu
+set completeopt-=preview
+" xxx
+" set completeopt+=longest
+" set completeopt+=preview
+" }}}
+
+cnoremap w!! execute 'silent! write !SUDO_ASKPASS=`which ssh-askpass` sudo tee % >/dev/null' <bar> edit!
