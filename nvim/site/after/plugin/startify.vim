@@ -1,4 +1,3 @@
-
 " if !exists('g:autoloaded_startify')
 "   finish
 " endif

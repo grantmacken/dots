@@ -111,8 +111,6 @@ snaps: bin/my-snaps.list
 	@snap install --channel=edge travis 
 	@travis login --github-token $(shell cat ../.github-access-token)
 
-.PHONY: clean-snaps
-clean-snaps: bin/my-snaps.list
-	@echo 'TASK: install snaps'
-	@#snap remove google-cloud-sdk
-	@snap remove travis
+.PHONY: fonts
+fonts: 
+	@cd ~/.local/share/fonts && curl -fLo "Fira Code Medium Nerd Font Complete.otf" https://github.com/ryanoasis/nerd-fonts/blob/master/patched-fonts/FiraCode/Medium/complete/Fira%20Code%20Medium%20Nerd%20Font%20Complete.otf

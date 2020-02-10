@@ -33,3 +33,9 @@ source <(kitty + complete setup bash)
 #[ -f /home/gmack/.travis/travis.sh ] && source /home/gmack/.travis/travis.sh
 
 #export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/home/gmack/google-cloud-sdk/path.bash.inc' ]; then . '/home/gmack/google-cloud-sdk/path.bash.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/home/gmack/google-cloud-sdk/completion.bash.inc' ]; then . '/home/gmack/google-cloud-sdk/completion.bash.inc'; fi

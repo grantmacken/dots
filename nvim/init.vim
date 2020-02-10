@@ -27,6 +27,12 @@ highlight Pmenu     guifg=#d7d7af guibg=#585858
 highlight PmenuSel  guifg=#4e4e4e  guibg=#d7d7af
 highlight VertSplit guifg=#585858 guibg=#585858
 " }}}
+" Mouse and Clipboard {{{
+set mouse=a
+" set clipboard=unnamed
+set clipboard+=unnamedplus
+
+" }}}
 " Sessions and Undo {{{
 " " What not to save in sessions:
 " set sessionoptions-=options  neovim default
@@ -71,23 +77,22 @@ set expandtab
 set autoindent      " Use same indenting on new lines
 set smartindent     " Smart autoindenting on new lines
 set shiftround      " Round indent to multiple of 'shiftwidth'
+set incsearch ignorecase smartcase hlsearch             " highlight text while searching
+
 " folds
 set foldmethod=marker
 set foldnestmax=1
 " Changing characters to fill special ui elements
 set breakindent
 set showbreak=↪
-set list                " Show hidden characters
+set list listchars=trail:»,tab:»-                       " use tab to navigate in list mod
+" set fillchars+=vert:\▏                                  " requires a patched nerd font (try FiraCode)
+" set list                " Show hidden characters
 " set fillchars=vert:│,fold:─
 " nvim defaults set listchars=tab:\⋮\ ,extends:⟫,precedes:⟪,nbsp:.,trail:·
 "}}}
-" Mouse and Clipboard {{{
-set mouse=a
-set clipboard=unnamed
-
-" }}}
 " Look of Tabs, Windows and Buffers {{{
-" window  settings 
+" window  settings
 set notitle             " No need for a title
 set noequalalways       " Don't resize windows on split or close
 set winwidth=30         " Minimum width for current window
@@ -97,7 +102,7 @@ set splitright
 
 set helpheight=12       " Minimum help window height
 
-" panes: gutter, tabline, commandline , help 
+" panes: gutter, tabline, commandline , help
 " left gutter
 set number              " Show line numbers
 set numberwidth=3
@@ -116,7 +121,7 @@ set updatetime=300
 " set noshowcmd           " Don't show command in status line
 " don't give |ins-completion-menu| message
 set shortmess+=c
-" suppress the annoying 'match x of y', 'The only match' and 
+" suppress the annoying 'match x of y', 'The only match' and
 " 'Pattern not found' messages
 "
 set noshowcmd
@@ -131,7 +136,7 @@ set ruler
 set showtabline=1
 " set tabline=%!my#statusline#tabline()
 " set tabpagemax=30     " Already set to 50 in neovim  Maximum number of tab pages
-" 
+"
 " main buffer window pane
 set colorcolumn=120     " Highlight the 120 th character limit
 set synmaxcol=200
@@ -167,6 +172,10 @@ set completeopt-=preview
 " xxx
 " set completeopt+=longest
 " set completeopt+=preview
+"
+" @see nvim/site/after/plugin/coc.vim
 " }}}
-
-cnoremap w!! execute 'silent! write !SUDO_ASKPASS=`which ssh-askpass` sudo tee % >/dev/null' <bar> edit!
+" cnoremap w!! execute 'silent! write !SUDO_ASKPASS=`which ssh-askpass` sudo tee % >/dev/null' <bar> edit!
+source $VIMPATH/commands.vim
+source $VIMPATH/mappings.vim
+source $VIMPATH/autocmds.vim
