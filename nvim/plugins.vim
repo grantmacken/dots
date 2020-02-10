@@ -17,9 +17,6 @@ Plug 'junegunn/vim-peekaboo' "https://github.com/junegunn/vim-peekaboo
 Plug 'machakann/vim-highlightedyank' " highligh yank text
 Plug 'tpope/vim-commentary'  , { 'on': ['<Plug>Commentary', '<Plug>CommentaryLine'] }
 " }}}
-
-
-
 " Auto Completion, Language Servers, Snippets {{{
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'w0rp/ale'
@@ -34,7 +31,7 @@ Plug 'airblade/vim-gitgutter'
 " Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 " Plug 'junegunn/fzf.vim'
 "GF: site/after/plugin/fzf.vim/
-Plug 'justinmk/vim-dirvish' 
+Plug 'justinmk/vim-dirvish'
 "URL: https://github.com/justinmk/vim-dirvish/blob/master/doc/dirvish.txt
 "GF: site/after/ftplugin/dirvish.vim
 Plug 'mhinz/vim-startify'
@@ -49,10 +46,10 @@ Plug 'tpope/vim-dotenv' " https://github.com/tpope/vim-dotenv
 Plug 'arithran/vim-delete-hidden-buffers'
 Plug 'MattesGroeger/vim-bookmarks'
 Plug 'bogado/file-line'
-Plug 'Shougo/neomru.vim' 
+Plug 'Shougo/neomru.vim'
 Plug 'rbtnn/vim-jumptoline'
 " Plug 'ryanoasis/vim-devicons
-Plug '907th/vim-auto-save'
+" Plug '907th/vim-auto-save'
 " Plug 'tpope/vim-fugitive'                               " git support
 " Plug 'psliwka/vim-smoothie'                             " some very smooth ass scrolling
 " Plug 'farmergreg/vim-lastplace'                         " open files at the last edited place
@@ -69,7 +66,7 @@ Plug '907th/vim-auto-save'
 " Plug 'skwp/greplace.vim' "https://github.com/skwp/greplace.vim/blob/master/doc/greplace.txt
 " Plug 'tweekmonster/nvim-api-viewer'
 "}}}
-" Language Specific Plugins {{{ 
+" Language Specific Plugins {{{
 Plug 'vitalk/vim-shebang' "https://github.com/vitalk/vim-shebang
 " https://github.com/vitalk/vim-fancy
 " https://github.com/vitalk/vim-simple-todo
@@ -96,6 +93,3 @@ Plug 'junegunn/vader.vim'                         " VIM    testing vim plugings 
 " JavaScript:  https://davidosomething.com/blog/vim-for-javascript/
 "}}}
 call plug#end()
-
-
-

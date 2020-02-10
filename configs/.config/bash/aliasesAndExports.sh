@@ -3,6 +3,9 @@ alias dotfiles-reload='source $HOME/.bashrc'
 alias fold="fold -s"
 alias p="cd $HOME/projects/$( git config --get user.name )"
 alias SSH='gcloud compute ssh gmack'
+# https://github.com/docker/buildx/#with-buildx-or-docker-1903
+DOCKER_CLI_EXPERIMENTAL=enabled
+
 
 if [ -z "$XDG_CONFIG_HOME" ]; then
   export XDG_CONFIG_HOME="$HOME/.config"
@@ -34,7 +37,7 @@ if [[ ! "$PATH" == *${HOME_BIN}* ]]; then
 fi
 
 # git controlled project development
- 
+
 GIT_USER="$( git config --get user.name )"
 # if we have a user name set a PROJECTS folder
 if [ -n "${GIT_USER}" ]; then
@@ -55,7 +58,3 @@ if [ -n "${GIT_USER}" ]; then
   LEDGER_DATE_FORMAT=%F
   export LEDGER_DATE_FORMAT="${LEDGER_DATE_FORMAT}"
 fi
-
-
-
-
