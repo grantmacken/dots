@@ -3,16 +3,16 @@ function! DoRemote(arg)
 endfunction
 call plug#begin( expand( $DATAPATH . '/plugged'))
 " Themes and Colorscheme {{{
-" Plug 'itchyny/lightline.vim'
+Plug 'itchyny/lightline.vim'
 Plug 'junegunn/seoul256.vim'
-" Plug 'shinchu/lightline-seoul256.vim'
+Plug 'shinchu/lightline-seoul256.vim'
 " }}}
 " Visual {{{
-Plug 'alvan/vim-closetag'    " auto close html tags
-Plug 'Yggdroot/indentLine'    " show indentation lines
-Plug 'google/vim-searchindex'   " add number of found matching search items
-Plug 'gregsexton/MatchTag'
-Plug 'luochen1990/rainbow'
+" Plug 'alvan/vim-closetag'    " auto close html tags
+" Plug 'Yggdroot/indentLine'    " show indentation lines
+" Plug 'google/vim-searchindex'   " add number of found matching search items
+" Plug 'gregsexton/MatchTag'
+" Plug 'luochen1990/rainbow'
 Plug 'junegunn/vim-peekaboo' "https://github.com/junegunn/vim-peekaboo
 Plug 'machakann/vim-highlightedyank' " highligh yank text
 Plug 'tpope/vim-commentary'  , { 'on': ['<Plug>Commentary', '<Plug>CommentaryLine'] }
@@ -23,10 +23,9 @@ Plug 'w0rp/ale'
 Plug 'SirVer/ultisnips'
 Plug 'honza/vim-snippets'                               " actual snippets
 " }}}
-
 " File_And_Project_Management {{{
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'yuki-ycino/fzf-preview.vim'
+" Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+" Plug 'yuki-ycino/fzf-preview.vim'
 Plug 'airblade/vim-gitgutter'
 " Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 " Plug 'junegunn/fzf.vim'
@@ -44,10 +43,10 @@ Plug 'tpope/vim-dotenv' " https://github.com/tpope/vim-dotenv
 " Plug 'tpope/vim-dispatch':
 " Plug 'radenling/vim-dispatch-neovim'
 Plug 'arithran/vim-delete-hidden-buffers'
-Plug 'MattesGroeger/vim-bookmarks'
-Plug 'bogado/file-line'
+"Plug 'MattesGroeger/vim-bookmarks'
+"Plug 'bogado/file-line'
 Plug 'Shougo/neomru.vim'
-Plug 'rbtnn/vim-jumptoline'
+" Plug 'rbtnn/vim-jumptoline'
 " Plug 'ryanoasis/vim-devicons
 " Plug '907th/vim-auto-save'
 " Plug 'tpope/vim-fugitive'                               " git support

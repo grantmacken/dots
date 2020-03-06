@@ -11,7 +11,6 @@ UP_TARG_DIR := $(abspath ../)
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 
-
 assert-is-root = $(if $(shell id -u | grep -oP '^0$$'),\
  $(info OK! root user, so we can change some system files),\
  $(error changing system files so need to sudo) )
@@ -37,7 +36,6 @@ help: export mkHelp:=$(mkHelp)
 help:
 	@echo "$${mkHelp}"
 
-
 .PHONY: neovim
 neovim:
 	@mkdir -p $(XDG_CACHE_HOME)/nvim
@@ -48,13 +46,11 @@ neovim:
 	@cd nvim; stow -v --ignore='site' -t $(XDG_CONFIG_HOME)/nvim .
 	@cd nvim; stow -v -t $(XDG_DATA_HOME)/nvim/site site
 
-
 .PHONY: clean-neovim
 clean-neovim:
 	@echo 'Task: $(notdir $@)'
 	@cd nvim; stow -D -v  --ignore='site' -t "$(XDG_CONFIG_HOME)/nvim" .
 	@cd nvim; stow -D -v -t "$(XDG_DATA_HOME)/nvim/site" site
-
 
 .PHONY: configs
 configs:
@@ -108,9 +104,9 @@ snaps: bin/my-snaps.list
 	@echo 'TASK: install snaps'
 	@echo https://docs.snapcraft.io/getting-started
 	@#snap install google-cloud-sdk
-	@snap install --channel=edge travis 
+	@snap install --channel=edge travis
 	@travis login --github-token $(shell cat ../.github-access-token)
 
 .PHONY: fonts
-fonts: 
+fonts:
 	@cd ~/.local/share/fonts && curl -fLo "Fira Code Medium Nerd Font Complete.otf" https://github.com/ryanoasis/nerd-fonts/blob/master/patched-fonts/FiraCode/Medium/complete/Fira%20Code%20Medium%20Nerd%20Font%20Complete.otf
