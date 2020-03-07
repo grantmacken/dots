@@ -6,6 +6,7 @@ call plug#begin( expand( $DATAPATH . '/plugged'))
 Plug 'itchyny/lightline.vim'
 Plug 'junegunn/seoul256.vim'
 Plug 'shinchu/lightline-seoul256.vim'
+Plug 'mengelbrecht/lightline-bufferline'
 " }}}
 " Visual {{{
 " Plug 'alvan/vim-closetag'    " auto close html tags
@@ -17,6 +18,9 @@ Plug 'junegunn/vim-peekaboo' "https://github.com/junegunn/vim-peekaboo
 Plug 'machakann/vim-highlightedyank' " highligh yank text
 Plug 'tpope/vim-commentary'  , { 'on': ['<Plug>Commentary', '<Plug>CommentaryLine'] }
 " }}}
+" Text Objects {{{
+Plug 'kana/vim-textobj-user'
+" }}}
 " Auto Completion, Language Servers, Snippets {{{
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'w0rp/ale'
@@ -26,7 +30,10 @@ Plug 'honza/vim-snippets'                               " actual snippets
 " File_And_Project_Management {{{
 " Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 " Plug 'yuki-ycino/fzf-preview.vim'
+" GIT
+Plug 'rhysd/git-messenger.vim'
 Plug 'airblade/vim-gitgutter'
+" Plug 'AndrewRadev/switch.vim TODO
 " Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 " Plug 'junegunn/fzf.vim'
 "GF: site/after/plugin/fzf.vim/

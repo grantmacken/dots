@@ -4,6 +4,7 @@ scriptencoding utf-8
 " PATHS {{{
 " XDG Paths {{{
   let $VIMPATH=expand('$HOME/.config/nvim')
+  let $COCPATH=expand('$HOME/.config/coc')
   let $CACHEPATH=expand('$HOME/.cache/nvim')
   let $DATAPATH=expand('$HOME/.local/share/nvim/site')
 "}}}o
@@ -37,8 +38,9 @@ set clipboard+=unnamedplus
 " Sessions and Undo {{{
 " " What not to save in sessions:
 " set sessionoptions-=options  neovim default
-set sessionoptions-=globals
+set sessionoptions+=globals
 set sessionoptions-=help
+set sessionoptions-=folds " Don't persist folds in sessions (FastFold docs)
 " http://vim.wikia.com/wiki/Quick_tips_for_using_tab_pages
 " set sessionoptions=blank,buffers,curdirs,tabpages,winsize
 " if hidden is not set, TextEdit might fail.
@@ -46,6 +48,7 @@ set hidden
 " Some servers have issues with backup files, see #649
 set noswapfile
 set nobackup
+set nowritebackup
 set undofile
 " set undodir=expand($CACHEPATH . '/undo') nvim set by default
 set undolevels=5000
@@ -78,7 +81,8 @@ set expandtab
 set autoindent      " Use same indenting on new lines
 set smartindent     " Smart autoindenting on new lines
 set shiftround      " Round indent to multiple of 'shiftwidth'
-set incsearch ignorecase smartcase hlsearch             " highlight text while searching
+set incsearch ignorecase smartcase hlsearch " highlight text while searching
+set inccommand=nosplit                      " Preview substitutions
 
 " folds
 set foldmethod=marker
@@ -112,20 +116,10 @@ set relativenumber      " Use relative instead of absolute line numbers
 " Bottom Command
 " ----------------
 set noshowmode          " Don't show mode in cmd window
-" Better display for messages
-set cmdheight=2         " Height of the command line
+set cmdheight=2         " Bigger display for messages
 set cmdwinheight=5      " Command-line lines
-
-" Smaller updatetime for CursorHold & CursorHoldI
-set updatetime=300
-
-" set noshowcmd           " Don't show command in status line
-" don't give |ins-completion-menu| message
-set shortmess+=c
-" suppress the annoying 'match x of y', 'The only match' and
-" 'Pattern not found' messages
-"
-set noshowcmd
+set updatetime=300 " Smaller updatetime for CursorHold & CursorHoldI
+set shortmess+=c "suppress the annoying 'match x of y', 'The only match' and Pattern not found' messages
 " set noruler             " Disable default status ruler
 set ruler
 " set rulerformat=%15(%c%V\ %p%%%)
@@ -146,38 +140,74 @@ set sidescrolloff=2     " Keep at least 2 lines left/right
 set signcolumn=yes      " keep signcolumn open
 
 " }}}
-" Completions {{{
-" ================
-"  Popup Menu Styling
+" === Conquerer Of Completions === {{{"
+" https://github.com/neoclide/coc.nvim
+"
+""  Popup Menu Styling
 "  ------------------
-" set shortmess+=c
-" set shortmess=aoOTI     " Shorten messages and don't show intro
-" set shortmess+=c        " https://github.com/roxma/nvim-completion-manager
-" ------------------
 set pumheight=20        " Pop-up menu's line height
 set previewheight=2     " Completion preview height
-
 " Complete Options
 " ----------------
 " :h complet
 "  (default: ".,w,b,u,t")
 "  current buffer, window buffers, unloaded buffers, tags
 " below are async defualt
-set completeopt+=noinsert       " auto select feature like neocomplete
-set completeopt+=menuone
-set completeopt+=noselect
+" set completeopt+=noinsert       " auto select feature like neocomplete
+" set completeopt+=menuone
+" set completeopt+=noselect
 
-set completeopt-=longest
-set completeopt-=menu
-set completeopt-=preview
-" xxx
-" set completeopt+=longest
-" set completeopt+=preview
-"
-" @see nvim/site/after/plugin/coc.vim
+" set completeopt-=longest
+" set completeopt-=menu
+" set completeopt-=preview
+if has_key(g:plugs, 'coc.nvim')
+  function! s:check_back_space() abort
+    let col = col('.') - 1
+    return !col || getline('.')[col - 1]  =~ '\s'
+  endfunction
+
+  " MAP: use <tab> for trigger completion and navigate to next complete item
+  inoremap <silent><expr> <TAB>
+        \ pumvisible() ? "\<C-n>" :
+        \ <SID>check_back_space() ? "\<TAB>" :
+        \ coc#refresh()
+  inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+  " MAP: Use <c-space> to trigger completion.
+  inoremap <silent><expr> <c-space> coc#refresh()
+  " Use enter to accept snippet expansion
+  " inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<CR>"
+  " Use `complete_info` if your (Neo)Vim version supports it.
+  inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
+
+  "Close preview window when completion is done.
+  autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
+
+  " Navigate snippet placeholders using tab
+  let g:coc_snippet_next = '<Tab>'
+  let g:coc_snippet_prev = '<S-Tab>'
+
+  let g:coc_config_home = $VIMPATH
+  let g:coc_data_home = $COCPATH
+  " let gg:coc_user_config= $COCPATH
+
+  let g:coc_global_extensions = [
+              \'coc-yank',
+              \'coc-json',
+              \'coc-css',
+              \'coc-html',
+              \'coc-tsserver',
+              \'coc-yaml',
+              \'coc-snippets',
+              \'coc-ultisnips',
+              \'coc-python',
+              \'coc-xml',
+              \'coc-syntax',
+              \'coc-marketplace',
+              \ 'coc-lists',
+              \]
+
+endif
 " }}}
-" cnoremap w!! execute 'silent! write !SUDO_ASKPASS=`which ssh-askpass` sudo tee % >/dev/null' <bar> edit!
-"
 " === COMANDS === {{{
 "GF: nvim/site/lua/my/qf.lua
 command! -nargs=0 Prove lua require('my.jobs').qfJobs('prove')
@@ -242,9 +272,11 @@ augroup myInit
   autocmd BufNewFile,BufRead *.snippets set filetype=snippets "add new snippets filetpe
   autocmd BufNewFile,BufRead *.t set filetype=prove "  instead of perl
   autocmd BufNewFile,BufRead *.md set filetype=markdown
+
+  autocmd FileType json syntax match Comment +\/\/.\+$+
  "" autocmd BufWinEnter * call StylePreviewWindow()
   "@see nvim/site/autoload/my/asyncomplete.vim
-  autocmd User asyncomplete_setup call my#asyncomplete#setup()
+  " autocmd User asyncomplete_setup call my#asyncomplete#setup()
   " autocmd User ultisnips_setup call my#snippet#setup()
   " ----------------------------------------------------
   " Projections
@@ -273,7 +305,10 @@ augroup END
 "
 " }}}
 " === MAPPINGS === {{{
-" ========
+" Disable
+" -> ex mode <-
+nnoremap Q <Nop>
+" Enable
 " Use spacebar instead of '\' as leader. Require before loading plugins.
 let g:mapleader      = ' '
 let g:maplocalleader = ' '
@@ -281,7 +316,8 @@ let g:maplocalleader = ' '
 " " Release keymappings for plug-in.
 nnoremap <Space>  <Nop>
 xnoremap <Space>  <Nop>
-" Use Alt {1,2 ... } to go to tab by number {{{
+" escape -> Clear search highlighting
+nnoremap <silent><esc> :noh<return><esc> " Use Alt {1,2 ... } to go to tab by number {{{
 " noremap <leader>1 1gt
 noremap <A-1> 1gt
 noremap <A-2> 2gt
@@ -325,10 +361,15 @@ nnoremap <silent> ]q :Qprev<CR>
 nnoremap <silent> <leader>q :Qtoggle<CR>
 nnoremap <F9> :Prove<CR>
 " }}}
-" Plugin Mappings {{{
+" ==> Plugin Mappings <== {{{
 " vim-commentary maps, since it is loaded lazily
 map  gc  <Plug>Commentary
 nmap gcc <Plug>CommentaryLine
+
+
+
+
+
 " }}}
 " Terminal Mappings {{{
 " tnoremap <Esc> <C-\><C-n>
@@ -336,44 +377,6 @@ nmap gcc <Plug>CommentaryLine
 vnoremap <LeftRelease> "*ygv
 " }}}
 " main plugins config
-" === COC === {{{"
-" https://github.com/neoclide/coc.nvim
-" use <tab> for trigger completion and navigate to next complete item
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~ '\s'
-endfunction
-
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-
-" Use enter to accept snippet expansion
-inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<CR>"
-
-"Close preview window when completion is done.
-autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
-
-" Navigate snippet placeholders using tab
-let g:coc_snippet_next = '<Tab>'
-let g:coc_snippet_prev = '<S-Tab>'
-
-let g:coc_global_extensions = [
-            \'coc-yank',
-            \'coc-json',
-            \'coc-css',
-            \'coc-html',
-            \'coc-tsserver',
-            \'coc-yaml',
-            \'coc-snippets',
-            \'coc-ultisnips',
-            \'coc-python',
-            \'coc-xml',
-            \'coc-syntax',
-            \]
-
-" }}}
 " === ALE === {{{"
 let g:ale_fixers = {
             \'*': ['remove_trailing_lines', 'trim_whitespace'],
@@ -403,20 +406,20 @@ let g:dirvish_mode = 1
 let g:dirvish_relative_paths = 0
 let g:dirvish_mode = ':sort r /\/$/'
 
-augroup dirvish_config
-  autocmd!
-  autocmd FileType dirvish call ProjectionistDetect(resolve(expand('%:p')))
-  " Same as FZF
-  " Map `t` to open in new tab.
-  autocmd FileType dirvish
-        \  nnoremap <silent><buffer> t :call dirvish#open('tabedit', 0)<CR>
-        \ |xnoremap <silent><buffer> t :call dirvish#open('tabedit', 0)<CR>
-  " Map `gr` to reload the Dirvish buffer.
-  autocmd FileType dirvish nnoremap <silent><buffer> gr :<C-U>Dirvish %<CR>
-  " Map `gh` to hide dot-prefixed files.
-  " To "toggle" this, just press `R` to reload.
-  autocmd FileType dirvish nnoremap <silent><buffer> gh :silent keeppatterns g@\v/\.[^\/]+/?$@d<cr>
-augroup END
+" augroup dirvish_config
+"   autocmd!
+"   autocmd FileType dirvish call ProjectionistDetect(resolve(expand('%:p')))
+"   " Same as FZF
+"   " Map `t` to open in new tab.
+"   autocmd FileType dirvish
+"         \  nnoremap <silent><buffer> t :call dirvish#open('tabedit', 0)<CR>
+"         \ |xnoremap <silent><buffer> t :call dirvish#open('tabedit', 0)<CR>
+"   " Map `gr` to reload the Dirvish buffer.
+"   autocmd FileType dirvish nnoremap <silent><buffer> gr :<C-U>Dirvish %<CR>
+"   " Map `gh` to hide dot-prefixed files.
+"   " To "toggle" this, just press `R` to reload.
+"   autocmd FileType dirvish nnoremap <silent><buffer> gh :silent keeppatterns g@\v/\.[^\/]+/?$@d<cr>
+" augroup END
 
 " }}}
 " === PROJECTIONIST === {{{"
@@ -509,6 +512,27 @@ hi StartifySpecial ctermfg=240
 
 " }}}
 " === LIGHTLINE === {{{
+autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
+" Lightline + Tabline
+let g:lightline = {
+      \ 'colorscheme': 'seoul256',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ],
+      \             [ 'cocstatus', 'readonly', 'filename', 'modified'] ]
+      \ },
+      \ 'component_function': {
+      \   'cocstatus': 'coc#status'
+      \ },
+      \ }
+let g:lightline#bufferline#show_number = 1
+let g:lightline#bufferline#unnamed = '[No Name]'
+let g:lightline.tabline = {'left': [['buffers']], 'right': [['close']]}
+let g:lightline.component_expand = {'buffers': 'lightline#bufferline#buffers'}
+let g:lightline.component_type = {'buffers': 'tabsel'}
+" Only show buffer filename
+let g:lightline#bufferline#filename_modifier = ':t'
+" Show devicons in bufferline
+let g:lightline#bufferline#enable_devicons = 1
 " function! CocCurrentFunction()
 "     return get(b:, 'coc_current_function', '')
 " endfunction
