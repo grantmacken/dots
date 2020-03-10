@@ -1,0 +1,17 @@
+#!/bin/bash +x
+
+if [ -z "$XDG_CACHE_HOME" ]; then
+  XDG_CACHE_HOME="$HOME/.cache"
+fi
+
+# cd /home/gmack/.cache/nvim/nvim_lsp/sumneko_lua/lua-language-server
+# ls -al .
+# pushd 3rd/luamake/
+# ninja -f ninja/linux.ninja
+# popd
+# 3rd/luamake/luamake rebuild
+
+LuaLanguageServer=/home/gmack/.cache/nvim/nvim_lsp/sumneko_lua/lua-language-server
+${LuaLanguageServer}/bin/Linux/lua-language-server -E ${LuaLanguageServer}/main.lua 
+
+

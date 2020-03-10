@@ -5,6 +5,27 @@ local util = require('my.util')
 local getProjectionValue = require('my.project').getProjectionValue
 local api = vim.api
 
+function _M.open()
+  if _M.buf_handle == nil or not api.nvim_buf_is_valid(_M.buf_handle) then
+    api.nvim_command('botright split new') 
+    api.nvim_win_set_height(0, 20)
+    _M.win_handle = api.nvim_tabpage_get_win(0)
+   _M.buf_handle = api.nvim_win_get_buf(0)
+   _M.jobID = api.nvim_call_function("termopen", {"$SHELL"})
+    api.nvim_command('wincmd p')
+  else
+    api.nvim_command('botright split new')
+    api.nvim_command('resize 20')
+   _M.win_handle = api.nvim_tabpage_get_win(0)
+    api.nvim_set_current_buf(_M.buf_handle)
+    api.nvim_command('wincmd p')
+  end
+end
+
+function _M.close()
+  api.nvim_win_close(_M.win_handle, true)
+end
+
 function _M.onOpen()
   -- log(' - on term open')
   -- log('   ------------')

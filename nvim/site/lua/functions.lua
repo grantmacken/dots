@@ -19,7 +19,7 @@ which triggers when item completed
 
 --]]
 --
-xPathFuncs = {
+local PathFuncs = {
   "QName",
   "abs",
   "adjust-date-to-timezone",

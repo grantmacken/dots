@@ -21,3 +21,4 @@ weechat
 wget
 yarn
 youtube-dl
+llvm-clang
