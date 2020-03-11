@@ -1,0 +1,6 @@
+#!/bin/bash +x
+cd /home/gmack/projects/erlang-ls/erlang_ls/_build/default
+./bin/erlang_ls --transport stdio
+
+
+

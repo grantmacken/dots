@@ -14,7 +14,6 @@ fi
 if [ -z "$XDG_CACHE_HOME" ]; then
   export XDG_CACHE_HOME="$HOME/.cache"
 fi
-
 if [ -z "$XDG_DATA_HOME" ]; then
   export XDG_DATA_HOME="$HOME/.local/share"
 fi
@@ -36,6 +35,14 @@ if [[ ! "$PATH" == *${HOME_BIN}* ]]; then
   export PATH="$PATH:${HOME_BIN}"
 fi
 
+# /home/gmack/.cache/rebar3/bin/rebar3
+# make sure we have a home bin on path
+REBAR_BIN=$HOME/.cache/rebar3/bin
+if [[ ! "$PATH" == *${REBAR_BIN}* ]]; then
+  export PATH="$PATH:${REBAR_BIN}"
+fi
+
+
 # git controlled project development
 
 GIT_USER="$( git config --get user.name )"
@@ -44,8 +51,6 @@ if [ -n "${GIT_USER}" ]; then
   export GIT_USER="${GIT_USER}"
   PROJECTS="$HOME/projects/${GIT_USER}"
   export PROJECTS="${PROJECTS}"
-
-
 
   LEDGER_FILE=${PROJECTS}/accounts/main.ledger
   export LEDGER_FILE="${LEDGER_FILE}"

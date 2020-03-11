@@ -36,6 +36,19 @@ help: export mkHelp:=$(mkHelp)
 help:
 	@echo "$${mkHelp}"
 
+.PHONY: neovim-update
+neovim-update:
+	@cd ../../neovim/neovim && git pull
+	@cd ../../neovim/neovim && $(MAKE) CMAKE_BUILD_TYPE=Release CMAKE_INSTALL_PREFIX=/usr/local/nvim
+	@cd ../../neovim/neovim && sudo $(MAKE) install
+	@cd /usr/local/nvim/bin; stow -v -t $(XDG_BIN) .
+
+.PHONY: plug
+plug:
+	$(if $(wildcard  $(XDG_DATA_HOME)/nvim/site/autoload/plug.vim),,curl -fLo $(XDG_DATA_HOME)/nvim/site/autoload/plug.vim  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim)
+	@nvim +'PlugClean --sync' +qa
+
+
 .PHONY: neovim
 neovim:
 	@mkdir -p $(XDG_CACHE_HOME)/nvim
@@ -87,6 +100,15 @@ solus: bin/my-solus-packages.list
 	@sudo bin/install-solus-packages.sh $<
 	@#setxkbmap -option caps:swapescape
 	@#git remote add origin git@github.com:grantmacken/dots.git
+
+.PHONY: solus-build-essentials
+solus-build-essentials:
+	@echo 'TASK: install system.devel component for compiling'
+	@#sudo eopkg install -c system.devel
+	@sudo eopkg install ninja libtool unzip
+	@#setxkbmap -option caps:swapescape
+	@#git remote add origin git@github.com:grantmacken/dots.git
+
 
 .PHONY: init-ssh
 init-ssh:

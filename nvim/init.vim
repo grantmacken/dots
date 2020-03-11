@@ -7,7 +7,7 @@ scriptencoding utf-8
   let $COCPATH=expand('$HOME/.config/coc')
   let $CACHEPATH=expand('$HOME/.cache/nvim')
   let $DATAPATH=expand('$HOME/.local/share/nvim/site')
-"}}}o
+"}}}
 let g:loaded_python_provider = 0
 let g:python_host_prog  = '/usr/bin/python3'
 let $PROJECTS_PATH=expand( $HOME . '/projects/grantmacken' )
@@ -140,7 +140,8 @@ set sidescrolloff=2     " Keep at least 2 lines left/right
 set signcolumn=yes      " keep signcolumn open
 
 " }}}
-" === Conquerer Of Completions === {{{"
+" ===  Completions === {{{"
+" https://neovim.io/doc/user/lsp.html
 " https://github.com/neoclide/coc.nvim
 "
 ""  Popup Menu Styling
@@ -149,7 +150,7 @@ set pumheight=20        " Pop-up menu's line height
 set previewheight=2     " Completion preview height
 " Complete Options
 " ----------------
-" :h complet
+" :h complete
 "  (default: ".,w,b,u,t")
 "  current buffer, window buffers, unloaded buffers, tags
 " below are async defualt
@@ -160,60 +161,122 @@ set previewheight=2     " Completion preview height
 " set completeopt-=longest
 " set completeopt-=menu
 " set completeopt-=preview
-if has_key(g:plugs, 'coc.nvim')
-  function! s:check_back_space() abort
-    let col = col('.') - 1
-    return !col || getline('.')[col - 1]  =~ '\s'
-  endfunction
+" function! s:check_back_space() abort
+"   let col = col('.') - 1
+"   return !col || getline('.')[col - 1]  =~ '\s'
+" endfunction
+  " Use LSP omni-completion in Python files.
 
-  " MAP: use <tab> for trigger completion and navigate to next complete item
-  inoremap <silent><expr> <TAB>
-        \ pumvisible() ? "\<C-n>" :
-        \ <SID>check_back_space() ? "\<TAB>" :
-        \ coc#refresh()
-  inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-  " MAP: Use <c-space> to trigger completion.
-  inoremap <silent><expr> <c-space> coc#refresh()
-  " Use enter to accept snippet expansion
-  " inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<CR>"
-  " Use `complete_info` if your (Neo)Vim version supports it.
-  inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
 
-  "Close preview window when completion is done.
-  autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
+" MAP: use <tab> for trigger completion and navigate to next complete item
+" inoremap <silent><expr> <TAB>
+"       \ pumvisible() ? "\<C-n>" :
+"       \ <SID>check_back_space() ? "\<TAB>" :
+"       \ coc#refresh()
+" inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+" " MAP: Use <c-space> to trigger completion.
+" inoremap <silent><expr> <c-space> coc#refresh()
+" Use enter to accept snippet expansion
+" inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<CR>"
+" Use `complete_info` if your (Neo)Vim version supports it.
+inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
 
-  " Navigate snippet placeholders using tab
-  let g:coc_snippet_next = '<Tab>'
-  let g:coc_snippet_prev = '<S-Tab>'
+"Close preview window when completion is done.
+autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
 
-  let g:coc_config_home = $VIMPATH
-  let g:coc_data_home = $COCPATH
-  " let gg:coc_user_config= $COCPATH
+" Navigate snippet placeholders using tab
+" let g:coc_snippet_next = '<Tab>'
+" let g:coc_snippet_prev = '<S-Tab>'
 
-  let g:coc_global_extensions = [
-              \'coc-yank',
-              \'coc-json',
-              \'coc-css',
-              \'coc-html',
-              \'coc-tsserver',
-              \'coc-yaml',
-              \'coc-snippets',
-              \'coc-ultisnips',
-              \'coc-python',
-              \'coc-xml',
-              \'coc-syntax',
-              \'coc-marketplace',
-              \ 'coc-lists',
-              \]
+" let g:coc_config_home = $VIMPATH
+" let g:coc_data_home = $COCPATH
+" " let gg:coc_user_config= $COCPATH
 
-endif
+" let g:coc_global_extensions = [
+"             \'coc-yank',
+"             \'coc-json',
+"             \'coc-css',
+"             \'coc-html',
+"             \'coc-tsserver',
+"             \'coc-yaml',
+"             \'coc-snippets',
+"             \'coc-ultisnips',
+"             \'coc-python',
+"             \'coc-xml',
+"             \'coc-syntax',
+"             \'coc-marketplace',
+"             \ 'coc-lists',
+"             \]
+
+" }}}
+" === LSP == {{{
+" https://neovim.io/doc/user/lsp.htm
+" lua require('nvim_lsp').sumneko_lua.setup{}
+" also see  MAPPINGS
+lua require('nvim_lsp').bashls.setup{}
+lua require('nvim_lsp').cssls.setup{}
+lua require('nvim_lsp').dockerls.setup{}
+lua require('nvim_lsp').html.setup{}
+lua require('nvim_lsp').jsonls.setup{}
+lua require('nvim_lsp').tsserver.setup{}
+lua require('nvim_lsp').vimls.setup{}
+lua require('nvim_lsp').erlang_ls.setup{}
+
+" lua <<EOF
+" require'nvim_lsp'.sumneko_lua.setup{
+"     on_attach=require('diagnostic').on_attach;
+"     log_level = vim.lsp.protocol.MessageType.Error;
+"     settings = {
+"         Lua = {
+"             completion = {
+"                 keywordSnippet = "Disable";
+"             };
+"             runtime = {
+"                 version = "LuaJIT";
+"             };
+"         };
+"     };
+" }
+" EOF
+
+
+lua require('nvim_lsp').vimls.setup{on_attach=require('diagnostic').on_attach}
+" lua require('nvim_lsp').erlang_ls.setup{on_attach=require('diagnostic').on_attach}
+" autocmd CursorHold * lua vim.lsp.util.show_line_diagnostics()
+" autocmd CursorMoved * lua vim.lsp.util.show_line_diagnostics()
+" lua require('nvim_lsp').efm.setup{}
+" define 
+"Lsp completion do using omnifunc
+"h omnifunc
+"h complete-functions
+"/home/gmack/.cache/nvim/nvim_lsp/sumneko_lua/lua-language-server/bin/Linux/lua-language-server
+"cmd = { "/home/gmack/.cache/nvim/nvim_lsp/sumneko_lua/lua-language-server/bin/Linux/lua-language-server", "-E", "/home/gmack/.cache/nvim/nvim_lsp/sumneko_lua/lua-language-server/main.lua" },
+autocmd Filetype css setlocal omnifunc=v:lua.vim.lsp.omnifunc
+autocmd Filetype dockerfile setlocal omnifunc=v:lua.vim.lsp.omnifunc
+autocmd Filetype html setlocal omnifunc=v:lua.vim.lsp.omnifunc
+autocmd Filetype json setlocal omnifunc=v:lua.vim.lsp.omnifunc
+autocmd Filetype lua  setlocal omnifunc=v:lua.vim.lsp.omnifunc
+autocmd Filetype sh   setlocal omnifunc=v:lua.vim.lsp.omnifunc
+autocmd Filetype vim  setlocal omnifunc=v:lua.vim.lsp.omnifunc
+autocmd Filetype yaml setlocal omnifunc=v:lua.vim.lsp.omnifunc
+autocmd Filetype erlang setlocal omnifunc=v:lua.vim.lsp.omnifunc
+" autocmd BufReadPost * lua require('langsrvr.erlang').check_start_erlang_lsp()
+
 " }}}
 " === COMANDS === {{{
+" Add `:Format` command to format current buffer.
+command! -nargs=0 Format :call CocAction('format')
 "GF: nvim/site/lua/my/qf.lua
 command! -nargs=0 Prove lua require('my.jobs').qfJobs('prove')
 command! -nargs=0 Qnext lua require('my.qf').rotateNext()
 command! -nargs=0 Qprev lua require('my.qf').rotatePrev()
 command! -nargs=0 Qtoggle lua require('my.qf').toggle()
+
+command! -nargs=0 LspBufClients lua print(vim.inspect(vim.lsp.buf_get_clients()))
+command! -nargs=0 LspIsOmni verbose set omnifunc?
+command! -nargs=0 LspAvaiableServers lua print(vim.inspect( require('nvim_lsp').available_servers() ))
+command! -nargs=0 LspInstallableServers lua print(vim.inspect( require('nvim_lsp').installable_servers()))
+" command! -nargs=0 LspReloadBuf lua vim.lsp.stop_all_clients()
 " }}}
 " === AUTOCOMANDS === {{{
 
@@ -224,6 +287,8 @@ command! -nargs=0 Qtoggle lua require('my.qf').toggle()
 "     setlocal nonumber
 "   endif
 " endfunction
+"
+"
 
 augroup myQuickfix
   autocmd!
@@ -255,9 +320,34 @@ augroup myTerm
   " autocmd TermResponse * lua require('my.term').onResponse()
 augroup END
 
+" https://github.com/haorenW1025/dotfiles/blob/2198664a648a7cdd74a430aafb63b346e36f5332/nvim/config/status-line.vim
+function! InactiveLine()
+    return luaeval("require('my.status-line').inActiveLine()")
+endfunction
+
+function! ActiveLine()
+    return luaeval("require('my.status-line').activeLine()")
+endfunction
+
+" Change statusline automatically
+augroup StatusLine
+  autocmd!
+  autocmd WinEnter,BufEnter * setlocal statusline=%!ActiveLine()
+  autocmd WinLeave,BufLeave * setlocal statusline=%!InactiveLine()
+augroup END
+
+
+function! TabLine()
+    return luaeval("require('my.status-line').TabLine()")
+endfunction
+
+set tabline=%!TabLine()
+
 augroup myInit
   autocmd!
   autocmd VimEnter * lua require('my.signs').define()
+  " autocmd WinEnter,BufEnter * setlocal lua require('my.status_line').ActiveLine()
+  " autocmd WinLeave,BufLeave * setlocal lua require('my.status_line').InActiveLine()
   " autocmd CursorHold  term://* lua require('my.util').echom(' - Buffer Cursor Hold  ')
   autocmd BufWritePost $MYVIMRC nested source $MYVIMR
   " autocmd BufEnter * :syntax sync fromstart
@@ -273,7 +363,9 @@ augroup myInit
   autocmd BufNewFile,BufRead *.t set filetype=prove "  instead of perl
   autocmd BufNewFile,BufRead *.md set filetype=markdown
 
-  autocmd FileType json syntax match Comment +\/\/.\+$+
+
+  " todo do this with projectionist
+
  "" autocmd BufWinEnter * call StylePreviewWindow()
   "@see nvim/site/autoload/my/asyncomplete.vim
   " autocmd User asyncomplete_setup call my#asyncomplete#setup()
@@ -313,11 +405,28 @@ nnoremap Q <Nop>
 let g:mapleader      = ' '
 let g:maplocalleader = ' '
 " let g:maplocalleader=','
+" Formatting selected code.
+" xmap <leader>f  <Plug>(coc-format-selected)
+" nmap <leader>f  <Plug>(coc-format-selected)
 " " Release keymappings for plug-in.
 nnoremap <Space>  <Nop>
 xnoremap <Space>  <Nop>
 " escape -> Clear search highlighting
-nnoremap <silent><esc> :noh<return><esc> " Use Alt {1,2 ... } to go to tab by number {{{
+nnoremap <silent><esc> :noh<return><esc>
+" let g:fzf_layout = { 'down': '~40%' }
+
+nnoremap <silent> <F2>  <cmd>FZF<CR>
+" nnoremap <silent> <F6>  <cmd>botright split | terminal <CR>
+nnoremap <silent> gd    <cmd>lua vim.lsp.buf.declaration()<CR>
+nnoremap <silent> <c-]> <cmd>lua vim.lsp.buf.definition()<CR>
+nnoremap <silent> K     <cmd>lua vim.lsp.buf.hover()<CR>
+nnoremap <silent> gD    <cmd>lua vim.lsp.buf.implementation()<CR>
+nnoremap <silent> <c-k> <cmd>lua vim.lsp.buf.signature_help()<CR>
+nnoremap <silent> 1gD   <cmd>lua vim.lsp.buf.type_definition()<CR>
+nnoremap <silent> gr    <cmd>lua vim.lsp.buf.references()<CR>
+" Manage extensions.
+" nnoremap <silent> <space>e  :<C-u>CocList extensions<cr>
+" Use Alt {1,2 ... } to go to tab by number {{{
 " noremap <leader>1 1gt
 noremap <A-1> 1gt
 noremap <A-2> 2gt
@@ -372,29 +481,68 @@ nmap gcc <Plug>CommentaryLine
 
 " }}}
 " Terminal Mappings {{{
-" tnoremap <Esc> <C-\><C-n>
+" Terminal Function
+let g:term_buf = 0
+let g:term_win = 0
+function! TermToggle(height)
+    if win_gotoid(g:term_win)
+        hide
+    else
+        botright new
+        exec "resize " . a:height
+        try
+            exec "buffer " . g:term_buf
+        catch
+            call termopen($SHELL, {"detach": 0})
+            let g:term_buf = bufnr("")
+            set nonumber
+            set norelativenumber
+            set signcolumn=no
+        endtry
+        startinsert!
+        let g:term_win = win_getid()
+    endif
+endfunction
+
+" Toggle terminal on/off (neovim)
+nnoremap <A-t> :call TermToggle(12)<CR>
+inoremap <A-t> <Esc>:call TermToggle(12)<CR>
+tnoremap <A-t> <C-\><C-n>:call TermToggle(12)<CR>
+
+" Terminal go back to normal mode
+tnoremap <Esc> <C-\><C-n>
+tnoremap :q! <C-\><C-n>:q!<CR>
+
 " }}}
 vnoremap <LeftRelease> "*ygv
 " }}}
 " main plugins config
-" === ALE === {{{"
-let g:ale_fixers = {
-            \'*': ['remove_trailing_lines', 'trim_whitespace'],
-            \'javascript': ['prettier'],
-            \'css' : ['prettier'],
-            \'html' : ['prettier'],
-            \'markdown' : ['prettier'],
-            \'yaml': ['prettier'],
-            \'json': ['prettier'],
-            \}
-let g:ale_fix_on_save = 1
-let g:ale_linters_explicit = 1
-let g:ale_javascript_prettier_options = '--single-quote --trailing-comma es5'
-let g:ale_lint_on_text_changed = 'never'
-let g:ale_sign_warning = '⚠'
-let g:ale_sign_error = '✘'
-let g:ale_sign_info = ''
+" === FZF === {{{
+" This is the default extra key bindings
+" An action can be a reference to a function that processes selected lines
+function! s:build_quickfix_list(lines)
+  call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
+  copen
+  cc
+endfunction
+
+let g:fzf_action = {
+  \ 'ctrl-q': function('s:build_quickfix_list'),
+  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-o': 'split',
+  \ 'ctrl-a': 'vsplit' }
 "
+" Default fzf layout
+" - down / up / left / right
+" let g:fzf_layout = { 'down': '~40%' }
+
+" " use nvim windows
+" let g:fzf_layout = { 'window': 'enew' }
+" let g:fzf_layout = { 'window': '-tabnew' }
+" let g:fzf_layout = { 'window': '10new' }
+let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
+let g:fzf_history_dir = '~/.local/share/fzf-history'
+
 " }}}
 " === DIRVISH === {{{"
 "@see https://github.com/justinmk/vim-dirvish
@@ -406,20 +554,20 @@ let g:dirvish_mode = 1
 let g:dirvish_relative_paths = 0
 let g:dirvish_mode = ':sort r /\/$/'
 
-" augroup dirvish_config
-"   autocmd!
-"   autocmd FileType dirvish call ProjectionistDetect(resolve(expand('%:p')))
-"   " Same as FZF
-"   " Map `t` to open in new tab.
-"   autocmd FileType dirvish
-"         \  nnoremap <silent><buffer> t :call dirvish#open('tabedit', 0)<CR>
-"         \ |xnoremap <silent><buffer> t :call dirvish#open('tabedit', 0)<CR>
-"   " Map `gr` to reload the Dirvish buffer.
-"   autocmd FileType dirvish nnoremap <silent><buffer> gr :<C-U>Dirvish %<CR>
-"   " Map `gh` to hide dot-prefixed files.
-"   " To "toggle" this, just press `R` to reload.
-"   autocmd FileType dirvish nnoremap <silent><buffer> gh :silent keeppatterns g@\v/\.[^\/]+/?$@d<cr>
-" augroup END
+augroup dirvish_config
+  autocmd!
+  " autocmd FileType dirvish call ProjectionistDetect(resolve(expand('%:p')))
+  " Same as FZF
+  " Map `t` to open in new tab.
+  autocmd FileType dirvish
+        \ nnoremap <silent><buffer> t <cmd>call dirvish#open('tabedit', 0)<CR>
+        \ |xnoremap <silent><buffer> t <cmd>call dirvish#open('tabedit', 0)<CR>
+  " Map `gr` to reload the Dirvish buffer.
+  autocmd FileType dirvish nnoremap <silent><buffer> gr <cmd><C-U>Dirvish %<CR>
+  " Map `gh` to hide dot-prefixed files.
+  " To "toggle" this, just press `R` to reload.
+  autocmd FileType dirvish nnoremap <silent><buffer> gh :silent keeppatterns g@\v/\.[^\/]+/?$@d<cr>
+augroup END
 
 " }}}
 " === PROJECTIONIST === {{{"
@@ -512,16 +660,13 @@ hi StartifySpecial ctermfg=240
 
 " }}}
 " === LIGHTLINE === {{{
-autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
+" autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
 " Lightline + Tabline
 let g:lightline = {
       \ 'colorscheme': 'seoul256',
       \ 'active': {
       \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'cocstatus', 'readonly', 'filename', 'modified'] ]
-      \ },
-      \ 'component_function': {
-      \   'cocstatus': 'coc#status'
+      \             [ 'readonly', 'filename', 'modified'] ]
       \ },
       \ }
 let g:lightline#bufferline#show_number = 1
@@ -548,4 +693,41 @@ let g:lightline#bufferline#enable_devicons = 1
 "       \   'currentfunction': 'CocCurrentFunction'
 "       \ },
 "       \ }
+"
+"}}}
+" === ALE === {{{"
+" let g:ale_fixers = {
+"             \'*': ['remove_trailing_lines', 'trim_whitespace'],
+"             \'javascript': ['prettier'],
+"             \'css' : ['prettier'],
+"             \'html' : ['prettier'],
+"             \'markdown' : ['prettier'],
+"             \'yaml': ['prettier'],
+"             \'json': ['prettier'],
+"             \}
+" let g:ale_fix_on_save = 1
+" let g:ale_linters_explicit = 1
+" let g:ale_javascript_prettier_options = '--single-quote --trailing-comma es5'
+" let g:ale_lint_on_text_changed = 'never'
+" let g:ale_sign_warning = '⚠'
+" let g:ale_sign_error = '✘'
+" let g:ale_sign_info = ''
+"
 " }}}
+" === FIREVIM === {{{
+let g:firenvim_config = { 
+    \ 'globalSettings': {
+        \ 'alt': 'all',
+        \ "server": "persistent"
+    \  },
+    \ 'localSettings': {
+        \ '.*': {
+            \ 'cmdline': 'neovim',
+            \ 'priority': 0,
+            \ 'selector': 'textarea',
+            \ 'takeover': 'always',
+        \ },
+    \ }
+\ }
+" }}}
+

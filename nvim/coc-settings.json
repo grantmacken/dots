@@ -5,19 +5,25 @@
   "suggest.timeout": 5000,
   "suggest.noselect": false,
   "suggest.enablePreview": true,
-"suggest.minTriggerInputLength": 3,
+  "suggest.minTriggerInputLength": 3,
   "suggest.removeDuplicateItems": true,
   "suggest.acceptSuggestionOnCommitCharacter": true,
   "suggest.maxPreviewWidth": 120,
-"suggest.floatEnable": true,
+  "suggest.floatEnable": true,
   "suggest.snippetIndicator": "►",
   "suggest.maxCompleteItemCount": 20,
-"suggest.enablePreselect": true,
+  "suggest.enablePreselect": true,
+  "coc.source.file.enable": true,
+  "coc.source.buffer.enable": true,
+  "coc.source.syntax.enable": true,
+  "coc.source.ultisnips.enable": true,
   "coc.preferences.rootPatterns": [".git", ".projections.json"],
+  "diagnostic.enable": true,
+  "diagnostic.virtualText": true,
   // Completion sources
   //https://github.com/neoclide/coc.nvim/wiki/Completion-with-sources#completion-sources
-"coc.source.file.ignoreHidden": true,
-"coc.source.file.ignorePatterns": [],
+  "coc.source.file.ignoreHidden": true,
+  "coc.source.file.ignorePatterns": [],
   // Run prettier (and others)
   "coc.preferences.formatOnSaveFiletypes": [
     "json",
@@ -25,5 +31,9 @@
     "markdown",
     "javascript",
     "typescript"
-  ]
+  ],
+  "docker.enable":true,
+  "xml.java.home": "/usr/lib64/openjdk-8/bin/java",
+  "xml.codeLens.enabled": true,
+  "xml.fileAssociations":[{"systemId": "XML","pattern": "**/*.xml"}]
 }
