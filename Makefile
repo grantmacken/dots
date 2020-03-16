@@ -43,11 +43,33 @@ neovim-update:
 	@cd ../../neovim/neovim && sudo $(MAKE) install
 	@cd /usr/local/nvim/bin; stow -v -t $(XDG_BIN) .
 
+.PHONY: nvimpager-update
+nvimpager-update:
+	@cd ../../nvimpager && git pull
+	@cd ../../nvimpager && sudo $(MAKE)
+	@cd /usr/local/bin; stow -v -t $(XDG_BIN) .
+
+.PHONY: neovim-remote
+neovim-remote:
+	@#pip3 install --user neovim-remote
+	@pip3 show neovim-remote
+	@pip3 install --user --upgrade --no-python-version-warning neovim-remote
+	@#cd /usr/local/bin; stow -v -t $(XDG_BIN) .
+	@# force git to use $VISUAL
+	@# see aliasesAndExports
+	@git config --local --unset  core.editor
+	@git config --global --unset  core.editor
+
+.PHONY: gh-update
+gh-update:
+	@cd ../../cli && git pull
+	@cd ../../cli && $(MAKE)
+	@cd  ../../cli/bin; stow -v -t $(XDG_BIN) .
+
 .PHONY: plug
 plug:
 	$(if $(wildcard  $(XDG_DATA_HOME)/nvim/site/autoload/plug.vim),,curl -fLo $(XDG_DATA_HOME)/nvim/site/autoload/plug.vim  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim)
 	@nvim +'PlugClean --sync' +qa
-
 
 .PHONY: neovim
 neovim:

@@ -1,4 +1,5 @@
 local _M = {}
+_M.version = 'v0.0.1'
 
 local util = require('my.util')
 local log = require('my.log').log
@@ -9,6 +10,20 @@ local api = vim.api
 -- :h api
 -- :h lua
 --]]
+function _M.detect()
+  local value, err = pcall(api.nvim_get_var, 'myProject')
+  if not value then
+
+    api.nvim_set_var('myPoject', 0)
+    -- log('[ERR] ' .. err )
+    return
+  end
+  -- util.echom( ' -  searching for projections')
+  -- log( ' -  searching for projections'  )
+  return
+end
+
+
 local function getProjectionValue( projection )
   -- log( ' - get projection value: ' .. projection )
   local arr = {}
@@ -31,17 +46,7 @@ end
 
 _M.getProjectionValue = getProjectionValue
 
-function _M.detect()
-  local value, err = pcall(api.nvim_get_var, 'my_project_init')
-  if not value then
-    api.nvim_set_var('my_project_init', 0)
-    -- log('[ERR] ' .. err )
-    return
-  end
-  -- util.echom( ' -  searching for projections')
-  -- log( ' -  searching for projections'  )
-  return
-end
+
 
 
 --[[

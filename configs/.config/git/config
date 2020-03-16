@@ -5,13 +5,16 @@
 	default = current
 	followTags = true
 [core]
-	editor = nvim
-	pager = less -x1,5
-[diff]
-	tool = kitty
-	guitool = kitty.gui
-[difftool]
-	prompt = false
-	trustExitCode = true
+	pager = nvimpager
+  [diff]
+    tool = nvr
+[difftool "nvr"]
+    cmd = nvr -s -d $LOCAL $REMOTE
+[merge]
+    tool = nvr
+[mergetool "nvr"]
+    cmd = nvr -s -d $LOCAL $BASE $REMOTE $MERGED -c 'wincmd J | wincmd ='
 [tag]
 	sort = version:refname
+[color]
+	pager = no

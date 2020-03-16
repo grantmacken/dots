@@ -1,0 +1,11 @@
+{
+  "*": {
+    "framework": "dots"
+  },
+  "README.md": {
+    "type": "note"
+  },
+  "notes/todo.md": {
+    "type": "note"
+  }
+}

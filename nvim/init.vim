@@ -1,10 +1,11 @@
 scriptencoding utf-8
 " disable
 " nvim -u NORC
-" PATHS {{{
+" VARS PATHS {{{
+let $GIT_EDITOR = 'nvr -cc split --remote-wait'
 " XDG Paths {{{
   let $VIMPATH=expand('$HOME/.config/nvim')
-  let $COCPATH=expand('$HOME/.config/coc')
+  " let $COCPATH=expand('$HOME/.config/coc')
   let $CACHEPATH=expand('$HOME/.cache/nvim')
   let $DATAPATH=expand('$HOME/.local/share/nvim/site')
 "}}}
@@ -104,7 +105,6 @@ set winwidth=30         " Minimum width for current window
 set winheight=1         " Minimum height for current window
 set splitbelow
 set splitright
-
 set helpheight=12       " Minimum help window height
 
 " panes: gutter, tabline, commandline , help
@@ -117,7 +117,7 @@ set relativenumber      " Use relative instead of absolute line numbers
 " ----------------
 set noshowmode          " Don't show mode in cmd window
 set cmdheight=2         " Bigger display for messages
-set cmdwinheight=5      " Command-line lines
+set cmdwinheight=2      " Command-line lines
 set updatetime=300 " Smaller updatetime for CursorHold & CursorHoldI
 set shortmess+=c "suppress the annoying 'match x of y', 'The only match' and Pattern not found' messages
 " set noruler             " Disable default status ruler
@@ -143,11 +143,14 @@ set signcolumn=yes      " keep signcolumn open
 " ===  Completions === {{{"
 " https://neovim.io/doc/user/lsp.html
 " https://github.com/neoclide/coc.nvim
-"
+" https://github.com/haorenW1025/completion-nvim
 ""  Popup Menu Styling
 "  ------------------
 set pumheight=20        " Pop-up menu's line height
 set previewheight=2     " Completion preview height
+set pumwidth=30
+set pumblend=10
+
 " Complete Options
 " ----------------
 " :h complete
@@ -166,7 +169,15 @@ set previewheight=2     " Completion preview height
 "   return !col || getline('.')[col - 1]  =~ '\s'
 " endfunction
   " Use LSP omni-completion in Python files.
+" Use <Tab> and <S-Tab> to navigate through popup menu
+inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
 
+" Auto close popup menu when finish completion
+autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
+
+" Set completeopt to have a better completion experience
+set completeopt=menuone,noinsert,noselect
 
 " MAP: use <tab> for trigger completion and navigate to next complete item
 " inoremap <silent><expr> <TAB>
@@ -179,10 +190,11 @@ set previewheight=2     " Completion preview height
 " Use enter to accept snippet expansion
 " inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<CR>"
 " Use `complete_info` if your (Neo)Vim version supports it.
-inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
+" inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
 
 "Close preview window when completion is done.
 autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
+
 
 " Navigate snippet placeholders using tab
 " let g:coc_snippet_next = '<Tab>'
@@ -211,7 +223,7 @@ autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
 " }}}
 " === LSP == {{{
 " https://neovim.io/doc/user/lsp.htm
-" lua require('nvim_lsp').sumneko_lua.setup{}
+lua require('nvim_lsp').sumneko_lua.setup{}
 " also see  MAPPINGS
 lua require('nvim_lsp').bashls.setup{}
 lua require('nvim_lsp').cssls.setup{}
@@ -222,22 +234,22 @@ lua require('nvim_lsp').tsserver.setup{}
 lua require('nvim_lsp').vimls.setup{}
 lua require('nvim_lsp').erlang_ls.setup{}
 
-" lua <<EOF
-" require'nvim_lsp'.sumneko_lua.setup{
-"     on_attach=require('diagnostic').on_attach;
-"     log_level = vim.lsp.protocol.MessageType.Error;
-"     settings = {
-"         Lua = {
-"             completion = {
-"                 keywordSnippet = "Disable";
-"             };
-"             runtime = {
-"                 version = "LuaJIT";
-"             };
-"         };
-"     };
-" }
-" EOF
+lua <<EOF
+require'nvim_lsp'.sumneko_lua.setup{
+    on_attach=require('diagnostic').on_attach;
+    log_level = vim.lsp.protocol.MessageType.Error;
+    settings = {
+        Lua = {
+            completion = {
+                keywordSnippet = "Disable";
+            };
+            runtime = {
+                version = "LuaJIT";
+            };
+        };
+    };
+}
+EOF
 
 
 lua require('nvim_lsp').vimls.setup{on_attach=require('diagnostic').on_attach}
@@ -260,23 +272,43 @@ autocmd Filetype sh   setlocal omnifunc=v:lua.vim.lsp.omnifunc
 autocmd Filetype vim  setlocal omnifunc=v:lua.vim.lsp.omnifunc
 autocmd Filetype yaml setlocal omnifunc=v:lua.vim.lsp.omnifunc
 autocmd Filetype erlang setlocal omnifunc=v:lua.vim.lsp.omnifunc
+
+
+
 " autocmd BufReadPost * lua require('langsrvr.erlang').check_start_erlang_lsp()
 
 " }}}
+" === FUNCTIONS === {{{
+com! -nargs=* S exe "let @/='\\V".escape(<q-args>,' \/')."'<bar>norm! n"
+" }}}
 " === COMANDS === {{{
-" Add `:Format` command to format current buffer.
-command! -nargs=0 Format :call CocAction('format')
-"GF: nvim/site/lua/my/qf.lua
-command! -nargs=0 Prove lua require('my.jobs').qfJobs('prove')
-command! -nargs=0 Qnext lua require('my.qf').rotateNext()
-command! -nargs=0 Qprev lua require('my.qf').rotatePrev()
-command! -nargs=0 Qtoggle lua require('my.qf').toggle()
+hi def link WhidHeader      Number
+hi def link WhidSubHeader   Identifier
 
-command! -nargs=0 LspBufClients lua print(vim.inspect(vim.lsp.buf_get_clients()))
-command! -nargs=0 LspIsOmni verbose set omnifunc?
-command! -nargs=0 LspAvaiableServers lua print(vim.inspect( require('nvim_lsp').available_servers() ))
-command! -nargs=0 LspInstallableServers lua print(vim.inspect( require('nvim_lsp').installable_servers()))
-" command! -nargs=0 LspReloadBuf lua vim.lsp.stop_all_clients()
+
+
+
+command! Whid lua require('my.whid').whid()
+
+command! DisconnectClients
+    \  if exists('b:nvr')
+    \|   for client in b:nvr
+    \|     silent! call rpcnotify(client, 'Exit', 1)
+    \|   endfor
+    \| endif
+
+" Add `:Format` command to format current buffer.
+" command! -nargs=0 Format :call CocAction('format')
+"GF: nvim/site/lua/my/qf.lua
+" command! -nargs=0 Prove lua require('my.jobs').qfJobs('prove')
+" command! -nargs=0 Qnext lua require('my.qf').rotateNext()
+" command! -nargs=0 Qprev lua require('my.qf').rotatePrev()
+" command! -nargs=0 Qtoggle lua require('my.qf').toggle()
+
+" command! -nargs=0 LspBufClients lua print(vim.inspect(vim.lsp.buf_get_clients()))
+" command! -nargs=0 LspIsOmni verbose set omnifunc?
+" command! -nargs=0 LspAvaiableServers lua print(vim.inspect( require('nvim_lsp').available_servers() ))
+" command! -nargs=0 LspInstallableServers lua print(vim.inspect( require('nvim_lsp').installable_servers()))
 " }}}
 " === AUTOCOMANDS === {{{
 
@@ -293,59 +325,64 @@ command! -nargs=0 LspInstallableServers lua print(vim.inspect( require('nvim_lsp
 augroup myQuickfix
   autocmd!
   "@see site/lua/my/qf.lua
-  autocmd QuitPre * lua require('my.qf').close()
-  " autocmd QuickFixCmdPre caddexpr lua require('my.qf').onCmdPre()
-  " before a quicklist command is run
-  " autocmd QuickFixCmdPost caddexpr lua require('my.qf').onCmdPost()
-  " after a quicklist command is run
-  "GF: nvim/site/autoload/my/qf.vim
-  " our shell commands 'make' etc run from project root
-  " ---------------------------------------------------
-  " When the quickfix window has been filled,
-  " two autocommand events are triggered
-  " First the 'filetype' option is set to 'qf' triggers filetype event
-  "GF: nvim/site/after/ftplugin/qf.vim
-  "Then the BufReadPost event is triggered,
-  " using 'quickfix' for the buffer name
-  " autocmd BufReadPost quickfix  lua require('my.qf').onFilled()
-  autocmd BufWinEnter quickfix  lua require('my.qf').onEntered()
-  "GF: nvim/site/autoload/my/qf.vim
+  "autocmd QuitPre * lua require('my.qf').close()
+  "" autocmd QuickFixCmdPre caddexpr lua require('my.qf').onCmdPre()
+  "" before a quicklist command is run
+  "" autocmd QuickFixCmdPost caddexpr lua require('my.qf').onCmdPost()
+  "" after a quicklist command is run
+  ""GF: nvim/site/autoload/my/qf.vim
+  "" our shell commands 'make' etc run from project root
+  "" ---------------------------------------------------
+  "" When the quickfix window has been filled,
+  "" two autocommand events are triggered
+  "" First the 'filetype' option is set to 'qf' triggers filetype event
+  ""GF: nvim/site/after/ftplugin/qf.vim
+  ""Then the BufReadPost event is triggered,
+  "" using 'quickfix' for the buffer name
+  "" autocmd BufReadPost quickfix  lua require('my.qf').onFilled()
+  "autocmd BufWinEnter quickfix  lua require('my.qf').onEntered()
+  ""GF: nvim/site/autoload/my/qf.vim
 augroup END
 
 augroup myTerm
   autocmd!
-   autocmd TermOpen * lua require('my.term').onOpen()
-  " autocmd TermChanged * lua require('my.term').onChanged()
-  " autocmd TermClose * lua require('my.term').onClose()
-  " autocmd TermResponse * lua require('my.term').onResponse()
+   " autocmd TermOpen * lua require('my.term').onOpen()
+  " " autocmd TermChanged * lua require('my.term').onChanged()
+  " " autocmd TermClose * lua require('my.term').onClose()
+  " " autocmd TermResponse * lua require('my.term').onResponse()
 augroup END
 
 " https://github.com/haorenW1025/dotfiles/blob/2198664a648a7cdd74a430aafb63b346e36f5332/nvim/config/status-line.vim
-function! InactiveLine()
-    return luaeval("require('my.status-line').inActiveLine()")
-endfunction
+" function! InactiveLine()
+"     return luaeval("require('my.status-line').inActiveLine()")
+" endfunction
 
-function! ActiveLine()
-    return luaeval("require('my.status-line').activeLine()")
-endfunction
+" function! ActiveLine()
+"     return luaeval("require('my.status-line').activeLine()")
+" endfunction
 
-" Change statusline automatically
-augroup StatusLine
+" " Change statusline automatically
+" augroup StatusLine
+"   autocmd!
+"   autocmd WinEnter,BufEnter * setlocal statusline=%!ActiveLine()
+"   autocmd WinLeave,BufLeave * setlocal statusline=%!InactiveLine()
+" augroup END
+
+
+" function! TabLine()
+"     return luaeval("require('my.status-line').TabLine()")
+" endfunction
+
+" set tabline=%!TabLine()
+"
+augroup myFileTypes
   autocmd!
-  autocmd WinEnter,BufEnter * setlocal statusline=%!ActiveLine()
-  autocmd WinLeave,BufLeave * setlocal statusline=%!InactiveLine()
+  autocmd FileType gitcommit,gitrebase,gitconfig set bufhidden=delete
 augroup END
-
-
-function! TabLine()
-    return luaeval("require('my.status-line').TabLine()")
-endfunction
-
-set tabline=%!TabLine()
 
 augroup myInit
   autocmd!
-  autocmd VimEnter * lua require('my.signs').define()
+  " autocmd VimEnter * lua require('my.signs').define()
   " autocmd WinEnter,BufEnter * setlocal lua require('my.status_line').ActiveLine()
   " autocmd WinLeave,BufLeave * setlocal lua require('my.status_line').InActiveLine()
   " autocmd CursorHold  term://* lua require('my.util').echom(' - Buffer Cursor Hold  ')
@@ -357,7 +394,7 @@ augroup myInit
   " xquery recognizes xql xqm xq
   " autocmd TabNewEntered * call OnTabEnter(expand("<amatch>"))
   " au
-  autocmd BufNewFile,BufRead xar.pkgs setlocal filetype=json
+  " autocmd BufNewFile,BufRead xar.pkgs setlocal filetype=json
   autocmd BufNewFile,BufRead *.conf set filetype=nginx "add nginx filetype for any conf extension
   autocmd BufNewFile,BufRead *.snippets set filetype=snippets "add new snippets filetpe
   autocmd BufNewFile,BufRead *.t set filetype=prove "  instead of perl
@@ -382,7 +419,7 @@ augroup myInit
   " autocmd User ProjectionistDetect  lua require('my.project').detect()
   "  triggered when projections found:
   "@see nvim/site/lua/my/project.lua
-   autocmd User ProjectionistActivate lua require('my.project').activate()
+ "  autocmd User ProjectionistActivate lua require('my.project').activate()
   " autocmd User BuildPhaseComplete lua require("my.jobs").qfJobs("prove")
   " TODO! completion enable for buffer will happen with projection
     " enable ncm2 for all buffers
@@ -416,6 +453,7 @@ nnoremap <silent><esc> :noh<return><esc>
 " let g:fzf_layout = { 'down': '~40%' }
 
 nnoremap <silent> <F2>  <cmd>FZF<CR>
+nnoremap <silent> <F5>  <cmd>luafile %<CR>
 " nnoremap <silent> <F6>  <cmd>botright split | terminal <CR>
 nnoremap <silent> gd    <cmd>lua vim.lsp.buf.declaration()<CR>
 nnoremap <silent> <c-]> <cmd>lua vim.lsp.buf.definition()<CR>
@@ -600,6 +638,8 @@ augroup END
 " if exists('g:autoloaded_startify')
 " add support for persistent sessions.
 " h startify-options
+let g:startify_disable_at_vimenter = 0
+"let g:startify_enable_unsafe = 1
 let g:startify_session_dir =  expand($CACHEPATH . '/session')
 let g:startify_session_autoload = 1
 let g:startify_session_persistence = 1
@@ -714,20 +754,3 @@ let g:lightline#bufferline#enable_devicons = 1
 " let g:ale_sign_info = ''
 "
 " }}}
-" === FIREVIM === {{{
-let g:firenvim_config = { 
-    \ 'globalSettings': {
-        \ 'alt': 'all',
-        \ "server": "persistent"
-    \  },
-    \ 'localSettings': {
-        \ '.*': {
-            \ 'cmdline': 'neovim',
-            \ 'priority': 0,
-            \ 'selector': 'textarea',
-            \ 'takeover': 'always',
-        \ },
-    \ }
-\ }
-" }}}
-

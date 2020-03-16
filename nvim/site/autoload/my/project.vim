@@ -6,4 +6,8 @@ function! my#project#value(val) abort
   endfor
 endfunction
 
+function! my#project#paths() abort
+ return system("cut -d: -f1 /etc/passwd")
+endfunction
+
 

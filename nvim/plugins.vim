@@ -20,6 +20,7 @@ Plug 'tpope/vim-commentary'  , { 'on': ['<Plug>Commentary', '<Plug>CommentaryLin
 
 Plug 'neovim/nvim-lsp'
 Plug 'haorenW1025/diagnostic-nvim'
+Plug 'haorenW1025/completion-nvim'
 "Plug 'neoclide/coc.nvim', {'branch': 'release'}
 "Plug 'hyhugh/coc-erlang_ls', {'do': 'yarn install --frozen-lockfile'}
 "Plug 'w0rp/ale'
@@ -30,7 +31,7 @@ Plug 'haorenW1025/diagnostic-nvim'
 " install smae place as nvim-lsp bins
 Plug 'tpope/vim-projectionist'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'c-brenn/fuzzy-projectionist.vim'
+" Plug 'c-brenn/fuzzy-projectionist.vim'
 " Plug 'junegunn/fzf', { 'dir': '~/.cache/nvim/fzf', 'do': './install --all' }
 Plug 'yuki-ycino/fzf-preview.vim'
 " GIT
@@ -51,7 +52,7 @@ Plug 'mhinz/vim-startify'
 Plug 'tpope/vim-eunuch'     " https://github.com/tpope/vim-eunuch
 Plug 'tpope/vim-dotenv' " https://github.com/tpope/vim-dotenv
 " Plug 'tpope/surround' " https://github.com/tpope/vim-dotenv
-" Plug 'tpope/vim-dispatch':
+"Plug 'tpope/vim-dispatch'
 " Plug 'radenling/vim-dispatch-neovim'
 Plug 'arithran/vim-delete-hidden-buffers'
 "Plug 'MattesGroeger/vim-bookmarks'
@@ -76,12 +77,10 @@ Plug 'arithran/vim-delete-hidden-buffers'
 " Plug 'skwp/greplace.vim' "https://github.com/skwp/greplace.vim/blob/master/doc/greplace.txt
 " Plug 'tweekmonster/nvim-api-viewer'
 "}}}
-
 " === browser === {{{
 Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install'  }
-Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) }}
+" Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) }}
 " }}}
-
 " Language Specific Plugins {{{
 Plug 'vitalk/vim-shebang' "https://github.com/vitalk/vim-shebang
 " https://github.com/vitalk/vim-fancy

@@ -5,7 +5,11 @@ alias p="cd $HOME/projects/$( git config --get user.name )"
 alias SSH='gcloud compute ssh gmack'
 # https://github.com/docker/buildx/#with-buildx-or-docker-1903
 DOCKER_CLI_EXPERIMENTAL=enabled
-
+#export VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'"
+export VISUAL='nvr --remote-wait-silent'
+export EDITOR=nvim
+export PAGER=nvimpager
+export MANPAGER=nvimpager
 
 if [ -z "$XDG_CONFIG_HOME" ]; then
   export XDG_CONFIG_HOME="$HOME/.config"
