@@ -36,6 +36,15 @@ help: export mkHelp:=$(mkHelp)
 help:
 	@echo "$${mkHelp}"
 
+
+# .PHONY: lua-cjson
+# lua-cjson:
+# 	@#cd ../../ && git clone git@github.com:openresty/lua-cjson.git
+# 	@#cd ../../lua-cjson && make
+# 	@# cd ../../lua-cjson && git pull
+# 	@#cd ../../nvimpager && sudo $(MAKE)
+# 	@#cd /usr/local/bin; stow -v -t $(XDG_BIN) .
+
 .PHONY: neovim-update
 neovim-update:
 	@cd ../../neovim/neovim && git pull

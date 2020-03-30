@@ -24,34 +24,33 @@ Plug 'haorenW1025/completion-nvim'
 "Plug 'neoclide/coc.nvim', {'branch': 'release'}
 "Plug 'hyhugh/coc-erlang_ls', {'do': 'yarn install --frozen-lockfile'}
 "Plug 'w0rp/ale'
-"Plug 'SirVer/ultisnips'
-"Plug 'honza/vim-snippets'                               " actual snippets
+Plug 'SirVer/ultisnips'
+Plug 'honza/vim-snippets'                               " actual snippets
 " }}}
 " File_And_Project_Management {{{
 " install smae place as nvim-lsp bins
-Plug 'tpope/vim-projectionist'
+" Plug 'tpope/vim-projectionist'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 " Plug 'c-brenn/fuzzy-projectionist.vim'
 " Plug 'junegunn/fzf', { 'dir': '~/.cache/nvim/fzf', 'do': './install --all' }
 Plug 'yuki-ycino/fzf-preview.vim'
 " GIT
-Plug 'rhysd/git-messenger.vim'
+" Plug 'rhysd/git-messenger.vim'
 Plug 'airblade/vim-gitgutter'
 " Plug 'AndrewRadev/switch.vim TODO
 " Plug 'junegunn/fzf.vim'
 "GF: site/after/plugin/fzf.vim/
 Plug 'justinmk/vim-dirvish'
-Plug 'bounceme/remote-viewer' 
+Plug 'bounceme/remote-viewer'
 Plug 'kristijanhusak/vim-dirvish-git'
 " Plug 'fsharpasharp/vim-dirvinist'
 "URL: https://github.com/justinmk/vim-dirvish/blob/master/doc/dirvish.txt
 "GF: site/after/ftplugin/dirvish.vim
-Plug 'mhinz/vim-startify'
+" Plug 'mhinz/vim-startify'
 "GF: site/after/plugin/startify.vim
 "@ sessions
 Plug 'tpope/vim-eunuch'     " https://github.com/tpope/vim-eunuch
 Plug 'tpope/vim-dotenv' " https://github.com/tpope/vim-dotenv
-" Plug 'tpope/surround' " https://github.com/tpope/vim-dotenv
 "Plug 'tpope/vim-dispatch'
 " Plug 'radenling/vim-dispatch-neovim'
 Plug 'arithran/vim-delete-hidden-buffers'
@@ -77,9 +76,17 @@ Plug 'arithran/vim-delete-hidden-buffers'
 " Plug 'skwp/greplace.vim' "https://github.com/skwp/greplace.vim/blob/master/doc/greplace.txt
 " Plug 'tweekmonster/nvim-api-viewer'
 "}}}
-" === browser === {{{
+" === text objects === {{{
+Plug 'tpope/vim-surround' " https://github.com/tpope/surround
+Plug 'kana/vim-textobj-user'
+Plug 'glts/vim-textobj-comment'
+Plug 'glts/vim-textobj-indblock'
+
+"}}}
+" === markdown preview == {{{
 Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install'  }
-" Plug 'glacambre/firenvim', { 'do': { _ -> firenvim#install(0) }}
+Plug 'junegunn/goyo.vim'
+Plug 'junegunn/limelight.vim'
 " }}}
 " Language Specific Plugins {{{
 Plug 'vitalk/vim-shebang' "https://github.com/vitalk/vim-shebang

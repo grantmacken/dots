@@ -1,39 +1,16 @@
 local _M = {}
-
+_M.version = 'v0.0.1'
+local api     = vim.api
+local inspect = vim.inspect
+local uv      = vim.loop
+local fn      = vim.fn
+local inspect = vim.inspect
 --[[ 
 --https://github.com/luvit/luv/blob/master/tests/test-fs.lua 
 -- https://neovim.io/doc/user/lua.html
 --]]
 
-local function json_encode(data)
-  local status, result = pcall(vim.fn.json_encode, data)
-  if status then
-    return result
-  else
-    return nil, result
-  end
-end
-local function json_decode(data)
-  local status, result = pcall(vim.fn.json_decode, data)
-  if status then
-    return result
-  else
-    return nil, result
-  end
-end
-
--- Some path manipulation utilities
-local function is_dir(filename)
-local stat = vim.loop.fs_stat(filename)
-return stat and stat.type == 'directory' or false
-end
-
-local function is_file(filename)
-    local stat = vim.loop.fs_stat(filename)
-    return stat and stat.type or false
-end
-
-local path_sep = vim.loop.os_uname().sysname == "Windows" and "\\" or "/"
+local path_sep = uv.os_uname().sysname == "Windows" and "\\" or "/"
 -- Asumes filepath is a file.
 local function dirname(filepath)
   local is_changed = false
@@ -51,8 +28,8 @@ end
 -- Ascend the buffer's path until we find the rootdir.
 -- is_root_path is a function which returns bool
 local function buffer_find_root_dir(bufnr, is_root_path)
-  local bufname = vim.api.nvim_buf_get_name(bufnr)
-  if vim.fn.filereadable(bufname) == 0 then
+  local bufname = api.nvim_buf_get_name(bufnr)
+  if fn.filereadable(bufname) == 0 then
     return nil
   end
   local dir = bufname
@@ -70,49 +47,110 @@ local function buffer_find_root_dir(bufnr, is_root_path)
   end
 end
 
+-- === UTLITY ===
 
---  You can also call *projectionist#path()*
---  to get the root of the innermost set of projections
+_M.split_file_name = function( strFilename)
+  return string.match(strFilename, "(.-)([^\\]-([^\\%.]+))$")
+end
 
-function project_root()
-  local bufnr = vim.api.nvim_get_current_buf()
-  local root_dir = buffer_find_root_dir(bufnr,
-    function(dir)
-     return is_dir(path_join(dir, '.git'))
+-- Some path manipulation utilities
+_M.is_dir = function(filename)
+  local stat = uv.fs_stat(filename)
+  return stat and stat.type == 'directory' or false
+end
+
+_M.is_file = function(filename)
+    local stat = uv.fs_stat(filename)
+    return stat and stat.type or false
+end
+
+_M.git_project_root = function( iBuf )
+  -- local bufnr = vim.api.nvim_get_current_buf()
+  local root_dir = buffer_find_root_dir( iBuf, function(dir)
+     return _M.is_dir(path_join(dir, '.git'))
     end
    )
   return root_dir
 end
+-- print(inspect(_M.git_project_root(vim.api.nvim_get_current_buf())))
+-- print(inspectgit_project_root(uv.cwd())))
 
-local function project_file()
-  local projectRoot = project_root()
-  local projectFile 
-  if projectRoot then
-    projectFile = path_join(projectRoot, '.projections.json')
-    if is_file(projectFile) then
-      return projectFile
-    end
+_M.read = function( pDir, pFile )
+  if type( pDir ) ~= 'string' then return false end
+  local  pPath = path_join( pDir, pFile)
+  --  if not _M.is_file( pPath ) then return false end
+  local fd = uv.fs_open(pPath, 'r', tonumber('644', 8))
+  local stat =  uv.fs_fstat( fd )
+  local chunk = uv.fs_read(fd, stat.size, 0)
+  local close = uv.fs_close(fd)
+  return chunk
+end
+
+_M.log = function( pRoot, sData )
+  -- local tProjects = api.nvim_get_var('myProjects')
+  -- if vim.tbl_isempty( tProjects ) then return end
+  -- local tProject = tProjects[sID]
+  -- if ( type(tProject) ~= 'table' ) then return end
+  -- local tKeys = vim.tbl_keys( tProjects)
+  -- if not vim.tbl_contains(tKeys,sID) then return end
+  -- local pRoot = tProjects[sID].root
+  if type(pRoot) ~= 'string' then return end
+  local pLog = path_join(pRoot, '.project.log')
+  local fd
+  if _M.is_file(pLog) then 
+    fd = vim.loop.fs_open(pLog, 'a', tonumber('644', 8))
   else
-    return nil
+    fd = vim.loop.fs_open(pLog, 'w', tonumber('644', 8))
   end
-end
--- print(vim.inspect( project_file() ))
-
-
---[[
--- this returns a lua table 
--- of the projections for project root
---]]
-
-function _M.read_projections()
-  local projectFile = project_file()
-  local fd = vim.loop.fs_open(projectFile, 'r', tonumber('644', 8))
-  local stat =  vim.loop.fs_fstat( fd )
-  local chunk = vim.loop.fs_read(fd, stat.size, 0)
+  local offset = -1
+  local sLogLine =  '[' .. os.date("!%Y-%m-%dT%TZ") .. '] ' .. sData .. '\n'
+  local chunk = vim.loop.fs_write(fd,sLogLine,offset)
   local close = vim.loop.fs_close(fd)
-  local obj = json_decode(chunk)
-  return obj
+  return close
 end
+
+-- print(vim.inspect( _M.log('xxxx') ))
+
+_M.clean_log = function( pRoot )
+  if type(pRoot) ~= 'string' then return false end
+  local pLog = path_join(pRoot, '.project.log')
+  if not _M.is_file(pLog) then return end
+  local fd = vim.loop.fs_open(pLog, 'w', tonumber('644', 8))
+  local offset = -1
+  local chunk = vim.loop.fs_write(fd,'',offset)
+  local close = vim.loop.fs_close(fd)
+  return close
+end
+-- print(vim.inspect(_M.clean_log('dots')))
+
+_M.show_log = function( sID )
+  if type(sID) ~= 'string' then return end
+  local pRoot  = _M.root_from_id(sID)
+  local sChunk = _M.read(pRoot,'.project.log')
+  local tLines = vim.split(sChunk,'\n')
+  require('my.fwin').show(tLines)
+end
+
+
+
+
+
+
+
+
+
+
+-- _M.show_projects = function()
+--   local sDetect = vim.inspect(_M.detect())
+--   local tLines = vim.split(sDetect,'\n')
+--   require('my.fwin').show(tLines )
+-- end
+
+
+
+
+-- print(vim.inspect( _M.clean_log() ))
+
 
 
 -- print(vim.inspect( read_projections() ))
@@ -127,7 +165,6 @@ end
 -- }
 
 --local commands = {}
-
 
 
 --local function nav_cmds()
@@ -227,6 +264,7 @@ end
 --   fd:write( s )
 --   fd:close()
 -- end
+--
 
 return _M
 -- print(vim.inspect( _M.project_root()))

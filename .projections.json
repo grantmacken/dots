@@ -1,11 +1,24 @@
 {
   "*": {
-    "framework": "dots"
+    "project": "dots",
+    "log": ".project.log"
+  },
+    "Makefile": {
+    "type": "makefile"
+  },
+  ".*": {
+    "type": "dots"
   },
   "README.md": {
     "type": "note"
   },
-  "notes/todo.md": {
+  "notes/*.md": {
     "type": "note"
+  },
+  "nvim/*.vim": {
+    "type": "nvim-init"
+  },
+    "nvim/site/lua/my/*.lua": {
+    "type": "my-lua"
   }
 }
