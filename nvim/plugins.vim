@@ -3,17 +3,23 @@ function! DoRemote(arg)
 endfunction
 call plug#begin( expand( $DATAPATH . '/plugged'))
 " Themes and Colorscheme {{{
+Plug 'arcticicestudio/nord-vim'
+Plug 'ayu-theme/ayu-vim'
+Plug 'norcalli/nvim-colorizer.lua'
 Plug 'junegunn/seoul256.vim'
 " }}}
 " Visual {{{
 " Plug 'alvan/vim-closetag'    " auto close html tags
-" Plug 'Yggdroot/indentLine'    " show indentation lines
+Plug 'Yggdroot/indentLine'    " show indentation lines
 " Plug 'google/vim-searchindex'   " add number of found matching search items
 " Plug 'gregsexton/MatchTag'
 " Plug 'luochen1990/rainbow'
 Plug 'junegunn/vim-peekaboo' "https://github.com/junegunn/vim-peekaboo
 Plug 'machakann/vim-highlightedyank' " highligh yank text
 Plug 'tpope/vim-commentary'  , { 'on': ['<Plug>Commentary', '<Plug>CommentaryLine'] }
+" Plug 'liuchengxu/vim-which-key'
+" On-demand lazy load
+" Plug 'liuchengxu/vim-which-key', { 'on': ['WhichKey', 'WhichKey!'] }
 " }}}
 " Auto Completion, Language Servers, Snippets {{{
 "/vim-projectionist'
@@ -24,8 +30,8 @@ Plug 'haorenW1025/completion-nvim'
 "Plug 'neoclide/coc.nvim', {'branch': 'release'}
 "Plug 'hyhugh/coc-erlang_ls', {'do': 'yarn install --frozen-lockfile'}
 "Plug 'w0rp/ale'
-Plug 'SirVer/ultisnips'
-Plug 'honza/vim-snippets'                               " actual snippets
+" Plug 'SirVer/ultisnips'
+" Plug 'honza/vim-snippets' " actual snippets
 " }}}
 " File_And_Project_Management {{{
 " install smae place as nvim-lsp bins
@@ -96,7 +102,7 @@ Plug 'othree/yajs.vim', { 'for': 'javascript' }           " JAVASCRPT SYNTAX obj
 Plug 'HerringtonDarkholme/yats.vim',{'for': 'typescript'} " TYPESCRIPT
 Plug 'gavocanov/vim-js-indent' ,{'for': 'javascript'}     " JAVASCRIPT INDENT
 Plug 'elzr/vim-json', { 'for': 'json' } "                  JSON support
-Plug 'ap/vim-css-color', { 'for': 'css' }       "   CSS set the background of hex color values to the color
+" Plug 'ap/vim-css-color', { 'for': 'css' }       "   CSS set the background of hex color values to the color
 Plug 'hail2u/vim-css3-syntax', { 'for': 'css' } "   CSS3 syntax support
 Plug 'othree/html5.vim'                         "   HTML 5 with  WAI-ARIA attribute support
 Plug 'othree/xml.vim'                           "   XML tags while you type
@@ -109,7 +115,6 @@ Plug 'junegunn/vader.vim'                         " VIM    testing vim plugings 
 " Plug 'ternjs/tern_for_vim', { 'do': 'npm install' } " setup tern
 " Plug 'carlitux/deoplete-ternjs' " COMPLETION: deoplete tern as recomended by Shougo
 " Plug 'othree/jspc.vim' ... COMPLETION:  function param completion
-" Plug 'tmux-plugins/vim-tmux'
 " Plug 'othree/javascript-libraries-syntax.vim'
 " Plug 'othree/es.next.syntax.vim'
 " JavaScript:  https://davidosomething.com/blog/vim-for-javascript/

@@ -14,21 +14,8 @@ let g:python_host_prog  = '/usr/bin/python3'
 let $PROJECTS_PATH=expand( $HOME . '/projects/grantmacken' )
 source $VIMPATH/plugins.vim
 "}}}
-" Colors {{{
-" =======
-set termguicolors
-set background=dark
-"   Range:   233 (darkest) ~ 239 (lightest
-"   Default: 237
-let g:seoul256_background = 238
-let g:seoul256_srgb = 1
-colorscheme seoul256
-" https://github.com/neovim/neovim/wiki/FAQ
-highlight Cursor guifg=green guibg=green
-highlight Cursor2 guifg=red guibg=red
-highlight Pmenu     guifg=#d7d7af guibg=#585858
-highlight PmenuSel  guifg=#4e4e4e  guibg=#d7d7af
-highlight VertSplit guifg=#585858 guibg=#585858
+" === Colors  ==={{{
+lua require('my.colors').setup('nord')
 " }}}
 " Mouse and Clipboard {{{
 set mouse=a
@@ -146,10 +133,7 @@ set signcolumn=yes      " keep signcolumn open
 " https://github.com/haorenW1025/completion-nvim
 ""  Popup Menu Styling
 "  ------------------
-set pumheight=20        " Pop-up menu's line height
-set previewheight=2     " Completion preview height
-set pumwidth=30
-set pumblend=10
+:
 
 " Complete Options
 " ----------------
@@ -170,30 +154,31 @@ set pumblend=10
 " endfunction
   " Use LSP omni-completion in Python files.
 " Use <Tab> and <S-Tab> to navigate through popup menu
-inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-inoremap <expr> <cr>    pumvisible() ? "\<C-y>" : "\<cr>"
+" inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+" inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+" inoremap <expr> <cr>    pumvisible() ? "\<C-y>" : "\<cr>"
 " Auto close popup menu when finish completion
-autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
+" autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
 
 " Set completeopt to have a better completion experience
-set completeopt=menuone,noinsert,noselect
+" set completeopt=menuone,noinsert,noselect
 
 " https://github.com/haorenW1025/completion-nvim/tree
 " MAP: use <tab> for trigger completion and navigate to next complete item
-function! s:check_back_space() abort
-    let col = col('.') - 1
-    return !col || getline('.')[col - 1]  =~ '\s'
-endfunction
+" function! CheckBackSpace() abort
+"     let col = col('.') - 1
+"     return !col || getline('.')[col - 1]  =~ '\s'
+" endfunction
 
-inoremap <silent><expr> <TAB>
-  \ pumvisible() ? "\<C-n>" :
-  \ <SID>check_back_space() ? "\<TAB>" :
-  \ completion#trigger_completion()
+
+" inoremap <silent><expr> <TAB>
+"   \ pumvisible() ? "\<C-n>" :
+"   \ CheckBackSpace() ? "\<TAB>" :
+"   \ completion#trigger_completion()
 "map <c-p> to manually trigger completion
-inoremap <silent><expr> <c-p> completion#trigger_completion()
+" inoremap <silent><expr> <c-p> completion#trigger_completion()-
 
-let g:completion_enable_auto_popup = 1
+" let g:completion_enable_auto_popup = 0
 " let g:completion_enable_auto_hover = 0
 " let g:completion_enable_auto_signature = 0
 " let g:completion_enable_in_comment = 1
@@ -206,7 +191,8 @@ let g:completion_enable_auto_popup = 1
 " augroup end
 
 let g:completion_chain_complete_list = [
-    \{'ins_complete': v:false, 'complete_items': ['lsp', 'snippet']},
+    \{'ins_complete': v:false, 'complete_items': ['lsp']},
+    \{'ins_complete': v:true,  'mode': '<file>'},
     \{'ins_complete': v:true,  'mode': '<c-p>'},
     \{'ins_complete': v:true,  'mode': '<c-n>'}
 \]
@@ -217,95 +203,10 @@ let g:completion_chain_complete_list = [
 " 
 
 
-imap <c-j> <cmd>lua require'source'.prevCompletion()<CR> "use <c-j> to switch to previous completion
-imap <c-k> <cmd>lua require'source'.nextCompletion()<CR> "use <c-k> to switch to next completion
 
+" imap <c-j> <cmd>lua require'source'.prevCompletion()<CR> "use <c-j> to switch to previous completion
+" imap <c-k> <cmd>lua require'source'.nextCompletion()<CR> "use <c-k> to switch to next completion
 
-" }}}
-" === LSP == {{{
-" https://neovim.io/doc/user/lsp.htm
-" lua require('nvim_lsp').sumneko_lua.setup{}
-" " also see  MAPPINGS
-" lua require('nvim_lsp').bashls.setup{}
-" lua require('nvim_lsp').cssls.setup{}
-" lua require('nvim_lsp').dockerls.setup{}
-" lua require('nvim_lsp').html.setup{}
-" lua require('nvim_lsp').jsonls.setup{}
-" lua require('nvim_lsp').tsserver.setup{}
-" lua require('nvim_lsp').erlang_ls.setup{}
-
-" lua <<EOF
-
-" require('nvim_lsp').bashls.setup{
-"   on_attach=require('diagnostic').on_attach;
-" }
-
-" require('nvim_lsp').vimls.setup{
-"   on_attach=require('diagnostic').on_attach;
-"   on_attach=require('completion').on_attach;
-" }
-
-" require{'nvim_lsp'}.sumneko_lua.setup{
-"     on_attach=require('diagnostic').on_attach;
-"     on_attach=require('completion').on_attach;
-" }
-
-" local augroups = function()
-"   api.nvim_command('augroup lsp')
-"   api.nvim_command('autocmd!')
-"   api.nvim_command('autocmd FileType vim setl omnifunc=v:lua.vim.lsp.omnifunc')
-"   api.nvim_command('autocmd FileType lua setl omnifunc=v:lua.vim.lsp.omnifunc')
-"   api.nvim_command('autocmd FileType sh setl omnifunc=v:lua.vim.lsp.omnifunc')
-"   -- TODO
-"   -- for any file type
-"   api.nvim_command('augroup END')
-" end
-
-" lua require('nvim_lsp').vimls.setup{
-"   on_attach=require('completion').on_attach;
-" }
-
-" EOF
-
-" require{'nvim_lsp'}.sumneko_lua.setup{
-"     on_attach=require('diagnostic').on_attach;
-"     on_attach=require('diagnostic').on_attach;
-
-"     log_level = vim.lsp.protocol.MessageType.Error;
-"     settings = {
-"         Lua = {
-"             completion = {
-"                 keywordSnippet = "Disable";
-"             };
-"             runtime = {
-"                 version = "LuaJIT";
-"             };
-"         };
-"     };
-" }
-" lua require('nvim_lsp').erlang_ls.setup{on_attach=require('diagnostic').on_attach}
-" autocmd CursorHold * lua vim.lsp.util.show_line_diagnostics()
-" autocmd CursorMoved * lua vim.lsp.util.show_line_diagnostics()
-" lua require('nvim_lsp').efm.setup{}
-" define 
-"Lsp completion do using omnifunc
-"h omnifunc
-"h complete-functions
-"/home/gmack/.cache/nvim/nvim_lsp/sumneko_lua/lua-language-server/bin/Linux/lua-language-server
-"cmd = { "/home/gmack/.cache/nvim/nvim_lsp/sumneko_lua/lua-language-server/bin/Linux/lua-language-server", "-E", "/home/gmack/.cache/nvim/nvim_lsp/sumneko_lua/lua-language-server/main.lua" },
-" autocmd Filetype css setlocal omnifunc=v:lua.vim.lsp.omnifunc
-" autocmd Filetype dockerfile setlocal omnifunc=v:lua.vim.lsp.omnifunc
-" autocmd Filetype html setlocal omnifunc=v:lua.vim.lsp.omnifunc
-" autocmd Filetype json setlocal omnifunc=v:lua.vim.lsp.omnifunc
-" autocmd Filetype lua  setlocal omnifunc=v:lua.vim.lsp.omnifunc
-" autocmd Filetype sh   setlocal omnifunc=v:lua.vim.lsp.omnifunc
-" autocmd Filetype vim  setlocal omnifunc=v:lua.vim.lsp.omnifunc
-" autocmd Filetype yaml setlocal omnifunc=v:lua.vim.lsp.omnifunc
-" autocmd Filetype erlang setlocal omnifunc=v:lua.vim.lsp.omnifunc
-
-
-
-" autocmd BufReadPost * lua require('langsrvr.erlang').check_start_erlang_lsp()
 
 " }}}
 " === FUNCTIONS === {{{
@@ -335,7 +236,6 @@ command! DisconnectClients
 " command! -nargs=0 Qprev lua require('my.qf').rotatePrev()
 " command! -nargs=0 Qtoggle lua require('my.qf').toggle()
 
-" command! -nargs=0 LspBufClients lua print(vim.inspect(vim.lsp.buf_get_clients()))
 " command! -nargs=0 LspIsOmni verbose set omnifunc?
 " command! -nargs=0 LspAvaiableServers lua print(vim.inspect( require('nvim_lsp').available_servers() ))
 " command! -nargs=0 LspInstallableServers lua print(vim.inspect( require('nvim_lsp').installable_servers()))
@@ -344,6 +244,8 @@ command! DisconnectClients
 " Disable
 " -> ex mode <-
 nnoremap Q <Nop>
+"nnoremap Q <Nop>
+
 " Enable
 " Use spacebar instead of '\' as leader. Require before loading plugins.
 let g:mapleader      = ' '
@@ -353,24 +255,22 @@ let g:maplocalleader = ' '
 " xmap <leader>f  <Plug>(coc-format-selected)
 " nmap <leader>f  <Plug>(coc-format-selected)
 " " Release keymappings for plug-in.
-nnoremap <Space>  <Nop>
-xnoremap <Space>  <Nop>
+" nnoremap <Space>  <Nop>
+" xnoremap <Space>  <Nop>
 " escape -> Clear search highlighting
 nnoremap <silent><esc> :noh<return><esc>
 " let g:fzf_layout = { 'down': '~40%' }
-
+" nnoremap <silent> <leader> <cmd><c-u>WhichKey '<Space>'<CR>
 nnoremap <silent> <F2>  <cmd>FZF<CR>
 nnoremap <silent> <F5>  <cmd>luafile %<CR>
 " nnoremap <silent> <F6>  <cmd>botright split | terminal <CR>
-nnoremap <silent> gd    <cmd>lua vim.lsp.buf.declaration()<CR>
-nnoremap <silent> <c-]> <cmd>lua vim.lsp.buf.definition()<CR>
-nnoremap <silent> K     <cmd>lua vim.lsp.buf.hover()<CR>
-nnoremap <silent> gD    <cmd>lua vim.lsp.buf.implementation()<CR>
-nnoremap <silent> <c-k> <cmd>lua vim.lsp.buf.signature_help()<CR>
-nnoremap <silent> 1gD   <cmd>lua vim.lsp.buf.type_definition()<CR>
-nnoremap <silent> gr    <cmd>lua vim.lsp.buf.references()<CR>
-" Manage extensions.
-" nnoremap <silent> <space>e  :<C-u>CocList extensions<cr>
+" nnoremap <silent> gd    <cmd>lua vim.lsp.buf.declaration()<CR>
+" nnoremap <silent> <c-]> <cmd>lua vim.lsp.buf.definition()<CR>
+" nnoremap <silent> K     <cmd>lua vim.lsp.buf.hover()<CR>
+" nnoremap <silent> gD    <cmd>lua vim.lsp.buf.implementation()<CR>
+" nnoremap <silent> <c-k> <cmd>lua vim.lsp.buf.signature_help()<CR>
+" nnoremap <silent> 1gD   <cmd>lua vim.lsp.buf.type_definition()<CR>
+" nnoremap <silent> gr    <cmd>lua vim.lsp.buf.references()<CR>
 " Use Alt {1,2 ... } to go to tab by number {{{
 " noremap <leader>1 1gt
 noremap <A-1> 1gt
@@ -397,7 +297,7 @@ nnoremap <silent> <A-l> <C-w>l
 " Popup menu {{{
 " Tab completion
 "CTRL-C doesn't trigger the InsertLeave autocmd . map to <ESC> instead
-inoremap <c-c> <ESC>
+"inoremap <c-c> <ESC>
 " When the <Enter> key is pressed while the popup menu is visible, it only
 " hides the menu. Use this mapping to close the menu and also start a new
 " line.
@@ -419,10 +319,6 @@ nnoremap <F9> :Prove<CR>
 " vim-commentary maps, since it is loaded lazily
 map  gc  <Plug>Commentary
 nmap gcc <Plug>CommentaryLine
-
-
-
-
 
 " }}}
 " Terminal Mappings {{{
@@ -598,22 +494,22 @@ augroup END
 " === LIGHTLINE === {{{
 " autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
 " Lightline + Tabline
-let g:lightline = {
-      \ 'colorscheme': 'seoul256',
-      \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'readonly', 'filename', 'modified'] ]
-      \ },
-      \ }
-let g:lightline#bufferline#show_number = 1
-let g:lightline#bufferline#unnamed = '[No Name]'
-let g:lightline.tabline = {'left': [['buffers']], 'right': [['close']]}
-let g:lightline.component_expand = {'buffers': 'lightline#bufferline#buffers'}
-let g:lightline.component_type = {'buffers': 'tabsel'}
-" Only show buffer filename
-let g:lightline#bufferline#filename_modifier = ':t'
-" Show devicons in bufferline
-let g:lightline#bufferline#enable_devicons = 1
+" let g:lightline = {
+"       \ 'colorscheme': 'seoul256',
+"       \ 'active': {
+"       \   'left': [ [ 'mode', 'paste' ],
+"       \             [ 'readonly', 'filename', 'modified'] ]
+"       \ },
+"       \ }
+" let g:lightline#bufferline#show_number = 1
+" let g:lightline#bufferline#unnamed = '[No Name]'
+" let g:lightline.tabline = {'left': [['buffers']], 'right': [['close']]}
+" let g:lightline.component_expand = {'buffers': 'lightline#bufferline#buffers'}
+" let g:lightline.component_type = {'buffers': 'tabsel'}
+" " Only show buffer filename
+" let g:lightline#bufferline#filename_modifier = ':t'
+" " Show devicons in bufferline
+" let g:lightline#bufferline#enable_devicons = 1
 " function! CocCurrentFunction()
 "     return get(b:, 'coc_current_function', '')
 " endfunction
@@ -651,6 +547,9 @@ let g:lightline#bufferline#enable_devicons = 1
 "
 " }}}
 " === AUTOMATIC COMMANDS === {{{
+" https://github.com/norcalli/nvim-colorizer.lua
+" One line setup. This will create an autocmd for FileType * to highlight every filetype
+lua require'colorizer'.setup()
 " help autocmd
 " function! Stylepreviewwindow()
 "   if &previewwindow
@@ -772,8 +671,15 @@ augroup END
  "" https://github.com/neovim/neovim/wiki/FAQ
 
 " augroup END
-"
+"⎬
 " }}}
+" IndentLine {{{
+" IndentLine {{
+let g:indentLine_char = '┋'
+let g:indentLine_first_char = '┆'
+let g:indentLine_showFirstIndentLevel = 1
+let g:indentLine_setColors = 1
+" }}
 
 lua <<EOF
 
@@ -797,8 +703,8 @@ cmdline_complete_projects = myProject.cmdline_complete_projects
 
 -- === commands ===
 
--- api.nvim_command("command! MyShowBufProjections lua require('my.project').show_buf_projections()")
-api.nvim_command('command! MyShowProjectFiles lua require("my.fwin").project()')
+-- api.nvim_command("command! MyBufProjections lua require('my.project').show_buf_projections()")
+api.nvim_command('command! MyProjectFiles lua require("my.fwin").project()')
 
 -- === auto commands ===
 
@@ -817,8 +723,6 @@ EOF
 " getcmdwintype()			String	return current command-line window type
 " getcompletion({pat}, {type} [, {filtered}]) List	list of cmdline completion matches
 " setcmdpos({pos})		Number	set cursor position in command-line
-
-
 " api.nvim_command("command! MyShowProjects lua require('my.project').show_projects()")
 "
 " com! -nargs=1 -complete=customlist,v:lua.cmdline_complete_projects MyProjects lua myProject.show_projects(<f-args>)
