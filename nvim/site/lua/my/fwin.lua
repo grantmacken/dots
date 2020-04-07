@@ -1,9 +1,13 @@
-_M = {}
+M = {}
 local api = vim.api
 local inspect = vim.inspect
 local err, got, exp = require('my.utility').printr()
 
-_M.open_file = function()
+M.close_fwin = function()
+  api.nvim_win_close(0, true)
+end
+
+M.open_file = function()
   -- local pSeparator = vim.loop.os_uname().sysname == "Windows" and "\\" or "/"
   local pFile = vim.trim(api.nvim_get_current_line())
   -- local pRoot = vim.loop.cwd()
@@ -13,18 +17,16 @@ _M.open_file = function()
   api.nvim_command(cmd)
 end
 
-_M.vertical_split = function()
+M.vertical_split = function()
   local pFile = vim.trim(api.nvim_get_current_line())
   -- local pRoot = vim.loop.cwd()
   local cmd =  'vs ' .. pFile
   print(cmd)
   api.nvim_win_close(0, true)
   api.nvim_command(cmd)
-
 end
 
-
-function _M.open_dir() 
+function M.open_dir() 
   local pFile = vim.trim(api.nvim_get_current_line())
   local cmd =  'Dirvish ' .. pFile
   print(cmd)
@@ -96,22 +98,57 @@ local set_mappings = function( T )
     silent = true
   }
   local mode = 'n'
-  api.nvim_buf_set_keymap(T.buf,mode,'q','<CMD>close<CR>',kopts)
-  api.nvim_buf_set_keymap(T.buf,mode,'o','<CMD>lua _M.open_file()<CR>',kopts)
-  api.nvim_buf_set_keymap(T.buf,mode,'a','<CMD>lua _M.vertical_split()<CR>',kopts)
-  api.nvim_buf_set_keymap(T.buf,mode,'d','<CMD>lua _M.open_dir()<CR>',kopts)
-  api.nvim_buf_set_keymap(T.buf,mode,'<Left>','',kopts)
-  api.nvim_buf_set_keymap(T.buf,mode,'<Right>','',kopts)
-  local aChars = {
-    'b', 'c', 'e', 'f', 'g', 'h','i',
-    'l', 'm', 'n', 'p', 'r', 's', 't', 'u',
-    'v', 'w', 'x', 'y', 'z'
+  -- j, k alone
+
+  local mappings = {
+    ['<cr>'] = 'open_file()',
+    ['-']    = 'open_dir()',
+    ['a']    = 'vertical_split()',
+    ['o']    = 'open_file()',
+    ['q']    = 'close_fwin()',
+  }
+  for sKey, sValue in pairs(mappings) do
+    api.nvim_buf_set_keymap( T.buf, mode, sKey, '<cmd>lua M.' .. sValue .. '<cr>', kopts )
+  end
+
+  extraMappings = {
+    ['<Left>'] = '',
+    ['<Right>'] = ''
   }
 
-  for i, sValue in ipairs( aChars) do
-    api.nvim_buf_set_keymap(T.buf, mode,sValue, '',kopts)
-    api.nvim_buf_set_keymap(T.buf, mode, sValue:upper(), '' ,kopts)
-    api.nvim_buf_set_keymap(T.buf, mode, '<c-' .. sValue .. '>', '',kopts)
+  for sKey, sValue in pairs( extraMappings ) do
+    api.nvim_buf_set_keymap(T.buf, mode, sKey, sValue, kopts)
+  end
+
+  aTozMappings = {
+    ['b'] = '',
+    ['c'] = '',
+    ['d'] = '',
+    ['e'] = '',
+    ['f'] = '',
+    ['g'] = '',
+    ['h'] = '',
+    ['i'] = '',
+    ['l'] = '',
+    ['m'] = '',
+    ['n'] = '',
+    ['p'] = '',
+    ['r'] = '',
+    ['s'] = '',
+    ['t'] = '',
+    ['u'] = '',
+    ['v'] = '',
+    ['w'] = '',
+    ['x'] = '',
+    ['x'] = '',
+    ['z'] = ''
+  }
+
+  for sKey, sValue in pairs( aTozMappings ) do
+    api.nvim_buf_set_keymap(T.buf, mode, sKey,sValue,kopts)
+    -- also uppcase
+    api.nvim_buf_set_keymap(T.buf, mode, sKey:upper(), sValue ,kopts)
+    -- api.nvim_buf_set_keymap(T.buf, mode, '<c-' .. sValue .. '>', '',kopts)
   end
 
   return T
@@ -127,19 +164,22 @@ local show_view = function( T )
   return T
 end
 
-_M.show = function( aLines )
+M.show = function( aLines )
   if type( aLines ) ~= 'table' then  err( got(aLines) .. exp(type({}))  ) return false end
   tbl = fwin_open( aLines )
   tbl = set_mappings( tbl)
   tbl = show_view(tbl)
 end
 
-_M.project = function()
-  return _M.show(require('my.project').list_all_project_files())
+M.project = function()
+  return M.show(require('my.project').list_all_project_files())
 end
 
--- _M.project()
--- _M.project()
+M.buffer_projections = function()
+  return M.show(require('my.project').show_buf_projections())
+end
 
-return _M
+
+
+return M
 

@@ -133,8 +133,6 @@ set signcolumn=yes      " keep signcolumn open
 " https://github.com/haorenW1025/completion-nvim
 ""  Popup Menu Styling
 "  ------------------
-:
-
 " Complete Options
 " ----------------
 " :h complete
@@ -315,12 +313,7 @@ nnoremap <silent> ]q :Qprev<CR>
 nnoremap <silent> <leader>q :Qtoggle<CR>
 nnoremap <F9> :Prove<CR>
 " }}}
-" ==> Plugin Mappings <== {{{
-" vim-commentary maps, since it is loaded lazily
-map  gc  <Plug>Commentary
-nmap gcc <Plug>CommentaryLine
 
-" }}}
 " Terminal Mappings {{{
 " Terminal Function
 let g:term_buf = 0
@@ -361,17 +354,17 @@ vnoremap <LeftRelease> "*ygv
 " === FZF === {{{
 " This is the default extra key bindings
 " An action can be a reference to a function that processes selected lines
-function! s:build_quickfix_list(lines)
-  call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
-  copen
-  cc
-endfunction
+" function! s:build_quickfix_list(lines)
+"   call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
+"   copen
+"   cc
+" endfunction
 
-let g:fzf_action = {
-  \ 'ctrl-q': function('s:build_quickfix_list'),
-  \ 'ctrl-t': 'tab split',
-  \ 'ctrl-o': 'split',
-  \ 'ctrl-a': 'vsplit' }
+" let g:fzf_action = {
+"   \ 'ctrl-q': function('s:build_quickfix_list'),
+"   \ 'ctrl-t': 'tab split',
+"   \ 'ctrl-o': 'split',
+"   \ 'ctrl-a': 'vsplit' }
 "
 " Default fzf layout
 " - down / up / left / right
@@ -381,8 +374,8 @@ let g:fzf_action = {
 " let g:fzf_layout = { 'window': 'enew' }
 " let g:fzf_layout = { 'window': '-tabnew' }
 " let g:fzf_layout = { 'window': '10new' }
-let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
-let g:fzf_history_dir = '~/.local/share/fzf-history'
+" let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
+" let g:fzf_history_dir = '~/.local/share/fzf-history'
 
 " }}}
 " === DIRVISH === {{{"
@@ -491,40 +484,14 @@ augroup END
 "" endif
 
 " }}}
-" === LIGHTLINE === {{{
-" autocmd User CocStatusChange,CocDiagnosticChange call lightline#update()
-" Lightline + Tabline
-" let g:lightline = {
-"       \ 'colorscheme': 'seoul256',
-"       \ 'active': {
-"       \   'left': [ [ 'mode', 'paste' ],
-"       \             [ 'readonly', 'filename', 'modified'] ]
-"       \ },
-"       \ }
-" let g:lightline#bufferline#show_number = 1
-" let g:lightline#bufferline#unnamed = '[No Name]'
-" let g:lightline.tabline = {'left': [['buffers']], 'right': [['close']]}
-" let g:lightline.component_expand = {'buffers': 'lightline#bufferline#buffers'}
-" let g:lightline.component_type = {'buffers': 'tabsel'}
-" " Only show buffer filename
-" let g:lightline#bufferline#filename_modifier = ':t'
-" " Show devicons in bufferline
-" let g:lightline#bufferline#enable_devicons = 1
-" function! CocCurrentFunction()
-"     return get(b:, 'coc_current_function', '')
-" endfunction
-
-" lightline = {
-"       \ 'colorscheme': 'seoul256',
-"       \ 'active': {
-"       \   'left': [ [ 'mode', 'paste' ],
-"       \             [ 'cocstatus', 'readonly','readonly', 'filename', 'modified' ] ]
-"       \ },
-"       \ 'component_function': {
-"       \   'cocstatus': 'coc#status',
-"       \   'currentfunction': 'CocCurrentFunction'
-"       \ },
-"       \ }
+" === STATUSLINE === {{{
+function! LspStatus() abort
+  lua require('my.statusline').lsp_status()
+endfunction
+"
+"
+"
+"
 "
 "}}}
 " === ALE === {{{"
@@ -549,7 +516,6 @@ augroup END
 " === AUTOMATIC COMMANDS === {{{
 " https://github.com/norcalli/nvim-colorizer.lua
 " One line setup. This will create an autocmd for FileType * to highlight every filetype
-lua require'colorizer'.setup()
 " help autocmd
 " function! Stylepreviewwindow()
 "   if &previewwindow
@@ -613,15 +579,7 @@ augroup END
 
 " set tabline=%!TabLine()
 "
-augroup myFileTypes
-  autocmd!
-  autocmd FileType gitcommit,gitrebase,gitconfig set bufhidden=delete
-  autocmd BufNewFile,BufRead *.conf set filetype=nginx "add nginx filetype for any conf extension
-  autocmd BufNewFile,BufRead *.snippets set filetype=snippets "add new snippets filetpe
-  autocmd BufNewFile,BufRead *.t set filetype=prove "  instead of perl
-  autocmd BufNewFile,BufRead *.md set filetype=markdown
-  autocmd BufNewFile,BufRead *.xq,*.xql,*.xqm set filetype=markdown
-augroup END
+
 
 " augroup myInit
 "   autocmd!
@@ -673,18 +631,13 @@ augroup END
 " augroup END
 "⎬
 " }}}
-" IndentLine {{{
-" IndentLine {{
-let g:indentLine_char = '┋'
-let g:indentLine_first_char = '┆'
-let g:indentLine_showFirstIndentLevel = 1
-let g:indentLine_setColors = 1
-" }}
+"
+lua require('colorizer').setup()
+lua require('my.lsp').setup()
+lua require('my.statusline').setup()
+" lua require('my.statusline').setup()
 
 lua <<EOF
-
--- === LSP ===
-require('my.lsp').init()
 -- === init vars ===
 
 local pProject = 'dots'
@@ -710,12 +663,20 @@ api.nvim_command('command! MyProjectFiles lua require("my.fwin").project()')
 
 api.nvim_command('augroup init')
   api.nvim_command('autocmd!')
-  -- api.nvim_command('autocmd VimEnter * lua require("my.whid").whid()')
+  -- open with selected project
   api.nvim_command('autocmd VimEnter * lua require("my.fwin").project()')
-  -- api.nvim_command('autocmd User ojectionistDetectFileType * lua myProject.detect()')
+  -- unless it has a fileype nothing triggers
+  api.nvim_command('autocmd Filetype * lua require("my.project").detect()')
+  local onBuf = 'autocmd BufNewFile,BufRead '
+  api.nvim_command( onBuf ..  '*.conf set filetype=nginx')
+  api.nvim_command( onBuf ..  '*.snippets set filetype=snippets')
+  api.nvim_command( onBuf ..  '*.t set filetype=prove') 
+  api.nvim_command( onBuf ..  '*.md set filetype=markdown')
+  api.nvim_command( onBuf ..  '*.xq,*.xql,*.xqm set filetype=xquery')
 api.nvim_command('augroup END')
 
 EOF
+
 
 " getcmdline() String	return the current command-line
 " getcmdpos()			Number	return cursor position in command-line

@@ -1,15 +1,14 @@
 SHELL=/bin/bash
 APP_LIST = git curl stow
 assert-command-present = $(if $(shell which $1),,$(error '$1' missing and needed for this build))
-$(foreach src,$(APP_LIST),$(call assert-command-present,$(src)))
+$(foreach src,$(APP_LIST),$(call assert-command-present,$(src)))
 
 XDG_CACHE_HOME ?= $(HOME)/.cache
 XDG_CONFIG_HOME ?= $(HOME)/.config
 XDG_DATA_HOME ?= $(HOME)/.local/share
 XDG_BIN ?= $(HOME)/.local/bin
 UP_TARG_DIR := $(abspath ../)
-EMPTY :=
-SPACE := $(EMPTY) $(EMPTY)
+EMPTY := SPACE := $(EMPTY) $(EMPTY)
 
 assert-is-root = $(if $(shell id -u | grep -oP '^0$$'),\
  $(info OK! root user, so we can change some system files),\

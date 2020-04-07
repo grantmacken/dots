@@ -10,13 +10,30 @@ Plug 'junegunn/seoul256.vim'
 " }}}
 " Visual {{{
 " Plug 'alvan/vim-closetag'    " auto close html tags
-Plug 'Yggdroot/indentLine'    " show indentation lines
+
+Plug 'itchyny/vim-cursorword'
+let g:cursorword_delay = 100
+ 
+Plug 'airblade/vim-gitgutter'
+
+Plug 'Yggdroot/indentLine' , { 'on': 'IndentLinesEnable' }   " show indentation lines
+let g:indentLine_char = '┋'
+let g:indentLine_first_char = '┆'
+let g:indentLine_showFirstIndentLevel = 1
+let g:indentLine_setColors = 1
 " Plug 'google/vim-searchindex'   " add number of found matching search items
 " Plug 'gregsexton/MatchTag'
 " Plug 'luochen1990/rainbow'
 Plug 'junegunn/vim-peekaboo' "https://github.com/junegunn/vim-peekaboo
+Plug 'junegunn/rainbow_parentheses.vim' "https://github.com/rainbow_parentheses.vim
 Plug 'machakann/vim-highlightedyank' " highligh yank text
+let g:highlightedyank_highlight_duration = 100
 Plug 'tpope/vim-commentary'  , { 'on': ['<Plug>Commentary', '<Plug>CommentaryLine'] }
+map  gc  <Plug>Commentary
+nmap gcc <Plug>CommentaryLine
+Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
+  let g:undotree_WindowLayout = 2
+  nnoremap U :UndotreeToggle
 " Plug 'liuchengxu/vim-which-key'
 " On-demand lazy load
 " Plug 'liuchengxu/vim-which-key', { 'on': ['WhichKey', 'WhichKey!'] }
@@ -36,19 +53,18 @@ Plug 'haorenW1025/completion-nvim'
 " File_And_Project_Management {{{
 " install smae place as nvim-lsp bins
 " Plug 'tpope/vim-projectionist'
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+" Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 " Plug 'c-brenn/fuzzy-projectionist.vim'
 " Plug 'junegunn/fzf', { 'dir': '~/.cache/nvim/fzf', 'do': './install --all' }
-Plug 'yuki-ycino/fzf-preview.vim'
+" Plug 'yuki-ycino/fzf-preview.vim'
 " GIT
 " Plug 'rhysd/git-messenger.vim'
-Plug 'airblade/vim-gitgutter'
 " Plug 'AndrewRadev/switch.vim TODO
 " Plug 'junegunn/fzf.vim'
 "GF: site/after/plugin/fzf.vim/
 Plug 'justinmk/vim-dirvish'
 Plug 'bounceme/remote-viewer'
-Plug 'kristijanhusak/vim-dirvish-git'
+" Plug 'kristijanhusak/vim-dirvish-git'
 " Plug 'fsharpasharp/vim-dirvinist'
 "URL: https://github.com/justinmk/vim-dirvish/blob/master/doc/dirvish.txt
 "GF: site/after/ftplugin/dirvish.vim
@@ -90,7 +106,9 @@ Plug 'glts/vim-textobj-indblock'
 
 "}}}
 " === markdown preview == {{{
-Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install'  }
+Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app & yarn install','for': 'markdown', 'on': 'MarkdownPreview' }
+" let g:mkdp_open_to_the_world = 1
+let g:mkdp_auto_close = 0
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
 " }}}

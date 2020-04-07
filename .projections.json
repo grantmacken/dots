@@ -6,8 +6,11 @@
     "Makefile": {
     "type": "makefile"
   },
-  ".*": {
+  ".gitignore": {
     "type": "dots"
+  },
+  ".projections.json": {
+    "type": "projections"
   },
   "README.md": {
     "type": "note"
@@ -16,9 +19,12 @@
     "type": "note"
   },
   "nvim/*.vim": {
-    "type": "nvim-init"
+    "type": "nvim",
+    "activate": [],
+    "deactivate": []
+
   },
     "nvim/site/lua/my/*.lua": {
-    "type": "my-lua"
+    "type": "mylua"
   }
 }

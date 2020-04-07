@@ -1,4 +1,4 @@
-local _M = {}
+local M = {}
 local vim = vim
 local api = vim.api
 local uv  = vim.loop
@@ -62,7 +62,17 @@ local get_json_projections = function( pRoot )
    err( 'in .projections.json the root wildcard "*" object should contain a "project" object'  )
    return false
   end
-  return mJsonProjections
+  local tRootExtend  = vim.tbl_extend( 'error', mJsonProjections['*'],{root = gitRoot})
+  local tbl = {}
+  local aKeys = vim.tbl_keys( mJsonProjections )
+  for i, v in ipairs ( aKeys ) do
+    if v == '*' then
+     tbl[v] = tRootExtend
+   else
+    tbl[v] = mJsonProjections[v]
+    end
+  end
+  return tbl
 end
 -- print( inspect(get_json_projections()) )
 
@@ -82,16 +92,16 @@ local getJsonProjectionsExpandedFiles = function( mJsonProjections )
   return aFiles
 end
 
-_M.list_all_project_files = function()
+M.list_all_project_files = function()
   local mJsonProjections = get_json_projections()
   return getJsonProjectionsExpandedFiles(mJsonProjections)
 end
--- print( inspect(_M.list_all_project_files()))
+-- print( inspect(M.list_all_project_files()))
 ----
--- _M.show_project_files = function()
+-- M.show_project_files = function()
 --   require('my.fwin').show(listJsonProjectionsExpandedFiles(get_json_projections()))
 -- end
---_M.show_project_files()
+--M.show_project_files()
 
 local getProjection = function( mJsonProjections ,pFile )
   local mProjections
@@ -141,66 +151,34 @@ local isAllowableBuffer = function(bt,ft)
   return conditional
 end
 
--- print(inspect(_M.start('dots')))
+-- print(inspect(M.start('dots')))
 
 local absToRel = function( pRoot ,pFile )
   local iLen = string.len(pRoot) +2
   return string.sub(pFile,iLen)
 end
 
-local project_activate = function( mProject )
- --[[
-- [x] set lcd
-- [*] set show commands
-- [*] Upcase nav commands
-TODO
-show_project_files
- --]]
-  vim.api.nvim_command('tcd ' .. mProject.root )
-  -- -buffer	    The command will only be available in the current buffer.
-   -- api.nvim_set_var('cmd_type',false)
+--local project_activate = function( mProject )
+-- --[[
+--- [x] set lcd
+--- [*] set show commands
+--- [*] Upcase nav commands
+--TODO
+--show_project_files
+-- --]]
+--  vim.api.nvim_command('tcd ' .. mProject.root )
+--  -- -buffer	    The command will only be available in the current buffer.
+--   -- api.nvim_set_var('cmd_type',false)
 
-end
+--end
+
 
 -- the process of discovering whether
--- a buffer has projections
-_M.detect = function()
-  --  api.nvim_set_var('myProjects',{})
-  -- local win = api.nvim_get_current_win()
-  local iBuf = api.nvim_get_current_buf()
-  -- TODO  comment out for tests
-  local status = pcall(api.nvim_buf_get_var,iBuf,'projections')
-  if status == true then
-     return  api.nvim_buf_get_var( iBuf, 'projections' )
-  end
-
-  if not api.nvim_buf_is_loaded( iBuf ) then 
-   return false
-  end
-  local bufType = api.nvim_buf_get_option( iBuf, 'buftype' )
-  local fileType = api.nvim_buf_get_option( iBuf, 'filetype' )
-  -- TODO also check nvim_buf_is_valid
-  if not isAllowableBuffer(bufType,fileType) then 
-    -- print('WARN: condition not met:  buffer not allowed')
-    return false
-  end
-  local pFile = api.nvim_buf_get_name( iBuf )
-  local status, mJsonProjections = get_json_projections( iBuf )
-  if not status then return status end
-  -- print(inspect(type(mJsonProjections)))
-  ---- get the ID from
-  local sID = mJsonProjections['*'].project
-  if ( type(sID) ~= 'string' ) then 
-    print('ERR: no project ID in JSON projections ')
-    return  false
-  end
--- print( inspect(mP) )
-
--- 
+-- a tab has a git-root with projections
 --[[ ===  global myProjects ===
 myProjects is a global var
 It starts as a empty table.
-As projections are discovered for a buffer
+As projections are discovered for a window
 a key may be added to the myProjects table
 A myProjects Key is added only if the key is not present.
 myProjects Key are project identifiers.
@@ -221,115 +199,90 @@ At the project 'root' due to the detect process know there will be
    2. a git repo
 
 --]]
---
-  local pRelFile = absToRel( pRoot ,pFile )
-  local aFiles = listJsonProjectionsExpandedFiles(mJsonProjections)
-
-  local mP = {
-    project = sID,
-    root = pRoot, 
-    nav = getProjectionsNavItems(mJsonProjections)
-  }
-
-  local status = pcall(api.nvim_get_var,'myProjects')
-  if status ~= true then
-    print('INFO: init global [ myProjects ] ')
+M.detect = function()
+  local iBuf = api.nvim_get_current_buf()
+  local ok, mProjections = pcall(api.nvim_buf_get_var,iBuf,'projections')
+  if ok then return mProjections end
+  local mJsonProjections = get_json_projections()
+  -- if not mJsonProjections then return false end
+  local sID   = mJsonProjections['*'].project
+  local pRoot = mJsonProjections['*'].root
+  local ok, gMyProjects = pcall(api.nvim_get_var,'myProjects')
+  if not ok then
     fs.clean_log( pRoot )
-    api.nvim_set_var('myProjects',{})
-    fs.log( pRoot , 'global [ myProjects ] initiated with empty table' )
-  end
-  local gMyProjects = api.nvim_get_var('myProjects')
-  if ( type( gMyProjects) ~= 'table' ) then 
-    print('ERR: got [ '  .. type(gMyProjects) .. ' ] global "myProject" should be table ')
-    return false
-  end
-
-  if vim.tbl_isempty( gMyProjects ) then
-    -- fresh start of all projects
-    gMyProjects[sID] = mP
-    fs.log( pRoot , 'global [ myProjects ] added project : ' .. sID  )
-    -- note gMyProjects is added to global myProjects only if projections found for buffer
-    api.nvim_set_var('myProjects', {})
+    gMyProjects = {}
+    gMyProjects[sID] = {
+      root = pRoot,
+      nav = getProjectionsNavItems(mJsonProjections)
+    }
+    fs.log( pRoot , '🌐 [ myProjects ] initiated with project:' .. sID )
+    api.nvim_set_var('myProjects', gMyProjects )
   else
-    local tKeys = vim.tbl_keys(mJsonProjections)
+    local tKeys = vim.tbl_keys(gMyProjects)
     if not vim.tbl_contains(tKeys,sID) then
-      gMyProjects[sID] = mP
-      fs.log( pRoot , 'global [ myProjects ] added project : ' .. sID  )
+      gMyProjects[sID] = {
+        root = pRoot,
+        nav = getProjectionsNavItems(mJsonProjections)
+      }
+      fs.log( pRoot , '🌐 [ myProjects ] added project : ' .. sID  )
+      api.nvim_set_var('myProjects', gMyProjects )
     end
   end
 
- 
-  --[[
-2. activate
-
+  -- TODO  comment out for tests
+  -- local status = pcall(api.nvim_buf_get_var,iBuf,'projections')
+  -- if status == true then
+  --   return  api.nvim_buf_get_var( iBuf, 'projections' )
+  -- end
+  if not api.nvim_buf_is_loaded( iBuf ) then return false end
+  local bufType = api.nvim_buf_get_option( iBuf, 'buftype' )
+  local fileType = api.nvim_buf_get_option( iBuf, 'filetype' )
+  -- TODO also check nvim_buf_is_valid
+  if not isAllowableBuffer(bufType,fileType) then return false end
+  local pFile = api.nvim_buf_get_name( iBuf )
+  ---- get the ID from
+  local sID = mJsonProjections['*'].project
+  local pRelFile = absToRel( pRoot ,pFile )
+  local aFiles =  getJsonProjectionsExpandedFiles(mJsonProjections)
+  if not vim.tbl_contains(aFiles, pRelFile ) then return end
+  --M.Activate( api.nvim_get_var('myProjects') )
+  --[[ === activate ===
  activation occurs per buffer
  activation only occurs 
   - on allowable buffers [ fs.isAllowableBuffer(bufType,fileType) ]
   - only if a projection has a type key
   - the buffer filename is matched to a wildcard expanded projection value
 --]]
-  if vim.tbl_contains(aFiles, pRelFile ) then
-    fs.log( pRoot, 'buffer [ ' .. pRelFile .. ' ] projections discovered' )
+  fs.log( pRoot, 'buffer [ ' .. pRelFile .. ' ] projections discovered' )
+  local  bufInitialProjections = getProjection(mJsonProjections,pRelFile)
+  local tMore = {
+    project = sID,
+    root = pRoot,
+    file = pRelFile
+  }
+  fs.log( pRoot, 'buffer [ ' .. pRelFile .. ' ] - set projections')
+  local bufProjections =  vim.tbl_extend( 'error',bufInitialProjections, tMore)
+  api.nvim_buf_set_var(iBuf,'projections',bufProjections)
+  local mProject = api.nvim_get_var('myProjects')[sID]
 
-    --[[ === new project discovery and activation  ===
-    - activate if myProjects empty => there is a first project fo myProjects
-    - activate if myProjects does not contain sID key => their is an additional project for myProjects
-    --]]
-    local mProject = gMyProjects[sID]
-    local myProjects = api.nvim_get_var('myProjects')
-    if vim.tbl_isempty( myProjects ) then
-      fs.log( pRoot, 'global [ myProjects ] activating project: "' .. sID  .. '"')
-        api.nvim_set_var('myProjects',gMyProjects)
-        project_activate(mProject)
-    else
-      local tKeys = vim.tbl_keys(myProjects)
-      if vim.tbl_contains(tKeys,sID) then
-        fs.log( pRoot, 'global [ myProjects ] project: "' .. sID  .. '" already activated')
-      else
-        fs.log( pRoot, 'global [ myprojects ] activating project: "' .. sID  .. '"')
-        api.nvim_set_var('myProjects',gMyProjects)
-        project_activate(mProject)
-      end
-    end
-    -- reset global NOTE! only if we found a projectionist buffer
-    -- TODO! projects_activate
-    --set local buffer var
-    local bufProjections = getProjection(mJsonProjections,pRelFile)
-    if ( type(bufProjections) ~= 'table' ) then
-        fs.log( pRoot, 'WARN: buffer [ ' .. pRelFile ..' ] has no projections for project: ' .. sID  .. '"')
-
-    return 
-  end
-
-    local tMore = {
-      project = sID,
-      root = pRoot,
-      file = pRelFile
-    }
-    fs.log( pRoot, 'buffer [ ' .. pRelFile .. ' ] - set projections')
-    api.nvim_buf_set_var(iBuf,'projections',vim.tbl_extend( 'error', bufProjections, tMore))
-    -- api.nvim_command(sBegin .. 'cmdline_complete_projects MyShowProjects lua require("my.project").show_projects()')
-    -- api.nvim_command(sBegin .. 'cmdline_complete_projects MyShowProjects lua require("my.project").show_projects()')
     -- === BUFFER COMMANDS ===
     fs.log( pRoot, 'buffer [ ' .. pRelFile .. ' ] - set "MyShow" commands')
     local sBegin = 'command! -nargs=1 -buffer -complete=customlist,v:lua.'
     api.nvim_command(sBegin .. 'cmdline_complete_projects MyShowProject lua require("my.project").show_project(<f-args>)')
     api.nvim_command(sBegin .. 'cmdline_complete_projects MyShowLog lua require("my.project").show_log(<f-args>)')
     fs.log( pRoot, 'buffer [ ' .. pRelFile .. ' ] - set E edit commands')
-    local aKeys =  vim.tbl_keys(mProject.nav)
-    for  index, sKey in ipairs ( aKeys ) do
-      api.nvim_command(sBegin .. 'cmdline_complete_nav E' ..sKey ..' lua require("my.project").edit(<f-args>)')
+    local aKeys = vim.tbl_keys(mProject.nav)
+    for  i, sKey in ipairs ( aKeys ) do
+      local cmd = sBegin .. 'cmdline_complete_nav E' ..sKey ..' lua require("my.project").edit(<f-args>)'
+      --print(cmd)
+      api.nvim_command(cmd)
     end
-  end
-  -- TODO alternate commands
+  return  api.nvim_buf_get_var(iBuf,'projections')
 
--- api.nvim_buf_get_var(iBuf, 'projections')
---- api.nvim_buf_get_var('myProjections')
---  return api.nvim_buf_get_var(iBuf, 'projections')
 end
--- print(inspect(_M.detect()))
+-- print( inspect(M.detect()) )
 
-_M.root_from_id = function( sID )
+M.root_from_id = function( sID )
   local myProjects = api.nvim_get_var('myProjects')
   if vim.tbl_isempty( myProjects ) then return false end
   local tKeys = vim.tbl_keys( myProjects )
@@ -341,7 +294,7 @@ _M.root_from_id = function( sID )
   return pRoot
 end
 
--- _M.show_json_projections = function()
+-- M.show_json_projections = function()
 --   -- local myProjects = api.nvim_get_var('myProjects')
 --   -- if vim.tbl_isempty( myProjects ) then 
 --   --   return print( 'ERR: global "myProjects" is empty' )
@@ -350,7 +303,7 @@ end
 --   -- require('my.fwin').show(aLines)
 -- end
 
-_M.show_projects = function()
+M.show_projects = function()
   local myProjects = api.nvim_get_var('myProjects')
   if vim.tbl_isempty( myProjects ) then 
     return print( 'ERR: global "myProjects" is empty' )
@@ -358,41 +311,59 @@ _M.show_projects = function()
   local aLines = vim.split(vim.inspect(myProjects),'\n' )
   require('my.fwin').show(aLines)
 end
--- _M.show_projects()
+-- M.show_projects()
 
-_M.list_projects = function()
+M.list_projects = function()
   local myProjects = api.nvim_get_var('myProjects')
   if vim.tbl_isempty( myProjects ) then return myProjects end
   return vim.tbl_keys( myProjects )
 end
--- print(inspect(_M.list_projects()))
+ --print(inspect(M.list_projects()))
 
-_M.get_project = function(sID)
+M.get_project = function(sID)
   local myProjects = api.nvim_get_var('myProjects')
   if vim.tbl_isempty( myProjects ) then return false end
   return myProjects[sID]
 end
--- print(inspect(_M.get_project('dots')))
+--print(inspect(M.get_project( 'dots' )))
 
-_M.show_project = function(sID)
-  local mProject = _M.get_project(sID)
+M.get_project_value = function( sID, sKey )
+  local myProject = M.get_project(sID)
+  local aKeys = vim.tbl_keys(myProject)
+  if ( vim.tbl_contains( aKeys, sKey)) then  
+    return myProject[sKey]
+  else
+    err( 'could not resolve key: ' .. sKey) 
+    return false
+  end
+end
+-- print(inspect(M.get_project_value( 'dots','root' )))
+
+M.get_project_nav = function( sID )
+ return M.get_project_value(sID,'nav') 
+end
+
+ -- print(inspect(M.get_project_nav('dots')))
+
+M.show_project = function(sID)
+  local mProject = M.get_project(sID)
   if vim.tbl_isempty( mProject ) then return false end
   local aLines = vim.split(vim.inspect(mProject),'\n' )
   require('my.fwin').show(aLines)
 end
---_M.show_project('dots')
+-- M.show_project('dots')
 
+M.open_project = function(sID)
+  print('TODO!')
+end
 
--- print(inspect(_M.list_project_files() ))
-
-
--- _M.show_project_files( 'dots')
-
+M.close_project = function(sID)
+  print('TODO!')
+end
 
 -- === BUFFER ===
 
-
-_M.get_buf_projections = function()
+M.get_buf_projections = function()
   local iBuf = api.nvim_get_current_buf()
   local mProjections = vim.fn.getbufvar( iBuf, 'projections')
   if ( type(vim.fn.getbufvar( iBuf, 'projections')) ~= 'table' ) then 
@@ -400,52 +371,82 @@ _M.get_buf_projections = function()
   end
  return mProjections
 end
--- print(inspect(_M.get_buf_projections()))
+--print(inspect(M.get_buf_projections()))
 
-_M.show_buf_projections = function()
-  local mProjections =_M.get_buf_projections()
+M.show_buf_projections = function()
+  local mProjections =M.get_buf_projections()
   local tLines = vim.split(inspect(mProjections),'\n')
   require('my.fwin').show(tLines)
 end
--- _M.show_buf_projections()
+-- M.show_buf_projections()
 
-_M.get_projection_value = function( sKey )
-  local mProjections =_M.get_buf_projections()
+M.get_projection_value = function( sKey )
+  local mProjections = M.get_buf_projections()
   local aKeys = vim.tbl_keys(mProjections)
   if ( vim.tbl_contains(aKeys, sKey) ) then 
     return mProjections[sKey]
-  else
-    print('WARN: [ ' .. skey .. ' ] key not found' )
-    return false
-  end
-  return aKeys
+  else err( got(sKey) .. ' => expected a valid key' ) return end
 end
--- print(inspect(_M.get_projection_value('type')))
+-- print(inspect(M.get_projection_value('type')))
 
-_M.show_log = function( sID )
-  local pRoot = _M.get_projection_value('root')
+M.get_projections_project_value = function()
+  return M.get_projection_value('project')
+end
+
+M.get_projections_type_value = function()
+  return M.get_projection_value('type')
+end
+
+M.get_projections_root_value = function()
+  return M.get_projection_value('root')
+end
+
+-- print(inspect(M.get_projections_root_value()))
+
+M.show_log = function( sID )
+  local pRoot = M.get_projection_value('root')
   local sChunk = fs.read(pRoot,'.project.log')
   local tLines = vim.split(sChunk,'\n')
   require('my.fwin').show(tLines)
 end
--- _M.show_log()
 
--- _M.list_buffer_nav = function()
---   local sID = _M.get_projection_value('project')
---   local mProject = _M.get_project(sID)
---   return mProject.nav
--- end
--- print(inspect(_M.list_buffer_nav()))
+-- M.show_log()
 
--- TODO!
-_M.list_files_by_type = function(sType)
-  local sID = _M.get_projection_value('project')
-  if type( sID ) ~= 'string' then return {} end
-  local aNav = _M.get_project( sID ).nav[sType]
-  if type( aNav ) ~= 'table' then return {} end
-  return aNav
+M.list_files_by_type = function( sType )
+local sID = M.get_projections_project_value()
+if not sID then err( got(sID) .. ' => expected projections project value') return end
+return M.get_project_nav(sID)[sType]
 end
--- print(inspect(_M.list_files_by_type( 'Enote' ) ))
+-- print(inspect(M.list_files_by_type( 'note') ))
+
+M.list_file_names_by_type = function(sType)
+  local aList = M.list_files_by_type(sType)
+  local res = {}
+  for _, sValue in ipairs(aList) do
+    local aFiles = vim.split(sValue, '/')
+    local sFile =  aFiles[#aFiles]
+    local aFile = vim.split(sFile, '[.]')[1]
+    vim.list_extend(res,{aFile})
+  end
+  return res
+end
+
+-- M.get_file_by_filename = function( pFilename )
+--   local sID = M.get_projection_value('project')
+--   if type( sID ) ~= 'string' then return false end
+--   local aList = M.get_project_value(sID,'nav')[sType]
+--   local res = {}
+--   for _, sValue in ipairs(aList) do
+--     local split = vim.split(sValue, '/')
+--     if ( sValue )
+--      vim.list_extend(res, {split[#split]})
+--   end
+--   return res
+-- end
+
+
+--print(inspect(M.list_file_names_by_type( 'note') ))
+
 
 -- == Command Line Completions == --
 --[[
@@ -473,31 +474,54 @@ local cmdline_complete = function( aList, sArgLead )
   return res
 end
 
--- _M.cmdline_complete_nav =  function( sArgLead, sCmdLine, iCursorPos )
---   return cmdline_complete( _M.list_buffer_nav(sCmdLine), sArgLead  )
+-- M.cmdline_complete_nav =  function( sArgLead, sCmdLine, iCursorPos )
+--   return cmdline_complete( M.list_buffer_nav(sCmdLine), sArgLead  )
 -- end
 
-_M.cmdline_complete_projects =  function( sArgLead, sCmdLine, iCursorPos )
-  return cmdline_complete( _M.list_projects(), sArgLead )
+M.cmdline_complete_projects =  function( sArgLead, sCmdLine, iCursorPos )
+  return cmdline_complete( M.list_projects(), sArgLead )
 end
 
-_M.cmdline_complete_nav = function( sArgLead, sCmdLine, iCursorPos)
+M.cmdline_complete_nav = function( sArgLead, sCmdLine, iCursorPos)
+  -- api.nvim_del_var('myCmdLine')
   local status = pcall(api.nvim_get_var,'myCmdLine')
   if status ~= true then
-    api.nvim_set_var('myCmdLine',string.sub(vim.trim(sCmdLine),2))
+    local sNav = string.sub(vim.trim(sCmdLine),2)
+    local aFilenames = M.list_files_by_type(sNav)
+    local aFiles = M.list_file_names_by_type(sNav)
+    local res = {}
+    res['nav'] = sNav
+    res['files'] = {}
+    for i, sValue in ipairs(aFiles) do
+      res['files'][sValue] = aFilenames[i]
+    end
+    api.nvim_set_var('myCmdLine',res)
   end
-  local aList = _M.list_files_by_type(api.nvim_get_var('myCmdLine'))
+  local aList = vim.tbl_keys(api.nvim_get_var('myCmdLine').files)
   return cmdline_complete(aList, sArgLead )
 end
+-- print(inspect(M.cmdline_complete_nav('','Enote','')))
 
-_M.edit =  function( pFile )
+
+M.edit =  function( pName )
+  local mFiles = api.nvim_get_var('myCmdLine').files
   api.nvim_del_var('myCmdLine')
+  local aList = vim.tbl_keys(mFiles)
+  local pFile
+  if vim.tbl_contains(aList,pName) then
+    pFile = mFiles[pName]
+  else
+    return api.nvim_command( 'edit '.. M.get_projection_value('file') ) 
+  end
   if fs.is_file(pFile) then
-    api.nvim_command( 'edit '.. pFile )
+    return api.nvim_command( 'edit '.. pFile )
   else
     -- should reload 'file'
-    api.nvim_command( 'edit '.. _M.get_projection_value('file') )
+    return api.nvim_command( 'edit '.. M.get_projection_value('file') )
   end
 end
+-- print(inspect(M.get_projection_value('file')))
 
-return _M
+-- print(inspect(M.edit('README')))
+--
+return M
