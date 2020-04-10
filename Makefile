@@ -1,7 +1,7 @@
 SHELL=/bin/bash
 APP_LIST = git curl stow
 assert-command-present = $(if $(shell which $1),,$(error '$1' missing and needed for this build))
-$(foreach src,$(APP_LIST),$(call assert-command-present,$(src)))
+$(foreach src,$(APP_LIST),$(call assert-command-present,$(src)))
 
 XDG_CACHE_HOME ?= $(HOME)/.cache
 XDG_CONFIG_HOME ?= $(HOME)/.config
@@ -44,12 +44,33 @@ help:
 # 	@#cd ../../nvimpager && sudo $(MAKE)
 # 	@#cd /usr/local/bin; stow -v -t $(XDG_BIN) .
 
+.PHONY: skim
+skim:
+	@cd $(XDG_CACHE_HOME)/nvim/skim/bin && ls -al .
+	@cd $(XDG_CACHE_HOME)/nvim/skim/bin && stow -v -t $(XDG_BIN) .
+
+.PHONY: lazygit
+lazygit:
+	@go get github.com/jesseduffield/lazygit
+	@cd $(GOPATH)/bin && stow -v -t $(XDG_BIN) .
+
+
+.PHONY: linters
+linters:
+	@docker pull hadolint/hadolint:latest-alpine
+	@#pip install --user yamllint
+	@# pip3 install --user vint
+	@#pip install --user vint --upgrade
+	@#go get github.com/mrtazz/checkmake
+	@#cd $(GOPATH)/src/github.com/mrtazz/checkmake && make
+	@#cd $(GOPATH)/bin && stow -v -t $(XDG_BIN) .
+
 .PHONY: neovim-update
 neovim-update:
 	@cd ../../neovim/neovim && git pull
 	@cd ../../neovim/neovim && $(MAKE) CMAKE_BUILD_TYPE=Release CMAKE_INSTALL_PREFIX=/usr/local/nvim
 	@cd ../../neovim/neovim && sudo $(MAKE) install
-	@cd /usr/local/nvim/bin; stow -v -t $(XDG_BIN) .
+	@cd /usr/local/nvim/bin; stow -D -v -t $(XDG_BIN) .
 
 .PHONY: nvimpager-update
 nvimpager-update:
