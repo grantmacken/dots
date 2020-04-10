@@ -1,4 +1,5 @@
 M = {}
+local vim = vim
 local api = vim.api
 local inspect = vim.inspect
 local err, got, exp = require('my.utility').printr()
@@ -108,10 +109,10 @@ local set_mappings = function( T )
     ['q']    = 'close_fwin()',
   }
   for sKey, sValue in pairs(mappings) do
-    api.nvim_buf_set_keymap( T.buf, mode, sKey, '<cmd>lua M.' .. sValue .. '<cr>', kopts )
+    api.nvim_buf_set_keymap( T.buf, mode, sKey, '<cmd>lua  require("my.fwin").' .. sValue .. '<cr>', kopts )
   end
 
-  extraMappings = {
+  local extraMappings = {
     ['<Left>'] = '',
     ['<Right>'] = ''
   }
@@ -120,7 +121,7 @@ local set_mappings = function( T )
     api.nvim_buf_set_keymap(T.buf, mode, sKey, sValue, kopts)
   end
 
-  aTozMappings = {
+  local aTozMappings = {
     ['b'] = '',
     ['c'] = '',
     ['d'] = '',
