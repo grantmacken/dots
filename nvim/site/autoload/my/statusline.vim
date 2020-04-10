@@ -12,6 +12,15 @@ function! my#statusline#lsp_diag()
   return luaeval("require('my.statusline').lsp_diag()")
 endfunction
 
+function! my#statusline#gitgutter()
+  let [a,m,r] = GitGutterGetHunkSummary()
+  return printf('+%d ~%d -%d', a, m, r)
+endfunction
+
+function! my#statusline#nearestMethodOrFunction() abort
+  return get(b:, 'vista_nearest_method_or_function', '')
+endfunction
+
 function! my#statusline#active()
   return luaeval("require('my.statusline').active()")
 endfunction
