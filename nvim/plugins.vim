@@ -11,21 +11,36 @@ Plug 'junegunn/seoul256.vim'
 " Visual {{{
 " Plug 'alvan/vim-closetag'    " auto close html tags
 
-Plug 'itchyny/vim-cursorword'
-let g:cursorword_delay = 100
- 
+"Plug 'itchyny/vim-cursorword'
+"let g:cursorword_delay = 100
+"https://github.com/tommcdo/vim-lion
+" Plug 'tommcdo/vim-lion'
+" let g:lion_squeeze_spaces = 1
+" let g:lion_create_maps = 1
+
 Plug 'airblade/vim-gitgutter'
+" Plug 'kdheepak/lazygit.vim'
+
 
 Plug 'Yggdroot/indentLine' , { 'on': 'IndentLinesEnable' }   " show indentation lines
-let g:indentLine_char = '┋'
-let g:indentLine_first_char = '┆'
+let g:indentLine_char                 = '┋'
+let g:indentLine_first_char           = '┆'
 let g:indentLine_showFirstIndentLevel = 1
-let g:indentLine_setColors = 1
+let g:indentLine_setColors            = 1
+let g:indentLine_fileTypeExclude      = ['json', 'markdown']
+let g:indentLine_bufTypeExclude       = ['help', 'terminal', 'nofile']
 " Plug 'google/vim-searchindex'   " add number of found matching search items
 " Plug 'gregsexton/MatchTag'
 " Plug 'luochen1990/rainbow'
+
 Plug 'junegunn/vim-peekaboo' "https://github.com/junegunn/vim-peekaboo
+Plug 'Yilin-Yang/vim-markbar' " https://github.com/Yilin-Yang/vim-markbar
+let g:markbar_marks_to_display = 'abcdefghiABCDEFGHI'
+
 Plug 'junegunn/rainbow_parentheses.vim' "https://github.com/rainbow_parentheses.vim
+Plug 'junegunn/vim-easy-align', { 'on': ['<Plug>(EasyAlign)'] }
+nmap ga <Plug>(EasyAlign)
+xmap ga <Plug>(EasyAlign)
 Plug 'machakann/vim-highlightedyank' " highligh yank text
 let g:highlightedyank_highlight_duration = 100
 Plug 'tpope/vim-commentary'  , { 'on': ['<Plug>Commentary', '<Plug>CommentaryLine'] }
@@ -44,17 +59,40 @@ Plug 'mbbill/undotree', { 'on': 'UndotreeToggle' }
 Plug 'neovim/nvim-lsp'
 Plug 'haorenW1025/diagnostic-nvim'
 Plug 'haorenW1025/completion-nvim'
+"Plug 'vigoux/completion-treesitter'
+" Highlight the node at point, its usages and definition when cursor holds
+" let g:complete_ts_highlight_at_point = 1
+    " \{'ins_complete': v:false, 'complete_items': ['lsp']},
+    " \{'ins_complete': v:true,  'mode': '<file>'},
+    " \{'ins_complete': v:true,  'mode': '<c-p>'},
+    " \{'ins_complete': v:true,  'mode': '<c-n>'}
+" \
+Plug 'liuchengxu/vista.vim'
+Plug 'chrisbra/unicode.vim'
+
+
+" 🆙   U+1F199 &#x1F199;         SQUARED UP WITH EXCLAMATION MARK                         http://unicode-table.com/en/1F199/
 "Plug 'neoclide/coc.nvim', {'branch': 'release'}
 "Plug 'hyhugh/coc-erlang_ls', {'do': 'yarn install --frozen-lockfile'}
 "Plug 'w0rp/ale'
 " Plug 'SirVer/ultisnips'
 " Plug 'honza/vim-snippets' " actual snippets
+"" ultisnips
+" let g:UltiSnipsSnippetDirectories = ["~/.vim/plugged/vim-snippets/UltiSnips/"]
+" let g:UltiSnipsEditSplit="vertical"
+" let g:UltiSnipsExpandTrigger="<c-n>"
+" let g:ultisnips_python_style="google"
+" let g:UltiSnipsJumpForwardTrigger="<c-f>"
+" let g:UltiSnipsJumpBackwardTrigger="<c-b>"
 " }}}
 " File_And_Project_Management {{{
 " install smae place as nvim-lsp bins
 " Plug 'tpope/vim-projectionist'
 " Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 " Plug 'c-brenn/fuzzy-projectionist.vim'
+Plug 'lotabout/skim', { 'dir': '~/.cache/nvim/skim', 'do': './install' }
+Plug 'lotabout/skim.vim'
+let $SKIM_DEFAULT_COMMAND = "git ls-tree -r --name-only HEAD || rg --files || find ."
 " Plug 'junegunn/fzf', { 'dir': '~/.cache/nvim/fzf', 'do': './install --all' }
 " Plug 'yuki-ycino/fzf-preview.vim'
 " GIT
@@ -117,15 +155,14 @@ Plug 'vitalk/vim-shebang' "https://github.com/vitalk/vim-shebang
 " https://github.com/vitalk/vim-fancy
 " https://github.com/vitalk/vim-simple-todo
 Plug 'othree/yajs.vim', { 'for': 'javascript' }           " JAVASCRPT SYNTAX object/method data comes from Mozilla's WebIDL
-Plug 'HerringtonDarkholme/yats.vim',{'for': 'typescript'} " TYPESCRIPT
-Plug 'gavocanov/vim-js-indent' ,{'for': 'javascript'}     " JAVASCRIPT INDENT
-Plug 'elzr/vim-json', { 'for': 'json' } "                  JSON support
-" Plug 'ap/vim-css-color', { 'for': 'css' }       "   CSS set the background of hex color values to the color
-Plug 'hail2u/vim-css3-syntax', { 'for': 'css' } "   CSS3 syntax support
-Plug 'othree/html5.vim'                         "   HTML 5 with  WAI-ARIA attribute support
-Plug 'othree/xml.vim'                           "   XML tags while you type
-Plug 'tbastos/vim-lua', { 'for': 'lua' } "          LUA syntax and indentation support
-Plug 'chr4/nginx.vim'                           "   NGINX with embeded lua block highlight
+Plug 'HerringtonDarkholme/yats.vim', {'for': 'typescript'} " TYPESCRIPT
+Plug 'gavocanov/vim-js-indent',      {'for': 'javascript'} " JAVASCRIPT INDENT
+Plug 'elzr/vim-json',                { 'for': 'json' }     " JSON support
+Plug 'hail2u/vim-css3-syntax',       { 'for': 'css' }      " CSS3 syntax support
+Plug 'othree/html5.vim'                  " HTML 5 with  WAI-ARIA attribute support
+Plug 'othree/xml.vim'                    " XML tags while you type
+Plug 'tbastos/vim-lua', { 'for': 'lua' } " LUA syntax and indentation support
+Plug 'chr4/nginx.vim'                    " NGINX with embeded lua block highlight
 " Plug 'othree/nginx-contrib-vim', {'for': 'nginx'} " NGINX
 Plug 'ledger/vim-ledger', {'for': 'ledger'}                           " lEDGER
 Plug 'junegunn/vader.vim'                         " VIM    testing vim plugings -- use for syntax
