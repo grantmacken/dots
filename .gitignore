@@ -3,3 +3,4 @@ bu_*
 tags
 .*.log
 notes
+configs/.config/nvim/pack
