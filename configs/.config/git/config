@@ -18,3 +18,5 @@
 	sort = version:refname
 [color]
 	pager = no
+[pull]
+	rebase = false

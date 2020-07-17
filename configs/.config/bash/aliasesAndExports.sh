@@ -33,6 +33,15 @@ if [ ! -d "$XDG_DATA_HOME/nvim/site/plugged" ]; then
 fi
 
 
+
+
+
+export JAVA_HOME=/usr/lib/openjdk-8
+JAVA_BIN=/usr/lib/openjdk-8/bin
+if [[ ! "$PATH" == *${JAVA_BIN}* ]]; then
+  export PATH="$PATH:${JAVA_BIN}"
+fi
+
 # make sure we have a home bin on path
 HOME_BIN=$HOME/.local/bin
 if [[ ! "$PATH" == *${HOME_BIN}* ]]; then
@@ -46,6 +55,7 @@ if [[ ! "$PATH" == *${REBAR_BIN}* ]]; then
   export PATH="$PATH:${REBAR_BIN}"
 fi
 
+export GOPATH=$HOME/go
 
 # git controlled project development
 
@@ -55,6 +65,12 @@ if [ -n "${GIT_USER}" ]; then
   export GIT_USER="${GIT_USER}"
   PROJECTS="$HOME/projects/${GIT_USER}"
   export PROJECTS="${PROJECTS}"
+
+NODE_BIN=${PROJECTS}/node_modules/.bin
+if [[ ! "$PATH" == *${NODE_BIN}* ]]; then
+  export PATH="$PATH:${NODE_BIN}"
+fi
+
 
   LEDGER_FILE=${PROJECTS}/accounts/main.ledger
   export LEDGER_FILE="${LEDGER_FILE}"

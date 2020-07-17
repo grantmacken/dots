@@ -39,3 +39,5 @@ if [ -f '/home/gmack/google-cloud-sdk/path.bash.inc' ]; then . '/home/gmack/goog
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/home/gmack/google-cloud-sdk/completion.bash.inc' ]; then . '/home/gmack/google-cloud-sdk/completion.bash.inc'; fi
+
+[ -f "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.bash ] && source "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.bash

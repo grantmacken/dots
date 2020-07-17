@@ -1,4 +1,11 @@
 SHELL=/bin/bash
+.ONESHELL:
+#.SHELLFLAGS := -eu -o pipefail -c
+.DELETE_ON_ERROR:
+MAKEFLAGS += --warn-undefined-variables
+MAKEFLAGS += --no-builtin-rules
+###################################
+
 APP_LIST = git curl stow
 assert-command-present = $(if $(shell which $1),,$(error '$1' missing and needed for this build))
 $(foreach src,$(APP_LIST),$(call assert-command-present,$(src)))
@@ -44,16 +51,57 @@ help:
 # 	@#cd ../../nvimpager && sudo $(MAKE)
 # 	@#cd /usr/local/bin; stow -v -t $(XDG_BIN) .
 
-.PHONY: skim
-skim:
-	@cd $(XDG_CACHE_HOME)/nvim/skim/bin && ls -al .
-	@cd $(XDG_CACHE_HOME)/nvim/skim/bin && stow -v -t $(XDG_BIN) .
+.PHONY: configs
+configs:
+	@echo 'TASK: use stow to create symlinks in home dir'
+	@export CWD=$(CURDIR)
+	@#[ -f ~/.bashrc ] && rm ~/.bashrc
+	@#[ -f ~/.gitconfig ] && rm ~/.gitconfig
+	$(if $(wildcard  $(XDG_CONFIG_HOME)/bash ),,mkdir -p $(XDG_CONFIG_HOME)/bash)
+	@stow -v -t ~ configs
+	@source $(HOME)/.bashrc
+	pushd configs/.config &>/dev/null
+	@stow -v -t $(CURDIR) .
+	popd &>/dev/null
 
-.PHONY: lazygit
-lazygit:
+.PHONY: clean-config
+clean-config:
+	@echo 'TASK : use stow to remove bash symlinks in home dir'
+	@stow -D -v -t ~ configs
+
+
+update: update-neovim gh-update
+
+
+
+
+.PHONY: ignore-syms
+ignore-syms:
+	find . -type l >> .gitignore
+
+.PHONY: update-node
+:update-node
+	pushd ../
+	npm install
+	npm update
+	popd
+
+
+.PHONY: fzf
+fzf:
+	@pushd $(PROJECTS)/fzf &>/dev/null
+	#git clone git@github.com:junegunn/fzf.git
+	git pull
+	./install --all --xdg
+	@popd &>/dev/null
+	@#cd $(XDG_CACHE_HOME)/nvim/fzf/bin && ls -al .
+	@#cd $(XDG_CACHE_HOME)/nvim/fzf/bin && stow -v -t $(XDG_BIN) .
+
+.PHONY: go-cli
+go-cli:
 	@go get github.com/jesseduffield/lazygit
+	@go get github.com/jesseduffield/lazydocker
 	@cd $(GOPATH)/bin && stow -v -t $(XDG_BIN) .
-
 
 .PHONY: linters
 linters:
@@ -64,13 +112,6 @@ linters:
 	@#go get github.com/mrtazz/checkmake
 	@#cd $(GOPATH)/src/github.com/mrtazz/checkmake && make
 	@#cd $(GOPATH)/bin && stow -v -t $(XDG_BIN) .
-
-.PHONY: neovim-update
-neovim-update:
-	@cd ../../neovim/neovim && git pull
-	@cd ../../neovim/neovim && $(MAKE) CMAKE_BUILD_TYPE=Release CMAKE_INSTALL_PREFIX=/usr/local/nvim
-	@cd ../../neovim/neovim && sudo $(MAKE) install
-	@cd /usr/local/nvim/bin; stow -D -v -t $(XDG_BIN) .
 
 .PHONY: nvimpager-update
 nvimpager-update:
@@ -91,51 +132,42 @@ neovim-remote:
 
 .PHONY: gh-update
 gh-update:
-	@cd ../../cli && git pull
-	@cd ../../cli && $(MAKE)
-	@cd  ../../cli/bin; stow -v -t $(XDG_BIN) .
+	@pushd ../../gh-cli
+	@#git clone https://github.com/cli/cli.git gh-cli
+	if git pull | grep 'Already up to date' 
+	then
+	echo ' - already up to date'
+	else
+	echo ' - update gh'
+	make
+	fi
+	@pushd bin && stow -v -t $(XDG_BIN) . && popd
+	@popd
 
-.PHONY: plug
-plug:
-	$(if $(wildcard  $(XDG_DATA_HOME)/nvim/site/autoload/plug.vim),,curl -fLo $(XDG_DATA_HOME)/nvim/site/autoload/plug.vim  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim)
-	@nvim +'PlugClean --sync' +qa
-
-.PHONY: neovim
-neovim:
+.PHONY: update-neovim
+update-neovim:
+	@echo '## $@ ##'
 	@mkdir -p $(XDG_CACHE_HOME)/nvim
 	@mkdir -p $(XDG_CONFIG_HOME)/nvim
-	@mkdir -p $(XDG_DATA_HOME)/nvim/site/autoload
-	@mkdir -p $(XDG_DATA_HOME)/nvim/site/plugged
-	$(if $(wildcard  $(XDG_DATA_HOME)/nvim/site/autoload/plug.vim),,curl -fLo $(XDG_DATA_HOME)/nvim/site/autoload/plug.vim  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim)
-	@cd nvim; stow -v --ignore='site' -t $(XDG_CONFIG_HOME)/nvim .
-	@cd nvim; stow -v -t $(XDG_DATA_HOME)/nvim/site site
-
-.PHONY: clean-neovim
-clean-neovim:
-	@echo 'Task: $(notdir $@)'
-	@cd nvim; stow -D -v  --ignore='site' -t "$(XDG_CONFIG_HOME)/nvim" .
-	@cd nvim; stow -D -v -t "$(XDG_DATA_HOME)/nvim/site" site
-
-.PHONY: configs
-configs:
-	@echo 'TASK: use stow to create symlinks in home dir'
-	@#[ -f ~/.bashrc ] && rm ~/.bashrc
-	@#[ -f ~/.gitconfig ] && rm ~/.gitconfig
-	$(if $(wildcard  $(XDG_CONFIG_HOME)/bash ),,mkdir -p $(XDG_CONFIG_HOME)/bash)
-	@stow -v -t ~ configs
-	@source $(HOME)/.bashrc
-
-.PHONY: clean-config
-clean-config:
-	@echo 'TASK : use stow to remove bash symlinks in home dir'
-	@stow -D -v -t ~ configs
+	@mkdir -p $(XDG_DATA_HOME)/nvim/site
+	@pushd ~/.local/share/nvim/site/pack/packer/opt/packer.nvim
+	git pull
+	popd
+	@echo 'download latest neovim release'
+	@curl -sL https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz |
+	tar xz  -C $(HOME)/.local/
+	@echo 'make nvim exectable an link to local bin'
+	@chmod +x $(HOME)/.local/nvim-linux64/bin/nvim
+	@pushd $(HOME)/.local/bin
+	@ln -sf ../nvim-linux64/bin/nvim
+	@popd
 
 .PHONY: projects
 projects:
 	@echo 'TASK: projects bin and node '
 	@mkdir -p projects/bin
 	@mkdir -p  ~/.local/bin
-	@mkdir -p  ../node_modules/.bin
+	@mkdir -p ../node_modules/.bin
 	@stow -v -t ~/.local/bin bin
 	@cd projects;stow -v  -t ../../ .
 
@@ -149,7 +181,8 @@ solus: bin/my-solus-packages.list
 	@echo 'TASK: install my solus essentials'
 	@#mkdir -p  ~/.local/bin
 	@sudo bin/install-solus-packages.sh $<
-	@#setxkbmap -option caps:swapescape
+	@sudo eopkg up
+	@setxkbmap -option caps:swapescape
 	@#git remote add origin git@github.com:grantmacken/dots.git
 
 .PHONY: solus-build-essentials
@@ -182,4 +215,14 @@ snaps: bin/my-snaps.list
 
 .PHONY: fonts
 fonts:
-	@cd ~/.local/share/fonts && curl -fLo "Fira Code Medium Nerd Font Complete.otf" https://github.com/ryanoasis/nerd-fonts/blob/master/patched-fonts/FiraCode/Medium/complete/Fira%20Code%20Medium%20Nerd%20Font%20Complete.otf
+	@pushd ~/.local/share/fonts
+	ls .
+	@fc-list : family spacing outline scalable |
+	grep -e spacing=100 -e spacing=90 | 
+	grep -e outline=True | 
+	grep -e scalable=True | sort
+	#fc-cache -r
+	@popd
+
+
+

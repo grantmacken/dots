@@ -1,0 +1,15 @@
+languages:
+  vim:
+    lint-command: 'vint -'
+    lint-stdin: true
+  make:
+    lint-command: checkmake -'
+    lint-stdin: true
+  yaml-yamllint: &yaml-yamllint
+    lint-command: 'yamllint -f parsable -'
+    lint-stdin: true
+  dockerfile-hadolint:
+    lint-command: 'docker run --rm -i hadolint/hadolint < Dockerfilehadolint'
+    lint-formats:
+      - '%f:%l %m'
+
