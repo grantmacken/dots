@@ -4,7 +4,7 @@ Using [make](https://www.gnu.org/software/make) with [stow](http://mywiki.wooled
 under [git](https://github.com/grantmacken/dot://github.com/grantmacken/dots) control
 
 
-# `configs/.config/`
+## directory `configs/.config/`
 
 A configuration file is created by 
  - a folder named after the program in the `configs/.config/` directory
@@ -12,14 +12,13 @@ A configuration file is created by
 
 neovim example `configs/.config/nvim/init.vim`
 
-## `make configs`
+## `make`
 
 Configuration data is symlinked to the $HOME directory.
 The xdg configuration directory `~/.config` is used.
 As a conveniance directories in `configs/.config` are also 
 symlinked to the current directory, so you can 
 navigate to a config directory from the root directory.
-
 
 ```
 ls -l ./kitty

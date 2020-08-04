@@ -23,18 +23,14 @@ if [ -z "$XDG_DATA_HOME" ]; then
 fi
 
 
-if [ ! -e "$XDG_DATA_HOME/nvim/site/autoload/plug.vim" ]; then
-  curl -fLo "$XDG_DATA_HOME/nvim/site/autoload/plug.vim" --create-dirs \
-    https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-fi
+# if [ ! -e "$XDG_DATA_HOME/nvim/site/autoload/plug.vim" ]; then
+#   curl -fLo "$XDG_DATA_HOME/nvim/site/autoload/plug.vim" --create-dirs \
+#     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+# fi
 
-if [ ! -d "$XDG_DATA_HOME/nvim/site/plugged" ]; then
-  mkdir -p "$XDG_DATA_HOME/nvim/site/plugged"
-fi
-
-
-
-
+# if [ ! -d "$XDG_DATA_HOME/nvim/site/plugged" ]; then
+#   mkdir -p "$XDG_DATA_HOME/nvim/site/plugged"
+# fi
 
 export JAVA_HOME=/usr/lib/openjdk-8
 JAVA_BIN=/usr/lib/openjdk-8/bin
@@ -70,8 +66,6 @@ NODE_BIN=${PROJECTS}/node_modules/.bin
 if [[ ! "$PATH" == *${NODE_BIN}* ]]; then
   export PATH="$PATH:${NODE_BIN}"
 fi
-
-
   LEDGER_FILE=${PROJECTS}/accounts/main.ledger
   export LEDGER_FILE="${LEDGER_FILE}"
   LEDGER_PRICE_DB=${PROJECTS}/accounts/pricedb.ledger

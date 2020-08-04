@@ -21,26 +21,7 @@ assert-is-root = $(if $(shell id -u | grep -oP '^0$$'),\
  $(info OK! root user, so we can change some system files),\
  $(error changing system files so need to sudo) )
 
-define mkHelp
-=========================================================
 
- `make help`     this
- `make {target}` will use stow to create symlinks
- `make {target}-clean` will use stow to remove symlinks
-
-TARGETS: [ neovim | home | projects ]
-
-setxkbmap -option caps:swapescape
-
-UP DIR: $(UP_TARG_DIR)
-=========================================================
-endef
-
-
-default: help
-help: export mkHelp:=$(mkHelp)
-help:
-	@echo "$${mkHelp}"
 
 
 # .PHONY: lua-cjson
@@ -69,8 +50,25 @@ clean-config:
 	@echo 'TASK : use stow to remove bash symlinks in home dir'
 	@stow -D -v -t ~ configs
 
-
 update: update-neovim gh-update
+
+define mkHelp
+=========================================================
+ `make configs` will use stow to create symlinks
+                default target so just `make` is ok
+ `make configs-clean` will use stow to remove symlinks
+ `make help`    this
+ `make update` update programs
+
+=========================================================
+endef
+
+
+default: help
+help: export mkHelp:=$(mkHelp)
+help:
+	@echo "$${mkHelp}"
+
 
 
 

@@ -6,6 +6,7 @@
 	followTags = true
 [core]
 	pager = nvimpager
+  
   [diff]
     tool = nvr
 [difftool "nvr"]

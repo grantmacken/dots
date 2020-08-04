@@ -1,3 +1,5 @@
 boxy-svg
 universal-ctags
+nvim --beta --classic
+sudo snap install code --classic
 
