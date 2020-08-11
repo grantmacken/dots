@@ -2,7 +2,7 @@
 alias dotfiles-reload='source $HOME/.bashrc'
 alias fold="fold -s"
 alias p="cd $HOME/projects/$( git config --get user.name )"
-alias SSH='gcloud compute ssh gmack'
+alias SSH='gcloud compute ssh gmack@gmack'
 # https://github.com/docker/buildx/#with-buildx-or-docker-1903
 DOCKER_CLI_EXPERIMENTAL=enabled
 #export VISUAL="nvr -cc split --remote-wait +'set bufhidden=wipe'"
@@ -14,23 +14,12 @@ export MANPAGER=nvimpager
 if [ -z "$XDG_CONFIG_HOME" ]; then
   export XDG_CONFIG_HOME="$HOME/.config"
 fi
-
 if [ -z "$XDG_CACHE_HOME" ]; then
   export XDG_CACHE_HOME="$HOME/.cache"
 fi
 if [ -z "$XDG_DATA_HOME" ]; then
   export XDG_DATA_HOME="$HOME/.local/share"
 fi
-
-
-# if [ ! -e "$XDG_DATA_HOME/nvim/site/autoload/plug.vim" ]; then
-#   curl -fLo "$XDG_DATA_HOME/nvim/site/autoload/plug.vim" --create-dirs \
-#     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-# fi
-
-# if [ ! -d "$XDG_DATA_HOME/nvim/site/plugged" ]; then
-#   mkdir -p "$XDG_DATA_HOME/nvim/site/plugged"
-# fi
 
 export JAVA_HOME=/usr/lib/openjdk-8
 JAVA_BIN=/usr/lib/openjdk-8/bin
@@ -54,7 +43,6 @@ fi
 export GOPATH=$HOME/go
 
 # git controlled project development
-
 GIT_USER="$( git config --get user.name )"
 # if we have a user name set a PROJECTS folder
 if [ -n "${GIT_USER}" ]; then
