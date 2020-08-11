@@ -34,10 +34,10 @@ source <(kitty + complete setup bash)
 
 #export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
 
+[ -f "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.bash ] && source "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.bash
+
 # The next line updates PATH for the Google Cloud SDK.
-if [ -f '/home/gmack/google-cloud-sdk/path.bash.inc' ]; then . '/home/gmack/google-cloud-sdk/path.bash.inc'; fi
+if [ -f '/home/grantmacken/projects/grantmacken/google-cloud-sdk/path.bash.inc' ]; then . '/home/grantmacken/projects/grantmacken/google-cloud-sdk/path.bash.inc'; fi
 
 # The next line enables shell command completion for gcloud.
-if [ -f '/home/gmack/google-cloud-sdk/completion.bash.inc' ]; then . '/home/gmack/google-cloud-sdk/completion.bash.inc'; fi
-
-[ -f "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.bash ] && source "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.bash
+if [ -f '/home/grantmacken/projects/grantmacken/google-cloud-sdk/completion.bash.inc' ]; then . '/home/grantmacken/projects/grantmacken/google-cloud-sdk/completion.bash.inc'; fi
