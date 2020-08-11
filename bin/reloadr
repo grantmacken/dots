@@ -1,0 +1,11 @@
+#!/bin/bash +x
+# https://gitlab.com/cunidev/gestures/-/wikis/xdotool-list-of-key-codes
+sleep 1
+CURRENT_WID=$(xdotool getwindowfocus)
+# --onlyvisible 
+WID=$(xdotool search  --name "Mozilla Firefox" | head -1)
+echo "$WID" | grep -x -E '[[:digit:]]+' 2>&1 > /dev/null || exit
+# | grep -q '[0-9]+' || echo 'firefox not open'; exit
+xdotool windowactivate $WID
+xdotool key Control_L+F5
+xdotool windowactivate $CURRENT_WID
