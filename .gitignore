@@ -5,3 +5,5 @@ tags
 notes
 configs/.config/nvim/pack
 .secrets
+node
+nvim
