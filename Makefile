@@ -10,6 +10,7 @@ APP_LIST = git curl stow
 assert-command-present = $(if $(shell which $1),,$(error '$1' missing and needed for this build))
 $(foreach src,$(APP_LIST),$(call assert-command-present,$(src)))
 
+# https://wiki.archlinux.org/index.php/XDG_Base_Directory
 XDG_CACHE_HOME ?= $(HOME)/.cache
 XDG_CONFIG_HOME ?= $(HOME)/.config
 XDG_DATA_HOME ?= $(HOME)/.local/share
@@ -17,11 +18,26 @@ XDG_BIN ?= $(HOME)/.local/bin
 UP_TARG_DIR := $(abspath ../)
 EMPTY := SPACE := $(EMPTY) $(EMPTY)
 
+HOME_BACKUP_DIR := /old_home/gmack
+
 assert-is-root = $(if $(shell id -u | grep -oP '^0$$'),\
  $(info OK! root user, so we can change some system files),\
  $(error changing system files so need to sudo) )
 
+define mkHelp
+=========================================================
+ `make configs` will use stow to create symlinks
+                default target so just `make` is ok
+ `make configs-clean` will use stow to remove symlinks
 
+
+
+
+ `make help`    this
+ `make update` update programs
+
+=========================================================
+endef
 
 
 # .PHONY: lua-cjson
@@ -36,34 +52,42 @@ assert-is-root = $(if $(shell id -u | grep -oP '^0$$'),\
 configs:
 	@echo 'TASK: use stow to create symlinks in home dir'
 	@export CWD=$(CURDIR)
-	@#[ -f ~/.bashrc ] && rm ~/.bashrc
+	if ! [ -L ~/.bashrc ] 
+	then
+	rm -fv ~/.bashrc
+	fi
 	@#[ -f ~/.gitconfig ] && rm ~/.gitconfig
 	$(if $(wildcard  $(XDG_CONFIG_HOME)/bash ),,mkdir -p $(XDG_CONFIG_HOME)/bash)
 	@stow -v -t ~ configs
-	@source $(HOME)/.bashrc
-	pushd configs/.config &>/dev/null
-	@stow -v -t $(CURDIR) .
-	popd &>/dev/null
+	@#source $(HOME)/.bashrc
+	@#pushd configs/.config &>/dev/null
+	@#stow -v -t $(CURDIR) .
+	@#popd &>/dev/null
 
 .PHONY: clean-config
 clean-config:
 	@echo 'TASK : use stow to remove bash symlinks in home dir'
 	@stow -D -v -t ~ configs
 
+.PHONY: home-backup-restore
+home-backup-restore:
+	@echo 'TASK: cp ssh dir'
+	@#cp -rv $(HOME_BACKUP_DIR)/.ssh $(HOME)/
+	@cp -rv $(HOME_BACKUP_DIR)/.docker $(HOME)/
+	@#ls -alr $(HOME)/.ssh
+	@#echo 'TASK: XDG config dir'
+	@#cp -rv $(HOME_BACKUP_DIR)/.config/gh $(HOME)/.config/
+	@#cp -rv $(HOME_BACKUP_DIR)/.config/gcloud $(HOME)/.config/
+	@#echo 'TASK: XDG data dir'
+	@#cp -rv $(HOME_BACKUP_DIR)/.local/share/fonts $(HOME)/.local/share/
+	@#mkdir -p $(HOME)/.local/bin
+	@# gh client https://github.com/cli/cli/releases/latest
+	@# https://github.com/cli/cli/releases/download/v0.11.1/gh_0.11.1_linux_amd64.tar.gz
+	@#https://github.com/jesseduffield/lazygit/releases/latest
+	@#cp -v $(HOME_BACKUP_DIR)/.local/bin/{tree-sitter,silicon} $(HOME)/.local/bin/
+	@# https://github.com/junegunn/fzf/releases/latest
+
 update: update-neovim gh-update
-
-define mkHelp
-=========================================================
- `make configs` will use stow to create symlinks
-                default target so just `make` is ok
- `make configs-clean` will use stow to remove symlinks
- `make help`    this
- `make update` update programs
-
-=========================================================
-endef
-
-
 default: help
 help: export mkHelp:=$(mkHelp)
 help:
@@ -89,10 +113,10 @@ ignore-syms:
 fzf:
 	@pushd $(PROJECTS)/fzf &>/dev/null
 	#git clone git@github.com:junegunn/fzf.git
-	git pull
-	./install --all --xdg
+	#git pull
+	#./install --all --xdg
 	@popd &>/dev/null
-	@#cd $(XDG_CACHE_HOME)/nvim/fzf/bin && ls -al .
+	@cd $(XDG_CACHE_HOME)/nvim/fzf/bin && ls -al .
 	@#cd $(XDG_CACHE_HOME)/nvim/fzf/bin && stow -v -t $(XDG_BIN) .
 
 .PHONY: go-cli
