@@ -3,15 +3,12 @@ M.version = 'v0.0.1'
 local tAutocmds = {
   startup = {
     {'FileType', 'dirvish', 'noremap <buffer> n', ':e %'};
-    {'FileType', 'lua', 'setlocal', 'omnifunc=v:lua.vim.lsp.omnifunc'};
-    -- {'BufEnter,BufNew', '*', [[:lua require('ft.init')()]] };
-    {'BufEnter,BufNew', '*.lua', [[:lua require('ft.lua').setBufferOptions()]] };
+    --TODO    {'BufEnter', '*', [[:lua require('ft.filetypes')()]] };
   };
   TextYankHighlight = {
     {'TextYankPost', '*', "silent!", [[:lua require('vim.highlight').on_yank()]] };
   }
 }
-
 --[[
 BufRead
 BufEnter After entering a buffer.  Useful for setting
