@@ -2,12 +2,18 @@
  This file can be loaded by calling `lua require('plugins')` from your init.vim
  https://github.com/wbthomason/packer.nvim
 --]]
-local cmd = vim.api.nvim_command
-cmd('packadd packer.nvim')
-vim._update_package_paths()
-local packer = require('packer')
-local use = packer.use
-return packer.startup( function()
+
+local packer = nil
+local function init()
+  if packer == nil then
+    packer = require('packer')
+    packer.init()
+  end
+
+
+  local use = packer.use
+  packer.reset()
+
 use {'wbthomason/packer.nvim', opt = true}
 -- COLOR SCHEMES
 use {'arcticicestudio/nord-vim', opt = true}
@@ -44,7 +50,7 @@ use {'kyazdani42/nvim-tree.lua', opt = true}
 use {'mhinz/vim-startify', opt = true}
 -- -- use 'kristijanhusak/vim-dirvish-git'
 -- Fuzzy Search For Files
-use {'junegunn/fzf.vim', run = './install --all --xdg', opt = true }
+-- use {'junegunn/fzf.vim', run = './install --all --xdg', opt = true }
 --use {'yuki-ycino/fzf-preview.vim', run = 'pwd && npm install', opt = true}
 -- Grepped Files
 -- use {'mhinz/vim-grepper', cmd = 'Grepper'}
@@ -106,13 +112,25 @@ use {'tpope/vim-scriptease', opt = true}
 -- Markdown
 use {'junegunn/goyo.vim' , opt = true}
 use {'junegunn/limelight.vim', opt = true}
+--[[
 use {
   'iamcco/markdown-preview.nvim',
   config = 'vim.api.nvim_command("doautocmd BufEnter")',
   run = 'cd app && yarn install',
   cmd = 'MarkdownPreview'
 }
+--]]
+
+end
+
+local plugins = setmetatable({}, {
+  __index = function(_, key)
+    init()
+    return packer[key]
+  end
+})
+
+return plugins
 
 
-end)
 
