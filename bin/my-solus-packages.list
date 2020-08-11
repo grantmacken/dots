@@ -1,13 +1,2 @@
-gperf
-luajit
-luarocks 
-libuv-devel
-luajit-devel
-unibilium-devel
-msgpack-devel
-libtermkey-devel
-libvterm-devel
-ninja
-gettext
-cmake
-libgcc
+git
+docker
