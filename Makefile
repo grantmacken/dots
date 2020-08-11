@@ -60,9 +60,10 @@ configs:
 	$(if $(wildcard  $(XDG_CONFIG_HOME)/bash ),,mkdir -p $(XDG_CONFIG_HOME)/bash)
 	@stow -v -t ~ configs
 	@#source $(HOME)/.bashrc
-	@#pushd configs/.config &>/dev/null
-	@#stow -v -t $(CURDIR) .
-	@#popd &>/dev/null
+	@mkdir -p nvim
+	@pushd configs/.config &>/dev/null
+	@stow -v -t $(CURDIR)/nvim nvim
+	@popd &>/dev/null
 
 .PHONY: clean-config
 clean-config:
