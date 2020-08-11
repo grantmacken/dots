@@ -1,19 +1,20 @@
 scriptencoding utf-8
 let $TERM='xterm-kitty'
+lua require('init')
 " let &runtimepath = &runtimepath
 " let mapleader = '\<Space>'
-lua require('my.globals').doNotLoad()
-lua require('my.globals').gVars()
-lua require('my.colors').setup({scheme = 'nord', packname = 'nord-vim' })
-lua require('my.options').oAll()
-lua require('my.autocmds').set()
-packadd! vim-gitgutter
-lua require('plugs.packer')
-packadd! nvim-lsp   " config not loaded 
-lua require('plugs.dirvish')
-lua require('plugs.diagnostic')
-lua require('plugs.completion')
-packadd! vim-smoothie
+"lua require('my.globals').doNotLoad()
+"lua require('my.globals').gVars()
+"lua require('my.colors').setup({scheme = 'nord', packname = 'nord-vim' })
+"lua require('my.options').oAll()
+"lua require('my.autocmds').set()
+"packadd! vim-gitgutter
+"lua require('plugs.packer')
+"packadd! nvim-lsp   " config not loaded 
+"lua require('plugs.dirvish')
+"lua require('plugs.diagnostic')
+"lua require('plugs.completion')
+"packadd! vim-smoothie
 
 " Plug 'wesQ3/vim-windowswap'
 "   let g:windowswap_map_keys = 0 "prevent default bindings
