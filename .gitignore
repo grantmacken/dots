@@ -1,9 +1,9 @@
 bu_*
 .git
-tags
 .*.log
-notes
-configs/.config/nvim/pack
+./notes
 .secrets
 node
+tags
 nvim
+!*/nvim
