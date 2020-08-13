@@ -1,2 +1,5 @@
 git
 docker
+ninja
+llvm-clang
+xclip
