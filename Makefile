@@ -167,24 +167,6 @@ gh-update:
 	@pushd bin && stow -v -t $(XDG_BIN) . && popd
 	@popd
 
-.PHONY: update-neovim
-update-neovim:
-	@echo '## $@ ##'
-	@mkdir -p $(XDG_CACHE_HOME)/nvim
-	@mkdir -p $(XDG_CONFIG_HOME)/nvim
-	@mkdir -p $(XDG_DATA_HOME)/nvim/site
-	@pushd ~/.local/share/nvim/site/pack/packer/opt/packer.nvim
-	git pull
-	popd
-	@echo 'download latest neovim release'
-	@curl -sL https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz |
-	tar xz  -C $(HOME)/.local/
-	@echo 'make nvim exectable an link to local bin'
-	@chmod +x $(HOME)/.local/nvim-linux64/bin/nvim
-	@pushd $(HOME)/.local/bin
-	@ln -sf ../nvim-linux64/bin/nvim
-	@popd
-
 .PHONY: projects
 projects:
 	@echo 'TASK: projects bin and node '
@@ -211,11 +193,16 @@ solus: bin/my-solus-packages.list
 .PHONY: solus-build-essentials
 solus-build-essentials:
 	@echo 'TASK: install system.devel component for compiling'
-	@#sudo eopkg install -c system.devel
+	@sudo eopkg install -c system.devel
 	@sudo eopkg install ninja libtool unzip
 	@#setxkbmap -option caps:swapescape
 	@#git remote add origin git@github.com:grantmacken/dots.git
 
+.PHONY: snaps
+snaps: bin/my-snaps.list
+	@echo 'TASK: install snaps'
+	@echo https://docs.snapcraft.io/getting-started
+	@bin/install-snaps.sh $<
 
 .PHONY: init-ssh
 init-ssh:
@@ -228,13 +215,6 @@ init-ssh:
 	@#5: verify
 
 
-.PHONY: snaps
-snaps: bin/my-snaps.list
-	@echo 'TASK: install snaps'
-	@echo https://docs.snapcraft.io/getting-started
-	@#snap install google-cloud-sdk
-	@snap install --channel=edge travis
-	@travis login --github-token $(shell cat ../.github-access-token)
 
 .PHONY: fonts
 fonts:
