@@ -1,4 +1,5 @@
 universal-ctags
 nvim --edge --classic
 code --classic
-
+node --channel=14/stable --classic
+chromium
