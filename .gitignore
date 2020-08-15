@@ -5,5 +5,5 @@ bu_*
 .secrets
 node
 tags
-nvim
-!*/nvim
+#nvim
+#!*/nvim
