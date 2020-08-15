@@ -18,7 +18,6 @@ local gDoNotLoad = {
   loaded_tutor_mode_plugin = 1,
   loaded_vimballPlugin = 1,
   loaded_zipPlugin = 1,
-  nvim_lsp = 1 -- don't load all server configs at startup
 
 }
 
@@ -43,7 +42,6 @@ local main = {
   python3_host_prog = '/usr/bin/python3',
   mapleader = ' ',
   maplocalleader = ',',
-  workspace = {}
 }
 
 local whichKey = {

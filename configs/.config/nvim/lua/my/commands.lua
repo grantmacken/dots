@@ -1,32 +1,38 @@
 local M = {}
 M.version = 'v0.0.1'
-
-local cmds = {
+--[[ 
+-- com[mand][!] [{attr}...] {cmd} {rep}
+usage: 
+require('my.commands')({
+ -- 'cmdName' key value  can use string
   PackerClean = "packadd packer.nvim | lua require('my/plugins').clean()";
-  PackerCompile = "packadd packer.nvim | lua require('my.plugins').compile('~/.config/nvim/plugin/packer_load.vim')";
-  PackerInstall = "packadd packer.nvim | lua require('my.plugins').install()";
-  PackerSync = "packadd packer.nvim | lua require('my.plugins').sync()";
-  PackerUpdate = "packadd packer.nvim | lua require('my.plugins').update()";
-}
-
-local setCmds = function()
-local cmd = vim.api.nvim_command
- local opts = {
-  cmds
+  -- 'cmdName' key value can use tables with explicit 'attr' and 'rep' keys
+  -- rep key value can be a string or a table
+  Explore = { 
+	  attr = {'-nargs=?', '-complete=dir' },
+	  rep = "Dirvish <args>"  };
+  Vexplore = {
+	  attr = {'-nargs=?', '-complete=dir' },
+	  rep = {'leftabove', 'vsplit', '|', 'silent', 'Dirvish', '<args>'}
   }
-  for i, v in ipairs( opts ) do
-    for name, value in pairs(v) do
-      cmd( "command! " .. name .. " " ..  value )
+]]-- value 
+
+local setCmds = function( tbl )
+    for name, value in pairs(tbl) do
+      local rep, attr
+      if type(value) == 'string' then
+	rep = {value}
+	attr = {}
+      end
+      if type(value) == 'table' then
+	attr = value['attr']
+	rep = value['rep']
+      end
+      local command = table.concat(vim.tbl_flatten{'command!', attr , name, rep }, ' ')
+      vim.api.nvim_command(command) 
     end
   end
-end
 
 M.setCmds = setCmds
 
---[[ test
- - uncomment setCmds
- - comment out return
- - luafile %
---]]
---setCmds()
 return M.setCmds

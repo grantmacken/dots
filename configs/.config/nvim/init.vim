@@ -1,14 +1,6 @@
 scriptencoding utf-8
 let $TERM='xterm-kitty'
 lua require('init')
-" let &runtimepath = &runtimepath
-" let mapleader = '\<Space>'
-"lua require('my.globals').doNotLoad()
-"lua require('my.globals').gVars()
-"lua require('my.colors').setup({scheme = 'nord', packname = 'nord-vim' })
-"lua require('my.options').oAll()
-"lua require('my.autocmds').set()
-"packadd! vim-gitgutter
 "lua require('plugs.packer')
 "packadd! nvim-lsp   " config not loaded 
 "lua require('plugs.dirvish')

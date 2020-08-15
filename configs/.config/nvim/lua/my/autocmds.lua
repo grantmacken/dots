@@ -1,8 +1,13 @@
 local M = {}
 M.version = 'v0.0.1'
+--[[ 
+usage: 
+require('my.commands')({
+  PackerClean = "packadd packer.nvim | lua require('my/plugins').clean()";
+})
+]]--
 local tAutocmds = {
   startup = {
-    {'FileType', 'dirvish', 'noremap <buffer> n', ':e %'};
     --TODO    {'BufEnter', '*', [[:lua require('ft.filetypes')()]] };
   };
   TextYankHighlight = {

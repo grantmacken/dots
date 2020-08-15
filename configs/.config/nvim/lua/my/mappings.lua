@@ -1,26 +1,34 @@
 local M = {}
 M.version = 'v0.0.1'
+--[[ 
+@help vim_set_keymap
+-- nvim_set_keymap({mode}, {lhs}, {rhs}, {opts})
+@arg table { sMode, sLeftHandSide, sRightHandSide, tOpts }
+@usage:
+  require('my.mappings')({
+   { sMode, 'gc', '<Plug>Commentary', tOpts };
+  })
+]]-- value 
 -- " Get rid of the annoying F1 binding
 -- imap <f1> <nop>
--- nvim_set_keymap({mode}, {lhs}, {rhs}, {opts})
--- {  '{{mode}}',  '{{lhs}}', '{{rhs}}' }}
+
 local set = function( tbl )
   local keyMap = vim.api.nvim_set_keymap
-  local tOpts = {noremap = true, silent = true}
   for _,item in ipairs( tbl ) do
-    --local sMode = item[1]
-    --local sLeftHandSide = item[2]
-    --local sRightHandSide = item[3]
+    local sMode = item[1]
+    local sLeftHandSide = item[2]
+    local sRightHandSide = item[3]
+    local tOpts
     if not item[4] then
       tOpts  = {noremap = true, silent = true}
     else
       tOpts  = item[4]
     end
-    keyMap(item[1],item[2],item[3],tOpts)
+    keyMap(sMode,sLeftHandSide,sRightHandSide,tOpts)
   end
 end
 
 M.set = set
 
-return M
+return M.set
 
