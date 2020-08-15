@@ -95,30 +95,23 @@ help:
 	@echo "$${mkHelp}"
 
 
-
-
-
 .PHONY: ignore-syms
 ignore-syms:
 	find . -type l >> .gitignore
 
-.PHONY: update-node
-:update-node
-	pushd ../
-	npm install
-	npm update
-	popd
-
+.PHONEY: rustup
+rustup:
+	@#curl https://sh.rustup.rs -sSf | sh
+	@cargo install skim
+	@cd $(HOME)/.cargo/bin && stow -v -t $(XDG_BIN) .
 
 .PHONY: fzf
 fzf:
+	@[ -d $(PROJECTS)/fzf ] || git clone git@github.com:junegunn/fzf.git
 	@pushd $(PROJECTS)/fzf &>/dev/null
-	#git clone git@github.com:junegunn/fzf.git
-	#git pull
-	#./install --all --xdg
+	@git pull && ./install --all --xdg
 	@popd &>/dev/null
-	@cd $(XDG_CACHE_HOME)/nvim/fzf/bin && ls -al .
-	@#cd $(XDG_CACHE_HOME)/nvim/fzf/bin && stow -v -t $(XDG_BIN) .
+	@cd $(PROJECTS)/fzf/bin && stow -v -t $(XDG_BIN) .
 
 .PHONY: go-cli
 go-cli:
