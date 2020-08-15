@@ -3,3 +3,6 @@ docker
 ninja
 llvm-clang
 xclip
+bat
+silver-searcher
+ripgrep
