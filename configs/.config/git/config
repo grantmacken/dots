@@ -5,6 +5,7 @@
 	default = current
 	followTags = true
 [core]
+	editor = nvim
 	pager = nvimpager
   
   [diff]
