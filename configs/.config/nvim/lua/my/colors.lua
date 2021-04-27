@@ -7,7 +7,6 @@ M.setup = function( tbl )
   vim.o['termguicolors'] =  true
   vim.o['background'] = 'dark'
   if sColorscheme == 'nord' then
-    cmd('packadd ' .. sPackName )
     -- https://www.nordtheme.com/docs/ports/vim/configuration
     vim.g['let g:nord_uniform_status_lines'] = 1
     -- let g:nord_cursor_line_number_background = 1
@@ -24,6 +23,7 @@ M.setup = function( tbl )
     -- api.nvim_command( 'highlight Cursor2 guifg=#a33243 guibg=#a33243' )
     -- api.nvim_command( 'highlight VertSplit guifg=#585858 guibg=#585858' )
   end
+  cmd('packadd ' .. sPackName )
   cmd('colorscheme ' .. sColorscheme )
 end
 return M

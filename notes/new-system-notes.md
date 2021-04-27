@@ -23,7 +23,7 @@ establish login credentials
 gcloud auth login
 gcloud compute project-info describe
 # gcloud compute instances create instance-name --metadata enable-oslogin=FALSE
-gcloud compute project-info add-metadata --metadata-from-file ssh-keys=./.secrets/gcloud_ssh_keys
+# gcloud compute project-info add-metadata --metadata-from-file ssh-keys=./.secrets/gcloud_ssh_keys
 ```
 https://cloud.google.com/compute/docs/instances/managing-instance-access
 
@@ -33,3 +33,5 @@ Google compute engine.
 - create a bash login alias `alias SSH='gcloud compute ssh gmack@gmack'
 
 ## git, github and gh client
+
+

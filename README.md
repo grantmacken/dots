@@ -16,6 +16,10 @@ neovim example `configs/.config/nvim/init.vim`
 Configuration data is symlinked to the $HOME directory.
 The xdg configuration directory `~/.config` is used.
 
+## fresh install notes
+ 
+## gh-cli
+
 
 
 

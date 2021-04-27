@@ -26,30 +26,17 @@ local plugins = {
     only_setup = false,
     path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/diagnostic-nvim"
   },
-  express_line = {
+  ["express_line.nvim"] = {
     loaded = false,
     only_sequence = false,
     only_setup = false,
-    path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/express_line"
-  },
-  ["gina.vim"] = {
-    loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/gina.vim"
+    path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/express_line.nvim"
   },
   ["goyo.vim"] = {
     loaded = false,
     only_sequence = false,
     only_setup = false,
     path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/goyo.vim"
-  },
-  ["lazygit.nvim"] = {
-    commands = { "LazyGit", "LazyGitConfig" },
-    loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/lazygit.nvim"
   },
   ["limelight.vim"] = {
     loaded = false,
@@ -62,12 +49,6 @@ local plugins = {
     only_sequence = false,
     only_setup = false,
     path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/lsp-status.nvim"
-  },
-  ["luvjob.nvim"] = {
-    loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/luvjob.nvim"
   },
   ["nord-vim"] = {
     loaded = false,
@@ -87,23 +68,11 @@ local plugins = {
     only_setup = false,
     path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/nvim-popterm.lua"
   },
-  ["nvim-tree.lua"] = {
-    loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/nvim-tree.lua"
-  },
   ["nvim-treesitter"] = {
     loaded = false,
     only_sequence = false,
     only_setup = false,
     path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/nvim-treesitter"
-  },
-  ["nvim-web-devicons"] = {
-    loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/nvim-web-devicons"
   },
   ["packer.nvim"] = {
     loaded = false,
@@ -129,6 +98,18 @@ local plugins = {
     only_setup = false,
     path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/suda.vim"
   },
+  ["telescope.nvim"] = {
+    loaded = false,
+    only_sequence = false,
+    only_setup = false,
+    path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/telescope.nvim"
+  },
+  ["vim-clap"] = {
+    loaded = false,
+    only_sequence = false,
+    only_setup = false,
+    path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/vim-clap"
+  },
   ["vim-commentary"] = {
     commands = { "Commentary", "CommentaryLine" },
     loaded = false,
@@ -142,6 +123,12 @@ local plugins = {
     only_setup = false,
     path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/vim-dirvish"
   },
+  ["vim-dirvish-git"] = {
+    loaded = false,
+    only_sequence = false,
+    only_setup = false,
+    path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/vim-dirvish-git"
+  },
   ["vim-easy-align"] = {
     loaded = false,
     only_sequence = false,
@@ -149,7 +136,7 @@ local plugins = {
     path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/vim-easy-align"
   },
   ["vim-eunuch"] = {
-    commands = { "Delete", "Remaove", "Move", "Chmod", "Wall", "Rename" },
+    commands = { "Delete", "Remove", "Move", "Chmod", "Wall", "Rename" },
     loaded = false,
     only_sequence = false,
     only_setup = false,
@@ -167,6 +154,12 @@ local plugins = {
     only_setup = false,
     path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/vim-matchup"
   },
+  ["vim-qf"] = {
+    loaded = false,
+    only_sequence = false,
+    only_setup = false,
+    path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/vim-qf"
+  },
   ["vim-repeat"] = {
     loaded = false,
     only_sequence = false,
@@ -179,12 +172,6 @@ local plugins = {
     only_sequence = false,
     only_setup = false,
     path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/vim-sayonara"
-  },
-  ["vim-scriptease"] = {
-    loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/grantmacken/.local/share/nvim/site/pack/packer/opt/vim-scriptease"
   },
   ["vim-smoothie"] = {
     loaded = false,
@@ -292,7 +279,6 @@ _packer_load = function(names, cause)
   for _, name in ipairs(names) do
     if not plugins[name].loaded then
       vim.cmd('packadd ' .. name)
-      vim._update_package_paths()
       if plugins[name].config then
         for _i, config_line in ipairs(plugins[name].config) do
           loadstring(config_line)()
@@ -340,7 +326,7 @@ _packer_load = function(names, cause)
 
     -- NOTE: I'm not sure if the below substitution is correct; it might correspond to the literal
     -- characters \<Plug> rather than the special <Plug> key.
-    vim.fn.feedkeys(string.gsub(cause.keys, '^<Plug>', '\\<Plug>') .. extra)
+    vim.fn.feedkeys(string.gsub(string.gsub(cause.keys, '^<Plug>', '\\<Plug>') .. extra, '<[cC][rR]>', '\r'))
   elseif cause.event then
     vim.cmd(fmt('doautocmd <nomodeline> %s', cause.event))
   elseif cause.ft then
@@ -352,11 +338,10 @@ end
 -- Pre-load configuration
 -- Post-load configuration
 -- Conditional loads
-vim._update_package_paths()
 END
 
 function! s:load(names, cause) abort
-  call luaeval('_packer_load(_A[1], _A[2])', [a:names, a:cause])
+call luaeval('_packer_load(_A[1], _A[2])', [a:names, a:cause])
 endfunction
 
 " Runtimepath customization
@@ -365,14 +350,12 @@ endfunction
 
 " Command lazy-loads
 command! -nargs=* -range -bang -complete=file CommentaryLine call s:load(['vim-commentary'], { "cmd": "CommentaryLine", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
-command! -nargs=* -range -bang -complete=file LazyGitConfig call s:load(['lazygit.nvim'], { "cmd": "LazyGitConfig", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
 command! -nargs=* -range -bang -complete=file Commentary call s:load(['vim-commentary'], { "cmd": "Commentary", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
 command! -nargs=* -range -bang -complete=file Rename call s:load(['vim-eunuch'], { "cmd": "Rename", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
 command! -nargs=* -range -bang -complete=file Delete call s:load(['vim-eunuch'], { "cmd": "Delete", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
-command! -nargs=* -range -bang -complete=file LazyGit call s:load(['lazygit.nvim'], { "cmd": "LazyGit", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
-command! -nargs=* -range -bang -complete=file Wall call s:load(['vim-eunuch'], { "cmd": "Wall", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
+command! -nargs=* -range -bang -complete=file Remove call s:load(['vim-eunuch'], { "cmd": "Remove", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
 command! -nargs=* -range -bang -complete=file Vista call s:load(['vista.vim'], { "cmd": "Vista", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
-command! -nargs=* -range -bang -complete=file Remaove call s:load(['vim-eunuch'], { "cmd": "Remaove", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
+command! -nargs=* -range -bang -complete=file Wall call s:load(['vim-eunuch'], { "cmd": "Wall", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
 command! -nargs=* -range -bang -complete=file Chmod call s:load(['vim-eunuch'], { "cmd": "Chmod", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
 command! -nargs=* -range -bang -complete=file Sayonara call s:load(['vim-sayonara'], { "cmd": "Sayonara", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
 command! -nargs=* -range -bang -complete=file Move call s:load(['vim-eunuch'], { "cmd": "Move", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })

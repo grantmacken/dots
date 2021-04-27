@@ -2,4 +2,4 @@
 
 [record]
 ; Limit recorded terminal inactivity to max n seconds, default: off
-idle_time_limit = 1
+idle_time_limit = 3

@@ -1,29 +1,27 @@
 M = {}
-
-
-local on_attach = function()
-  -- client
-  --require'lsp_status'.on_attach(client)
-  require'diagnostic'.on_attach()
-end
-
 --[[ set language server configuration ]]--
 -------------------------------------------
 -- Check 'cmd' executable is reachable
 -- which typescript-language-server
-local tConfig = {
-  name = "javascript";
-  cmd = { "typescript-language-server", "--stdio" };
-  filetypes = { "javascript", "typescript" };
-  on_attach= on_attach;
+local lsp = function()
+  require('nvim_lsp').tsserver.setup{
+    name = "tsserver";
+    cmd = { "typescript-language-server", "--stdio" };
+    filetypes = { "javascript", "typescript" };
+    root_dir = require('toolbox.workspace').root();
+    on_attach = function ( tClient )
+      vim.api.nvim_buf_set_option( 0 , 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+      -- local resolved_capabilities = tClient.resolved_capabilities
+      require('completion').on_attach({}) -- table items from completion
+      require('diagnostic').on_attach() -- alters callbacks
+      require('lsp-status').on_attach( tClient )
+    end;
   }
-
-local function startLanguageServer( pRoot )
-  local tNewConfig = vim.tbl_extend("error", tConfig, {root_dir = pRoot;})
-  local nClientID = vim.lsp.start_client(tNewConfig)
-  return nClientID
 end
 
-M.startLanguageServer = startLanguageServer
+
+
+M.lsp = lsp
+
 
 return M

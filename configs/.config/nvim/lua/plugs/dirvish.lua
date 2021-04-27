@@ -21,7 +21,7 @@ local init = function()
 	}})
 
  require('my.commands')({
-  Explore = { 
+  Explore = {
 	  attr = {'-nargs=?', '-complete=dir' },
 	  rep = "Dirvish <args>"
   };
@@ -39,7 +39,7 @@ end
 
 M.init =init
 
-return init()
+return M
 --let g:dirvish_git_indicators = {
 --  \ 'Modified'  : '＊',
 --  \ 'Staged'    : '＋',

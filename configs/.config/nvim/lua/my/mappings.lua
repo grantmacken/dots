@@ -28,7 +28,23 @@ local set = function( tbl )
   end
 end
 
+local bufferSet = function( nBuf, tbl )
+  local keyMap = vim.api.nvim_buf_set_keymap
+  for _,item in ipairs( tbl ) do
+    local sMode = item[1]
+    local sLeftHandSide = item[2]
+    local sRightHandSide = item[3]
+    local tOpts
+    if not item[4] then
+      tOpts  = {noremap = true, silent = true}
+    else
+      tOpts  = item[4]
+    end
+    keyMap(nBuf,sMode,sLeftHandSide,sRightHandSide,tOpts)
+  end
+end
 M.set = set
+M.bufferSet = bufferSet
 
-return M.set
+return M
 

@@ -30,4 +30,4 @@ local init = function()
 end
 
 M.init = init
-return init()
+return M

@@ -5,7 +5,6 @@
 	default = current
 	followTags = true
 [core]
-	editor = nvim
 	pager = nvimpager
   
   [diff]
@@ -22,3 +21,5 @@
 	pager = no
 [pull]
 	rebase = false
+[init]
+	defaultBranch = main

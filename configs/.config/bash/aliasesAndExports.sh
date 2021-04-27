@@ -2,6 +2,9 @@
 alias dotfiles-reload='source $HOME/.bashrc'
 alias fold="fold -s"
 alias p="cd $HOME/projects/$( git config --get user.name )"
+# gcloud
+export CLOUDSDK_PYTHON=python3
+
 alias SSH='gcloud compute ssh gmack@gmack'
 # https://github.com/docker/buildx/#with-buildx-or-docker-1903
 DOCKER_CLI_EXPERIMENTAL=enabled
@@ -27,11 +30,25 @@ if [[ ! "$PATH" == *${JAVA_BIN}* ]]; then
   export PATH="$PATH:${JAVA_BIN}"
 fi
 
+# make sure we have a local bin on path
+LOCAL_BIN=/usr/local/bin
+if [[ ! "$PATH" == *${LOCAL_BIN}* ]]; then
+  export PATH="$PATH:${LOCAL_BIN}"
+fi
+
+
 # make sure we have a home bin on path
 HOME_BIN=$HOME/.local/bin
 if [[ ! "$PATH" == *${HOME_BIN}* ]]; then
   export PATH="$PATH:${HOME_BIN}"
 fi
+
+# global npm
+NPM_BIN=$HOME/.local/npm/bin
+if [[ ! "$PATH" == *${NPM_BIN}* ]]; then
+  export PATH="$PATH:${NPM_BIN}"
+fi
+NPM_CONFIG_PREFIX=$HOME/.local/npm/bin
 
 # /home/gmack/.cache/rebar3/bin/rebar3
 # make sure we have a home bin on path
@@ -54,6 +71,9 @@ NODE_BIN=${PROJECTS}/node_modules/.bin
 if [[ ! "$PATH" == *${NODE_BIN}* ]]; then
   export PATH="$PATH:${NODE_BIN}"
 fi
+
+
+
   LEDGER_FILE=${PROJECTS}/accounts/main.ledger
   export LEDGER_FILE="${LEDGER_FILE}"
   LEDGER_PRICE_DB=${PROJECTS}/accounts/pricedb.ledger

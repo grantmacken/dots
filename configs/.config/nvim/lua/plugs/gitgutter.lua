@@ -5,8 +5,6 @@ local init = function()
 	local cmd = vim.api.nvim_command
 	cmd [[packadd! vim-gitgutter]]
 end
-
-M.init =init
-
-return init()
+M.init = init
+return M
 

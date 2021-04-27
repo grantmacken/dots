@@ -48,8 +48,8 @@ local mode = 'n'
 local keymap = vim.api.nvim_buf_set_keymap
 keymap(0,mode,"<leader>","<Cmd>WhichKey '<Space>'<CR>",opts)
 local tWK = {}
-local opts = {noremap = true, silent = true}
-local mode = 'n'
+opts = {noremap = true, silent = true}
+mode = 'n'
 for ky1,value in pairs( tbl ) do
 	tWK[ky1] = { name = value.name  }
 	for ky2, item in pairs( value ) do
@@ -65,7 +65,7 @@ for ky1,value in pairs( tbl ) do
  vim.fn['which_key#register']('<Space>', 'g:which_key_map')
  -- vim.g.which_key_map = nil
  -- print(vim.inspect(tWK))
- -- print(vim.inspect(vim.api.nvim_buf_get_keymap(0,'n')) ) 
+ -- print(vim.inspect(vim.api.nvim_buf_get_keymap(0,'n')) )
 end
 
 M.register = register

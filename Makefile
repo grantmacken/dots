@@ -29,12 +29,12 @@ define mkHelp
  `make configs` will use stow to create symlinks
                 default target so just `make` is ok
  `make configs-clean` will use stow to remove symlinks
-
-
-
-
  `make help`    this
  `make update` update programs
+
+installs
+  ledger
+	gh-cli github client
 
 =========================================================
 endef
@@ -88,12 +88,11 @@ home-backup-restore:
 	@#cp -v $(HOME_BACKUP_DIR)/.local/bin/{tree-sitter,silicon} $(HOME)/.local/bin/
 	@# https://github.com/junegunn/fzf/releases/latest
 
-update: update-neovim gh-update
+update:  gh
 default: help
 help: export mkHelp:=$(mkHelp)
 help:
 	@echo "$${mkHelp}"
-
 
 .PHONY: ignore-syms
 ignore-syms:
@@ -105,13 +104,24 @@ rustup:
 	@cargo install skim
 	@cd $(HOME)/.cargo/bin && stow -v -t $(XDG_BIN) .
 
-.PHONY: fzf
-fzf:
-	@[ -d $(PROJECTS)/fzf ] || git clone git@github.com:junegunn/fzf.git
-	@pushd $(PROJECTS)/fzf &>/dev/null
-	@git pull && ./install --all --xdg
-	@popd &>/dev/null
-	@cd $(PROJECTS)/fzf/bin && stow -v -t $(XDG_BIN) .
+.PHONY: ledger
+ledger:
+	@if [ -d $(HOME)/projects/ledger ]
+	then
+	pushd	$(HOME)/projects/ledger
+	git pull
+	./acprep update
+	popd
+	else
+	pushd $(HOME)/projects
+	gh repo clone ledger/ledger
+	pushd ledger
+	./acprep dependencies
+	./acprep update
+	sudo make install
+	popd
+	popd
+	fi
 
 .PHONY: go-cli
 go-cli:
@@ -129,11 +139,27 @@ linters:
 	@#cd $(GOPATH)/src/github.com/mrtazz/checkmake && make
 	@#cd $(GOPATH)/bin && stow -v -t $(XDG_BIN) .
 
-.PHONY: nvimpager-update
-nvimpager-update:
-	@cd ../../nvimpager && git pull
-	@cd ../../nvimpager && sudo $(MAKE)
-	@cd /usr/local/bin; stow -v -t $(XDG_BIN) .
+.PHONY: npm
+npm:
+	@# nvim now installed as a snap
+	@# set up global dir 
+	@mkdir -p $(HOME)/.local/npm 
+	@npm config get prefix | grep -q '$(HOME)/.local/npm' || \
+ npm config set prefix $(HOME)/.local/npm 
+	@#npm install -g neovim
+	@npm outdated -g --depth=0
+	@#cd $(HOME)/.local/npm/bin; stow -v -t $(XDG_BIN) 
+
+.PHONY: nvimpager
+nvimpager:
+	# && gh repo clone lucc/nvimpager 
+	@pushd ../nvimpager 
+	git pull
+	$(MAKE) PREFIX=$(HOME)/.local install
+	popd
+	@#pushd ../nvimpager && git pull
+	@#cd ../../nvimpager && sudo $(MAKE)
+	@#cd /usr/local/bin; stow -v -t $(XDG_BIN) .
 
 .PHONY: neovim-remote
 neovim-remote:
@@ -146,19 +172,18 @@ neovim-remote:
 	@git config --local --unset  core.editor
 	@git config --global --unset  core.editor
 
-.PHONY: gh-update
-gh-update:
-	@pushd ../../gh-cli
-	@#git clone https://github.com/cli/cli.git gh-cli
-	if git pull | grep 'Already up to date' 
+.PHONY: gh
+gh:
+	@if [ ! -d $(HOME)/projects/gh-cli ] 
 	then
-	echo ' - already up to date'
+	mkdir -p ../../gh-cli
+	git clone https://github.com/cli/cli.git ../../gh-cli
 	else
-	echo ' - update gh'
-	make
-	fi
+	@pushd ../../gh-cli
+	@git pull | grep -q 'Already up to date.' || echo 'update' ; make
 	@pushd bin && stow -v -t $(XDG_BIN) . && popd
-	@popd
+	popd
+	fi
 
 .PHONY: projects
 projects:
@@ -174,8 +199,8 @@ clean-projects:
 	@stow -D -v -t ~/.local/bin bin
 	@cd projects;stow -D -v  -t ../../ .
 
-.PHONY: solus
-solus: bin/my-solus-packages.list
+.PHONY: packages
+packages: bin/my-solus-packages.list
 	@echo 'TASK: install my solus essentials'
 	@#mkdir -p  ~/.local/bin
 	@sudo bin/install-solus-packages.sh $<
@@ -196,6 +221,18 @@ snaps: bin/my-snaps.list
 	@echo 'TASK: install snaps'
 	@echo https://docs.snapcraft.io/getting-started
 	@bin/install-snaps.sh $<
+
+.PHONY: gcloud
+gcloud:
+	@cd $(HOME)/projects
+	@#curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-327.0.0-linux-x86_64.tar.gz
+	@#tar -zxf google-cloud-sdk-*
+	@#cd google-cloud-sdk
+	@#./install.sh
+	
+
+
+
 
 .PHONY: init-ssh
 init-ssh:

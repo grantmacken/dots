@@ -1,19 +1,14 @@
 local M = {}
 M.version = 'v0.0.1'
---[[ 
-usage: 
-require('my.commands')({
-  PackerClean = "packadd packer.nvim | lua require('my/plugins').clean()";
+--[[
+usage:
+require('my.autocmds')({
+ startup = {
+    {'TextYankPost', '*', "silent!", ":lua require('vim.highlight').on_yank()" };
+  };
 })
 ]]--
-local tAutocmds = {
-  startup = {
-    --TODO    {'BufEnter', '*', [[:lua require('ft.filetypes')()]] };
-  };
-  TextYankHighlight = {
-    {'TextYankPost', '*', "silent!", [[:lua require('vim.highlight').on_yank()]] };
-  }
-}
+    -- {'BufEnter', '*', [[:lua require('ft.filetypes')()]] };
 --[[
 BufRead
 BufEnter After entering a buffer.  Useful for setting
@@ -30,7 +25,7 @@ h: autocommand events
 au[tocmd] [group] {event} {pat} [++once] [++nested] {cmd}
  --]]
 
- local function setAugroups( tbl )
+ local function set( tbl )
    local cmd = vim.api.nvim_command
    for sGroup, tList in pairs( tbl ) do
      cmd('augroup ' .. sGroup )
@@ -45,12 +40,6 @@ au[tocmd] [group] {event} {pat} [++once] [++nested] {cmd}
    --  print(vim.inspect(command))
  end
 
-local set = function()
-  print(' set autocommands ')
-  setAugroups( tAutocmds )
-end
-
 M.set = set
--- return M.set()
-return M
+return M.set
 

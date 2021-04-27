@@ -1,293 +1,405 @@
 " Automatically generated packer.nvim plugin loader code
 
+if !has('nvim-0.5')
+  echohl WarningMsg
+  echom "Invalid Neovim version for packer.nvim!"
+  echohl None
+  finish
+endif
+
+packadd packer.nvim
+
+try
+
 lua << END
-local plugins = {
-  ["completion-buffers"] = {
+  local time
+  local profile_info
+  local should_profile = false
+  if should_profile then
+    local hrtime = vim.loop.hrtime
+    profile_info = {}
+    time = function(chunk, start)
+      if start then
+        profile_info[chunk] = hrtime()
+      else
+        profile_info[chunk] = (hrtime() - profile_info[chunk]) / 1e6
+      end
+    end
+  else
+    time = function(chunk, start) end
+  end
+  
+local function save_profiles(threshold)
+  local sorted_times = {}
+  for chunk_name, time_taken in pairs(profile_info) do
+    sorted_times[#sorted_times + 1] = {chunk_name, time_taken}
+  end
+  table.sort(sorted_times, function(a, b) return a[2] > b[2] end)
+  local results = {}
+  for i, elem in ipairs(sorted_times) do
+    if not threshold or threshold and elem[2] > threshold then
+      results[i] = elem[1] .. ' took ' .. elem[2] .. 'ms'
+    end
+  end
+
+  _G._packer = _G._packer or {}
+  _G._packer.profile_output = results
+end
+
+time("Luarocks path setup", true)
+local package_path_str = "/home/gmack/.cache/nvim/packer_hererocks/2.1.0-beta3/share/lua/5.1/?.lua;/home/gmack/.cache/nvim/packer_hererocks/2.1.0-beta3/share/lua/5.1/?/init.lua;/home/gmack/.cache/nvim/packer_hererocks/2.1.0-beta3/lib/luarocks/rocks-5.1/?.lua;/home/gmack/.cache/nvim/packer_hererocks/2.1.0-beta3/lib/luarocks/rocks-5.1/?/init.lua"
+local install_cpath_pattern = "/home/gmack/.cache/nvim/packer_hererocks/2.1.0-beta3/lib/lua/5.1/?.so"
+if not string.find(package.path, package_path_str, 1, true) then
+  package.path = package.path .. ';' .. package_path_str
+end
+
+if not string.find(package.cpath, install_cpath_pattern, 1, true) then
+  package.cpath = package.cpath .. ';' .. install_cpath_pattern
+end
+
+time("Luarocks path setup", false)
+time("try_loadstring definition", true)
+local function try_loadstring(s, component, name)
+  local success, result = pcall(loadstring(s))
+  if not success then
+    print('Error running ' .. component .. ' for ' .. name)
+    error(result)
+  end
+  return result
+end
+
+time("try_loadstring definition", false)
+time("Defining packer_plugins", true)
+_G.packer_plugins = {
+  Zenburn = {
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/Zenburn"
+  },
+  ["completion-buffers"] = {
+    after_files = { "/home/gmack/.local/share/nvim/site/pack/packer/opt/completion-buffers/after/plugin/completion_buffers.vim" },
+    loaded = false,
+    needs_bufread = false,
     path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/completion-buffers"
   },
   ["completion-nvim"] = {
+    after = { "vim-vsnip", "vim-vsnip-integ" },
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
+    needs_bufread = false,
     path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/completion-nvim"
   },
   ["completion-treesitter"] = {
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
+    needs_bufread = false,
     path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/completion-treesitter"
   },
-  ["diagnostic-nvim"] = {
+  edge = {
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/diagnostic-nvim"
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/edge"
+  },
+  ["express_line.nvim"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/express_line.nvim"
+  },
+  ["forest-night"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/forest-night"
+  },
+  ["formatter.nvim"] = {
+    config = { "\27LJ\2\nŠ\1\0\0\5\0\6\0\n5\0\0\0005\1\1\0006\2\2\0009\2\3\0029\2\4\2)\4\0\0B\2\2\2>\2\2\1=\1\5\0L\0\2\0\targs\22nvim_buf_get_name\bapi\bvim\1\4\0\0\21--stdin-filepath\0\19--single-quote\1\0\2\bexe\rprettier\nstdin\2f\1\0\5\0\b\0\v6\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\6\0005\3\4\0003\4\3\0=\4\5\3=\3\a\2B\0\2\1K\0\1\0\15javascript\1\0\0\rprettier\1\0\0\0\nsetup\14formatter\frequire\0" },
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/formatter.nvim"
+  },
+  git_fastfix = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/git_fastfix"
+  },
+  ["gitsigns.nvim"] = {
+    config = { "\27LJ\2\nœ\n\0\0\5\0\24\0\0276\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\14\0005\3\4\0005\4\3\0=\4\5\0035\4\6\0=\4\a\0035\4\b\0=\4\t\0035\4\n\0=\4\v\0035\4\f\0=\4\r\3=\3\15\0025\3\16\0005\4\17\0=\4\18\0035\4\19\0=\4\20\3=\3\21\0025\3\22\0=\3\23\2B\0\2\1K\0\1\0\16watch_index\1\0\1\rinterval\3è\a\fkeymaps\tn [c\1\2\1\0@&diff ? '[c' : '<cmd>lua require\"gitsigns\".prev_hunk()<CR>'\texpr\2\tn ]c\1\2\1\0@&diff ? ']c' : '<cmd>lua require\"gitsigns\".next_hunk()<CR>'\texpr\2\1\0\n\17n <leader>hp2<cmd>lua require\"gitsigns\".preview_hunk()<CR>\17n <leader>hb0<cmd>lua require\"gitsigns\".blame_line()<CR>\17n <leader>hR2<cmd>lua require\"gitsigns\".reset_buffer()<CR>\vbuffer\2\17n <leader>hr0<cmd>lua require\"gitsigns\".reset_hunk()<CR>\tx ih2:<C-U>lua require\"gitsigns\".text_object()<CR>\17n <leader>hu5<cmd>lua require\"gitsigns\".undo_stage_hunk()<CR>\17n <leader>hs0<cmd>lua require\"gitsigns\".stage_hunk()<CR>\to ih2:<C-U>lua require\"gitsigns\".text_object()<CR>\fnoremap\2\nsigns\1\0\6\22use_internal_diff\2\23use_decoration_api\2\20update_debounce\3d\18sign_priority\3\6\vlinehl\1\nnumhl\1\16changdelete\1\0\4\nnumhl\21GitSignsChangeNr\ttext\6~\vlinehl\21GitSignsChangeLn\ahl\19GitSignsChange\14topdelete\1\0\4\nnumhl\21GitSignsDeleteNr\ttext\bâ€¾\vlinehl\21GitSignsDeleteLn\ahl\19GitSignsDelete\vdelete\1\0\4\nnumhl\21GitSignsDeleteNr\ttext\6_\vlinehl\21GitSignsDeleteLn\ahl\19GitSignsDelete\vchange\1\0\4\nnumhl\21GitSignsChangeNr\ttext\bâ”‚\vlinehl\21GitSignsChangeLn\ahl\19GitSignsChange\badd\1\0\0\1\0\4\nnumhl\18GitSignsAddNr\ttext\bâ”‚\vlinehl\18GitSignsAddLn\ahl\16GitSignsAdd\nsetup\rgitsigns\frequire\0" },
+    loaded = true,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/start/gitsigns.nvim"
   },
   ["goyo.vim"] = {
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
+    needs_bufread = false,
     path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/goyo.vim"
+  },
+  ["gruvbox-material"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/gruvbox-material"
   },
   ["limelight.vim"] = {
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
+    needs_bufread = false,
     path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/limelight.vim"
   },
   ["lsp-status.nvim"] = {
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
+    needs_bufread = false,
     path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/lsp-status.nvim"
   },
-  ["markdown-preview.nvim"] = {
-    commands = { "MarkdownPreview" },
-    config = { 'vim.api.nvim_command("doautocmd BufEnter")' },
+  ["nlua.nvim"] = {
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/markdown-preview.nvim"
+    needs_bufread = true,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/nlua.nvim"
   },
   ["nord-vim"] = {
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
+    needs_bufread = false,
     path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/nord-vim"
   },
-  ["nvim-lsp"] = {
+  nordisk = {
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
-    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/nvim-lsp"
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/nordisk"
+  },
+  ["nvim-colorizer.lua"] = {
+    loaded = true,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/start/nvim-colorizer.lua"
+  },
+  ["nvim-lspconfig"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/nvim-lspconfig"
+  },
+  ["nvim-luadev"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/nvim-luadev"
   },
   ["nvim-treesitter"] = {
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
+    needs_bufread = true,
     path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/nvim-treesitter"
+  },
+  ["nvim-treesitter-refactor"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/nvim-treesitter-refactor"
+  },
+  ["nvim-treesitter-textobjects"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/nvim-treesitter-textobjects"
+  },
+  ["nvim-web-devicons"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/nvim-web-devicons"
   },
   ["packer.nvim"] = {
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
+    needs_bufread = false,
     path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/packer.nvim"
+  },
+  ["photon.vim"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/photon.vim"
+  },
+  ["plastic.vim"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/plastic.vim"
+  },
+  playground = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/playground"
+  },
+  ["plenary.nvim"] = {
+    loaded = true,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/start/plenary.nvim"
+  },
+  ["popup.nvim"] = {
+    loaded = true,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/start/popup.nvim"
   },
   ["seoul256.vim"] = {
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
+    needs_bufread = false,
     path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/seoul256.vim"
+  },
+  ["spellsitter.nvim"] = {
+    config = { "\27LJ\2\n9\0\0\3\0\3\0\0066\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\16spellsitter\frequire\0" },
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/spellsitter.nvim"
+  },
+  ["suda.vim"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/suda.vim"
+  },
+  ["telescope.nvim"] = {
+    loaded = true,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/start/telescope.nvim"
+  },
+  ["vim-color-spring-night"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/vim-color-spring-night"
   },
   ["vim-commentary"] = {
     commands = { "Commentary", "CommentaryLine" },
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
+    needs_bufread = false,
     path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/vim-commentary"
   },
-  ["vim-eunuch"] = {
-    commands = { "Delete", "Move", "Chmod", "Wall", "Rename", "SudoWrite", "SudoEdit", "Cfind" },
+  ["vim-cool"] = {
+    loaded = true,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/start/vim-cool"
+  },
+  ["vim-dirvish"] = {
+    after = { "vim-dirvish-git" },
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
+    needs_bufread = true,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/vim-dirvish"
+  },
+  ["vim-dirvish-git"] = {
+    load_after = {
+      ["vim-dirvish"] = true
+    },
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/vim-dirvish-git"
+  },
+  ["vim-easy-align"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/vim-easy-align"
+  },
+  ["vim-eunuch"] = {
+    commands = { "Delete", "Remove", "Move", "Chmod", "Wall", "Rename" },
+    loaded = false,
+    needs_bufread = false,
     path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/vim-eunuch"
   },
   ["vim-matchup"] = {
+    after_files = { "/home/gmack/.local/share/nvim/site/pack/packer/opt/vim-matchup/after/plugin/matchit.vim" },
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
+    needs_bufread = true,
     path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/vim-matchup"
+  },
+  ["vim-moonfly-colors"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/vim-moonfly-colors"
+  },
+  ["vim-nightfly-guicolors"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/vim-nightfly-guicolors"
+  },
+  ["vim-qf"] = {
+    loaded = false,
+    needs_bufread = true,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/vim-qf"
+  },
+  ["vim-repeat"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/vim-repeat"
   },
   ["vim-sayonara"] = {
     commands = { "Sayonara" },
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
+    needs_bufread = false,
     path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/vim-sayonara"
+  },
+  ["vim-smoothie"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/vim-smoothie"
+  },
+  ["vim-startify"] = {
+    loaded = true,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/start/vim-startify"
   },
   ["vim-substrata"] = {
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
+    needs_bufread = false,
     path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/vim-substrata"
   },
-  ["vim-vsnip"] = {
+  ["vim-surround"] = {
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/vim-surround"
+  },
+  ["vim-vsnip"] = {
+    load_after = {
+      ["completion-nvim"] = true
+    },
+    loaded = false,
+    needs_bufread = false,
     path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/vim-vsnip"
   },
   ["vim-vsnip-integ"] = {
+    after_files = { "/home/gmack/.local/share/nvim/site/pack/packer/opt/vim-vsnip-integ/after/plugin/vsnip_integ.vim" },
+    load_after = {
+      ["completion-nvim"] = true
+    },
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
+    needs_bufread = false,
     path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/vim-vsnip-integ"
+  },
+  ["vim-which-key"] = {
+    loaded = true,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/start/vim-which-key"
   },
   ["vista.vim"] = {
     commands = { "Vista" },
     loaded = false,
-    only_sequence = false,
-    only_setup = false,
+    needs_bufread = false,
     path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/vista.vim"
+  },
+  ["zephyr-nvim"] = {
+    loaded = false,
+    needs_bufread = false,
+    path = "/home/gmack/.local/share/nvim/site/pack/packer/opt/zephyr-nvim"
   }
 }
 
-local function handle_bufread(names)
-  for _, name in ipairs(names) do
-    local path = plugins[name].path
-    for _, dir in ipairs({ 'ftdetect', 'ftplugin', 'after/ftdetect', 'after/ftplugin' }) do
-      if #vim.fn.finddir(dir, path) > 0 then
-        vim.cmd('doautocmd BufRead')
-        return
-      end
-    end
-  end
-end
+time("Defining packer_plugins", false)
+-- Config for: gitsigns.nvim
+time("Config for gitsigns.nvim", true)
+try_loadstring("\27LJ\2\nœ\n\0\0\5\0\24\0\0276\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\14\0005\3\4\0005\4\3\0=\4\5\0035\4\6\0=\4\a\0035\4\b\0=\4\t\0035\4\n\0=\4\v\0035\4\f\0=\4\r\3=\3\15\0025\3\16\0005\4\17\0=\4\18\0035\4\19\0=\4\20\3=\3\21\0025\3\22\0=\3\23\2B\0\2\1K\0\1\0\16watch_index\1\0\1\rinterval\3è\a\fkeymaps\tn [c\1\2\1\0@&diff ? '[c' : '<cmd>lua require\"gitsigns\".prev_hunk()<CR>'\texpr\2\tn ]c\1\2\1\0@&diff ? ']c' : '<cmd>lua require\"gitsigns\".next_hunk()<CR>'\texpr\2\1\0\n\17n <leader>hp2<cmd>lua require\"gitsigns\".preview_hunk()<CR>\17n <leader>hb0<cmd>lua require\"gitsigns\".blame_line()<CR>\17n <leader>hR2<cmd>lua require\"gitsigns\".reset_buffer()<CR>\vbuffer\2\17n <leader>hr0<cmd>lua require\"gitsigns\".reset_hunk()<CR>\tx ih2:<C-U>lua require\"gitsigns\".text_object()<CR>\17n <leader>hu5<cmd>lua require\"gitsigns\".undo_stage_hunk()<CR>\17n <leader>hs0<cmd>lua require\"gitsigns\".stage_hunk()<CR>\to ih2:<C-U>lua require\"gitsigns\".text_object()<CR>\fnoremap\2\nsigns\1\0\6\22use_internal_diff\2\23use_decoration_api\2\20update_debounce\3d\18sign_priority\3\6\vlinehl\1\nnumhl\1\16changdelete\1\0\4\nnumhl\21GitSignsChangeNr\ttext\6~\vlinehl\21GitSignsChangeLn\ahl\19GitSignsChange\14topdelete\1\0\4\nnumhl\21GitSignsDeleteNr\ttext\bâ€¾\vlinehl\21GitSignsDeleteLn\ahl\19GitSignsDelete\vdelete\1\0\4\nnumhl\21GitSignsDeleteNr\ttext\6_\vlinehl\21GitSignsDeleteLn\ahl\19GitSignsDelete\vchange\1\0\4\nnumhl\21GitSignsChangeNr\ttext\bâ”‚\vlinehl\21GitSignsChangeLn\ahl\19GitSignsChange\badd\1\0\0\1\0\4\nnumhl\18GitSignsAddNr\ttext\bâ”‚\vlinehl\18GitSignsAddLn\ahl\16GitSignsAdd\nsetup\rgitsigns\frequire\0", "config", "gitsigns.nvim")
+time("Config for gitsigns.nvim", false)
 
-_packer_load = nil
+-- Command lazy-loads
+time("Defining lazy-load commands", true)
+vim.cmd [[command! -nargs=* -range -bang -complete=file Delete lua require("packer.load")({'vim-eunuch'}, { cmd = "Delete", l1 = <line1>, l2 = <line2>, bang = <q-bang>, args = <q-args> }, _G.packer_plugins)]]
+vim.cmd [[command! -nargs=* -range -bang -complete=file Remove lua require("packer.load")({'vim-eunuch'}, { cmd = "Remove", l1 = <line1>, l2 = <line2>, bang = <q-bang>, args = <q-args> }, _G.packer_plugins)]]
+vim.cmd [[command! -nargs=* -range -bang -complete=file Move lua require("packer.load")({'vim-eunuch'}, { cmd = "Move", l1 = <line1>, l2 = <line2>, bang = <q-bang>, args = <q-args> }, _G.packer_plugins)]]
+vim.cmd [[command! -nargs=* -range -bang -complete=file Chmod lua require("packer.load")({'vim-eunuch'}, { cmd = "Chmod", l1 = <line1>, l2 = <line2>, bang = <q-bang>, args = <q-args> }, _G.packer_plugins)]]
+vim.cmd [[command! -nargs=* -range -bang -complete=file Wall lua require("packer.load")({'vim-eunuch'}, { cmd = "Wall", l1 = <line1>, l2 = <line2>, bang = <q-bang>, args = <q-args> }, _G.packer_plugins)]]
+vim.cmd [[command! -nargs=* -range -bang -complete=file Rename lua require("packer.load")({'vim-eunuch'}, { cmd = "Rename", l1 = <line1>, l2 = <line2>, bang = <q-bang>, args = <q-args> }, _G.packer_plugins)]]
+vim.cmd [[command! -nargs=* -range -bang -complete=file Commentary lua require("packer.load")({'vim-commentary'}, { cmd = "Commentary", l1 = <line1>, l2 = <line2>, bang = <q-bang>, args = <q-args> }, _G.packer_plugins)]]
+vim.cmd [[command! -nargs=* -range -bang -complete=file Sayonara lua require("packer.load")({'vim-sayonara'}, { cmd = "Sayonara", l1 = <line1>, l2 = <line2>, bang = <q-bang>, args = <q-args> }, _G.packer_plugins)]]
+vim.cmd [[command! -nargs=* -range -bang -complete=file Vista lua require("packer.load")({'vista.vim'}, { cmd = "Vista", l1 = <line1>, l2 = <line2>, bang = <q-bang>, args = <q-args> }, _G.packer_plugins)]]
+vim.cmd [[command! -nargs=* -range -bang -complete=file CommentaryLine lua require("packer.load")({'vim-commentary'}, { cmd = "CommentaryLine", l1 = <line1>, l2 = <line2>, bang = <q-bang>, args = <q-args> }, _G.packer_plugins)]]
+time("Defining lazy-load commands", false)
 
-local function handle_after(name, before)
-  local plugin = plugins[name]
-  plugin.load_after[before] = nil
-  if next(plugin.load_after) == nil then
-    _packer_load({name}, {})
-  end
-end
+vim.cmd [[augroup packer_load_aucmds]]
+vim.cmd [[au!]]
+  -- Event lazy-loads
+time("Defining lazy-load event autocommands", true)
+vim.cmd [[au VimEnter * ++once lua require("packer.load")({'vim-matchup'}, { event = "VimEnter *" }, _G.packer_plugins)]]
+time("Defining lazy-load event autocommands", false)
+vim.cmd("augroup END")
+if should_profile then save_profiles() end
 
-_packer_load = function(names, cause)
-  local some_unloaded = false
-  for _, name in ipairs(names) do
-    if not plugins[name].loaded then
-      some_unloaded = true
-      break
-    end
-  end
-
-  if not some_unloaded then return end
-
-  local fmt = string.format
-  local del_cmds = {}
-  local del_maps = {}
-  for _, name in ipairs(names) do
-    if plugins[name].commands then
-      for _, cmd in ipairs(plugins[name].commands) do
-        del_cmds[cmd] = true
-      end
-    end
-
-    if plugins[name].keys then
-      for _, key in ipairs(plugins[name].keys) do
-        del_maps[key] = true
-      end
-    end
-  end
-
-  for cmd, _ in pairs(del_cmds) do
-    vim.cmd('silent! delcommand ' .. cmd)
-  end
-
-  for key, _ in pairs(del_maps) do
-    vim.cmd(fmt('silent! %sunmap %s', key[1], key[2]))
-  end
-
-  for _, name in ipairs(names) do
-    if not plugins[name].loaded then
-      vim.cmd('packadd ' .. name)
-      vim._update_package_paths()
-      if plugins[name].config then
-        for _i, config_line in ipairs(plugins[name].config) do
-          loadstring(config_line)()
-        end
-      end
-
-      if plugins[name].after then
-        for _, after_name in ipairs(plugins[name].after) do
-          handle_after(after_name, name)
-          vim.cmd('redraw')
-        end
-      end
-
-      plugins[name].loaded = true
-    end
-  end
-
-  handle_bufread(names)
-
-  if cause.cmd then
-    local lines = cause.l1 == cause.l2 and '' or (cause.l1 .. ',' .. cause.l2)
-    vim.cmd(fmt('%s%s%s %s', lines, cause.cmd, cause.bang, cause.args))
-  elseif cause.keys then
-    local keys = cause.keys
-    local extra = ''
-    while true do
-      local c = vim.fn.getchar(0)
-      if c == 0 then break end
-      extra = extra .. vim.fn.nr2char(c)
-    end
-
-    if cause.prefix then
-      local prefix = vim.v.count and vim.v.count or ''
-      prefix = prefix .. '"' .. vim.v.register .. cause.prefix
-      if vim.fn.mode('full') == 'no' then
-        if vim.v.operator == 'c' then
-          prefix = '' .. prefix
-        end
-
-        prefix = prefix .. vim.v.operator
-      end
-
-      vim.fn.feedkeys(prefix, 'n')
-    end
-
-    -- NOTE: I'm not sure if the below substitution is correct; it might correspond to the literal
-    -- characters \<Plug> rather than the special <Plug> key.
-    vim.fn.feedkeys(string.gsub(cause.keys, '^<Plug>', '\\<Plug>') .. extra)
-  elseif cause.event then
-    vim.cmd(fmt('doautocmd <nomodeline> %s', cause.event))
-  elseif cause.ft then
-    vim.cmd(fmt('doautocmd <nomodeline> %s FileType %s', 'filetypeplugin', cause.ft))
-    vim.cmd(fmt('doautocmd <nomodeline> %s FileType %s', 'filetypeindent', cause.ft))
-  end
-end
-
--- Pre-load configuration
--- Post-load configuration
--- Conditional loads
-vim._update_package_paths()
 END
 
-function! s:load(names, cause) abort
-  call luaeval('_packer_load(_A[1], _A[2])', [a:names, a:cause])
-endfunction
-
-" Runtimepath customization
-
-" Load plugins in order defined by `after`
-
-" Command lazy-loads
-command! -nargs=* -range -bang -complete=file MarkdownPreview call s:load(['markdown-preview.nvim'], { "cmd": "MarkdownPreview", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
-command! -nargs=* -range -bang -complete=file Commentary call s:load(['vim-commentary'], { "cmd": "Commentary", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
-command! -nargs=* -range -bang -complete=file Rename call s:load(['vim-eunuch'], { "cmd": "Rename", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
-command! -nargs=* -range -bang -complete=file Wall call s:load(['vim-eunuch'], { "cmd": "Wall", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
-command! -nargs=* -range -bang -complete=file Delete call s:load(['vim-eunuch'], { "cmd": "Delete", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
-command! -nargs=* -range -bang -complete=file CommentaryLine call s:load(['vim-commentary'], { "cmd": "CommentaryLine", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
-command! -nargs=* -range -bang -complete=file SudoWrite call s:load(['vim-eunuch'], { "cmd": "SudoWrite", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
-command! -nargs=* -range -bang -complete=file Cfind call s:load(['vim-eunuch'], { "cmd": "Cfind", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
-command! -nargs=* -range -bang -complete=file Vista call s:load(['vista.vim'], { "cmd": "Vista", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
-command! -nargs=* -range -bang -complete=file SudoEdit call s:load(['vim-eunuch'], { "cmd": "SudoEdit", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
-command! -nargs=* -range -bang -complete=file Chmod call s:load(['vim-eunuch'], { "cmd": "Chmod", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
-command! -nargs=* -range -bang -complete=file Sayonara call s:load(['vim-sayonara'], { "cmd": "Sayonara", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
-command! -nargs=* -range -bang -complete=file Move call s:load(['vim-eunuch'], { "cmd": "Move", "l1": <line1>, "l2": <line2>, "bang": <q-bang>, "args": <q-args> })
-
-" Keymap lazy-loads
-
-augroup packer_load_aucmds
-  au!
-  " Filetype lazy-loads
-  " Event lazy-loads
-  au VimEnter * ++once call s:load(['vim-matchup'], { "event": "VimEnter *" })
-augroup END
+catch
+  echohl ErrorMsg
+  echom "Error in packer_compiled: " .. v:exception
+  echom "Please check your config for correctness"
+  echohl None
+endtry

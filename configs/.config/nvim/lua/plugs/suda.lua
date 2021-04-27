@@ -8,4 +8,4 @@ end
 
 M.init =init
 
-return init()
+return M
