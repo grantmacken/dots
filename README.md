@@ -5,6 +5,7 @@ under [git](https://github.com/grantmacken/dot://github.com/grantmacken/dots) co
 
 ## directory `configs/.config/`
 
+
 A configuration file is created by 
  - a folder named after the program in the `configs/.config/` directory
  - a config file in the directory. `configs/.config/{{progam-name}}/{config-file}`

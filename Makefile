@@ -88,7 +88,7 @@ home-backup-restore:
 	@#cp -v $(HOME_BACKUP_DIR)/.local/bin/{tree-sitter,silicon} $(HOME)/.local/bin/
 	@# https://github.com/junegunn/fzf/releases/latest
 
-update:  gh
+update:  gh nvimpager
 default: help
 help: export mkHelp:=$(mkHelp)
 help:
@@ -100,9 +100,9 @@ ignore-syms:
 
 .PHONEY: rustup
 rustup:
-	@#curl https://sh.rustup.rs -sSf | sh
-	@cargo install skim
-	@cd $(HOME)/.cargo/bin && stow -v -t $(XDG_BIN) .
+	@curl https://sh.rustup.rs -sSf | sh
+	@#cargo install skim
+	@#cd $(HOME)/.cargo/bin && stow -v -t $(XDG_BIN) .
 
 .PHONY: ledger
 ledger:
@@ -131,13 +131,40 @@ go-cli:
 
 .PHONY: linters
 linters:
-	@docker pull hadolint/hadolint:latest-alpine
-	@#pip install --user yamllint
+	@#docker pull hadolint/hadolint:latest-alpine
+	@pip3 install --user yamllint
 	@# pip3 install --user vint
 	@#pip install --user vint --upgrade
 	@#go get github.com/mrtazz/checkmake
 	@#cd $(GOPATH)/src/github.com/mrtazz/checkmake && make
 	@#cd $(GOPATH)/bin && stow -v -t $(XDG_BIN) .
+	@#pip3 install --user ueberzug
+
+
+.PHONY: formatters
+formatters:
+	@cargo install stylua
+
+.PHONY: lsp
+lsp:
+	@#pushd ../../lua-language-server
+	@#gh repo clone https://github.com/sumneko/lua-language-server
+	@#git submodule update --init --recursive
+	@#cd 3rd/luamake
+	@#compile/install.sh
+	@#cd ../..
+	@#./3rd/luamake/luamake rebuild
+	@#popd
+	@# TODO erlang elixer
+	@#npm install i -g vscode-json-languageserver
+	@#npm install -g vscode-html-languageserver-bin
+	@#npm install -g vscode-css-languageserver-bin
+	@#npm install -g dockerfile-language-server-nodejs
+	@#npm i -g bash-language-server
+	@#npm install -g yaml-language-server
+	@npm install -g typescript typescript-language-server
+	@#go get github.com/mattn/efm-langserver 
+
 
 .PHONY: npm
 npm:
@@ -157,9 +184,7 @@ nvimpager:
 	git pull
 	$(MAKE) PREFIX=$(HOME)/.local install
 	popd
-	@#pushd ../nvimpager && git pull
-	@#cd ../../nvimpager && sudo $(MAKE)
-	@#cd /usr/local/bin; stow -v -t $(XDG_BIN) .
+
 
 .PHONY: neovim-remote
 neovim-remote:
@@ -180,8 +205,8 @@ gh:
 	git clone https://github.com/cli/cli.git ../../gh-cli
 	else
 	@pushd ../../gh-cli
-	@git pull | grep -q 'Already up to date.' || echo 'update' ; make
-	@pushd bin && stow -v -t $(XDG_BIN) . && popd
+	@git pull | grep -q 'Already up to date.' || 
+	$(MAKE) prefix=$(HOME)/.local install
 	popd
 	fi
 
@@ -230,9 +255,6 @@ gcloud:
 	@#cd google-cloud-sdk
 	@#./install.sh
 	
-
-
-
 
 .PHONY: init-ssh
 init-ssh:

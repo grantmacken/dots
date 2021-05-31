@@ -51,3 +51,6 @@ if [ -f '/home/gmack/projects/google-cloud-sdk/path.bash.inc' ]; then . '/home/g
 
 # The next line enables shell command completion for gcloud.
 if [ -f '/home/gmack/projects/google-cloud-sdk/completion.bash.inc' ]; then . '/home/gmack/projects/google-cloud-sdk/completion.bash.inc'; fi
+
+alias luamake=/home/gmack/projects/lua-language-server/3rd/luamake/luamake
+. "$HOME/.cargo/env"

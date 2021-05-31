@@ -1,6 +1,48 @@
 
 local M = {}
 local wk = require("which-key")
+
+local tab_complete = function()
+  local t = function(str)
+    return vim.api.nvim_replace_termcodes(str, true, true, true)
+  end
+  local check_back_space = function()
+    local col = vim.fn.col('.') - 1
+    if col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') then
+      return true
+    else
+      return false
+    end
+  end
+  if vim.fn.pumvisible() == 1 then
+    return t('<C-n>')
+  elseif require('luasnip').expand_or_jumpable() then
+    return t('<Plug>luasnip-expand-or-jump')
+  elseif check_back_space() then
+    return t('<Tab>')
+  else
+    return vim.fn['compe#complete']()
+  end
+end
+
+local s_tab_complete = function()
+  local t = function(str)
+    return vim.api.nvim_replace_termcodes(str, true, true, true)
+  end
+  if vim.fn.pumvisible() == 1 then
+    return t('<C-p>')
+  elseif require('luasnip').jumpable(-1) then
+    return t('<Plug>luasnip-jump-prev')
+  else
+    return t('<S-Tab>')
+  end
+end
+
+
+
+
+
+
 -- local opts = { silent = true }
 --[[ Default options for opts
 {
@@ -14,7 +56,7 @@ local wk = require("which-key")
   nowait = false, -- use `nowait` when creating keymaps
 } ]]
 
-wk.register({
+local tLeader = {
   ["<leader>"] = {
     f = {
       name = "+file",
@@ -33,43 +75,21 @@ wk.register({
       d = { "<cmd>Sayonara<CR>","Delete Buffer Close Window" },
       s = { "<cmd>Sayonara!<CR>","Delete Buffer Preserve Window" },
     },
-    ["c"] = {
-      name = "+code",
-      a = { "<cmd>lua require('lspsaga.codeaction').code_action()<cr>", "LSP Code Action" },
-      d = { "<cmd>lua require('lspsaga.diagnostic').show_line_diagnostics()<CR>", "LSP Line Diagnostics" },
-      c = { "<cmd>lua require('lspsaga.diagnostic').show_cursor_diagnostics()<CR>", "LSP Cursor Diagnostic" },
-    }
-  },
-  ["g"] = {
-    name = "+goto",
-    h = {
-      "<cmd>lua require('lspsaga.provider').lsp_finder()<CR>",
-      "Async LSP Finder"
-    },
-    s = {
-      "<cmd>lua require('lspsaga.signaturehesignature_help()<CR>",
-      "LSP Signature Help"
-    },
-      r = {
-      "<cmd>lua require('lspsaga.rename').rename()<CR>",
-      "LSP Rename" },
-      d = {
-      "<cmd>lua require'lspsaga.provider'.preview_definition()<CR>",
-      "LSP Preview Definition" },
-      f = { "<cmd>Format<CR>", "Format File" },
-  },
-  ["K"] = { "<cmd>lua require('lspsaga.hover').render_hover_doc()<CR>", "LSP Hover Doc" },
-  ["["] = {
-    name = "+jump_next",
-    h = { "<cmd>lua require('lspsaga.diagnostic').lsp_jump_diagnostic_next()<CR>", "LSP Jump Diagnostic Next" },
-  },
-  ["]"] = {
-    name = "+jump_previous",
-    h = {
-      "<cmd>lua require('lspsaga.diagnostic').lsp_jump_diagnostic_prev()<CR>",
-      "LSP Jump Diagnostic Prev" },
-  },
-  ["<A-d>"] =  { "<cmd>lua require('lspsaga.floaterm').open_float_terminal()<CR>", "Open Float Terminal)" },
-})
+  }
+}
 
+local buffers = {
+
+}
+
+local keys = function()
+ wk.register( tLeader )
+end
+
+--------------------------------
+M.tab_complete = tab_complete
+M.s_tab_complete = s_tab_complete
+
+M.keys = keys
+--return M.keys()
 return M

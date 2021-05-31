@@ -1,5 +1,5 @@
 local M = {}
-M.version = 'v0.0.1' 
+M.version = 'v0.0.1'
 --[[
 -- com[mand][!] [{attr}...] {cmd} {rep}
 usage:
@@ -18,21 +18,21 @@ require('my.commands')({
 ]]-- value 
 
 local set = function( tbl )
-    for name, value in pairs(tbl) do
-      local rep, attr
-      if type(value) == 'string' then
-	rep = {value}
-	attr = {}
-      end
-      if type(value) == 'table' then
-	attr = value['attr']
-	rep = value['rep']
-      end
-      local command = table.concat(vim.tbl_flatten{'command!', attr , name, rep }, ' ')
-      vim.api.nvim_command(command)
+  for name, value in pairs(tbl) do
+    local rep, attr
+    if type(value) == 'string' then
+      rep = {value}
+      attr = {}
     end
+    if type(value) == 'table' then
+      attr = value['attr']
+      rep = value['rep']
+    end
+    local command = table.concat(vim.tbl_flatten{'command!', attr , name, rep }, ' ')
+    vim.api.nvim_command(command)
   end
+end
 
 M.set = set
 
-return M.set
+return M

@@ -1,11 +1,12 @@
+asciinema
 bat
 calibre
 cmake 
 docker
+fd
 git
-kitty
-xclip
 jq
-yarn
-asciinema
+kitty
 pandoc
+xclip
+ripgrep

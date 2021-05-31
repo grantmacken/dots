@@ -1,6 +1,6 @@
 local M = {}
 M.version = 'v0.0.1'
---[[ 
+--[[
 @help vim_set_keymap
 -- nvim_set_keymap({mode}, {lhs}, {rhs}, {opts})
 @arg table { sMode, sLeftHandSide, sRightHandSide, tOpts }
@@ -8,7 +8,7 @@ M.version = 'v0.0.1'
   require('my.mappings')({
    { sMode, 'gc', '<Plug>Commentary', tOpts };
   })
-]]-- value 
+]]-- value
 -- " Get rid of the annoying F1 binding
 -- imap <f1> <nop>
 

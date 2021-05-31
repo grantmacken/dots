@@ -5,7 +5,7 @@
 	default = current
 	followTags = true
 [core]
-	pager = nvimpager
+	pager = ''
   
   [diff]
     tool = nvr
