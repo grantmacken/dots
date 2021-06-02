@@ -1,5 +1,4 @@
 require('my.settings')
-local cmd = vim.cmd
 local fn = vim.fn
 local install_path = fn.stdpath('data')..'/site/pack/packer/opt/packer.nvim'
 if fn.empty(fn.glob(install_path)) > 0 then
@@ -17,6 +16,7 @@ return print( 'Err: failed to load packer' )
 end
 local use = packer.use
 local use_rocks = packer.use_rocks
+
 local plugins = function()
   -- Packer can manage itself as an optional plugin
   use {'wbthomason/packer.nvim', opt = true}
@@ -32,9 +32,9 @@ local plugins = function()
 -- icons
   use {
     "kyazdani42/nvim-web-devicons",
-    requires = {
+    --[[ requires = {
       "yamatsum/nvim-nonicons"
-    }
+    } ]]
   }
 -- statusline
   use { --TODO
@@ -106,11 +106,7 @@ use {
 
 -- navigation
   -- A file explorer tree for neovim written in lua.
-  --[[ use {
-    "kyazdani42/nvim-tree.lua",
-    opt = false,
-    config = function() require("plugins._nvimtree") end,
-  } ]]
+ --  use {"kyazdani42/nvim-tree.lua",config = function() require("my.plugins.nvimtree") end,}
   use {'justinmk/vim-dirvish'}
 
   use { 'nvim-lua/telescope.nvim',
@@ -151,6 +147,25 @@ use { "b3nj5m1n/kommentary" }
       }
     end
 }
+
+-- https://github.com/karb94/neoscroll.nvim
+-- smooth scrolling
+-- using defaults
+use {
+    'karb94/neoscroll.nvim',
+    config = function() require('neoscroll').setup() end
+  }
+
+-- https://github.com/Pocco81/TrueZen.nvim#configuration
+-- TODO try as replacement for goyo
+  -- WIP not restoring to previous setting
+  use {
+    'Pocco81/TrueZen.nvim',
+    config = function()
+      vim.api.nvim_set_keymap('n', '<F12>', '[[<Cmd>TZAtaraxis<CR>]]',{noremap = true, silent = true})
+    end
+  }
+
 --TERMINAL JOBS
   use { --TODO
     'akinsho/nvim-toggleterm.lua',
@@ -170,6 +185,20 @@ use { "b3nj5m1n/kommentary" }
     }
   }
 
+-- LANGUAGE SERVER PROTOCOL
+  use {
+    'neovim/nvim-lspconfig',
+     -- config = function() require("my.lsp").setup() end,
+    requires = {
+     -- { 'glepnir/lspsaga.nvim'},
+      { 'onsails/lspkind-nvim'}, -- OK
+   --   { 'simrat39/symbols-outline.nvim', config = function() require('my.symbols-outline') end }, -- TODO add mapping
+   --   { 'folke/trouble.nvim', config = function() require('my.trouble') end },
+   --   { 'ray-x/lsp_signature.nvim', config = function() require('my.signatures') end },
+   --   { 'jose-elias-alvarez/nvim-lsp-ts-utils', branch = 'develop'}, -- TODO
+   --   { 'jose-elias-alvarez/null-ls.nvim' } --TODO
+    }
+  }
     -- Auto completion plugin for nvim written in Lua.
   use {
     "hrsh7th/nvim-compe",
@@ -181,27 +210,37 @@ use { "b3nj5m1n/kommentary" }
       },
     },
   }
-
--- LANGUAGE SERVER PROTOCOL
-  use {
-    'neovim/nvim-lspconfig',
-    -- config = function() require("my.lsp") end,
-    requires = {
-      { 'glepnir/lspsaga.nvim'},
-      { 'onsails/lspkind-nvim'}, -- OK
-      { 'simrat39/symbols-outline.nvim', config = function() require('my.symbols-outline') end }, -- TODO add mapping
-      { 'folke/trouble.nvim', config = function() require('my.trouble') end },
-      { 'ray-x/lsp_signature.nvim', config = function() require('my.signatures') end },
-      { 'jose-elias-alvarez/null-ls.nvim' } --TODO
-    }
-  }
 end
 
 packer.startup(plugins)
 -- LSP
+require('my.lsp.lua')
+require('lspconfig').erlangls.setup({
+  filetypes = { "erlang", 'escript' }
+})
+
+require('lspconfig').bashls.setup({})
+
+require('lspconfig').jsonls.setup({
+  capabilities = require('my.lsp').custom_capabilities(),
+  on_attach = require('my.lsp').on_attach,
+  on_init = require('my.lsp').on_init,
+  root_dir = vim.loop.cwd,
+  commands = {
+    Format = {
+      function()
+        vim.lsp.buf.range_formatting({},{0,0},{vim.fn.line("$"),0})
+      end
+    }
+  }
+})
+require('lspconfig').bashls.setup({})
 -- setup handlers
 --require('my.lsp').handlers()
-require('my.lsp.lua')
+vim.lsp.set_log_level("debug")
+vim.cmd [[command! LSPLog  lua vim.cmd('e'..vim.lsp.get_log_path())]]
+vim.cmd [[command! LSPListWorkspaces lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))]]
+vim.cmd [[command! -count=1 TermGitPush  lua require'toggleterm'.exec("git push",    <count>, 12)]]
 
 -- KEY BIND MAPPINGS
 local remap = require( 'my.remaps' )
@@ -216,10 +255,12 @@ vim.api.nvim_set_keymap("i", "<C-Space>", "compe#confirm()", {expr = true})
 vim.api.nvim_set_keymap("i", "<C-e>", "compe#close('<C-e>')", {expr = true})
 vim.api.nvim_set_keymap("i", "<C-f>", "compe#scroll({ 'delta': +4 }", {expr = true})
 vim.api.nvim_set_keymap("i", "<C-d>", "compe#scroll({ 'delta': -4 }", {expr = true})
-
-vim.api.nvim_set_keymap("n", "<F6>", "<cmd>lua require('my.toggleterm').lazygit():toggle()<CR>", {noremap = true, silent = true})
+vim.api.nvim_set_keymap("n","<C-n>","<Cmd>NvimTreeToggle<CR>",{noremap = true,silent = true})
+--vim.api.nvim_set_keymap('n', '<leader>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', {noremap = true,silent = true})
+--vim.api.nvim_set_keymap('n', '<leader>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', {noremap = true,silent = true})
+--vim.api.nvim_set_keymap('n', '<leader>wl', '<cmd><CR>', {noremap = true,silent = true})
 -- use which keys
---remap.keys()
+remap.keys()
 
 
 

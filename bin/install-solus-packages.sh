@@ -76,8 +76,6 @@ echo "TASK! install some apps using solus package manager"
 for i in ${!appList[@]}
 do
     appInstall "${appList[${i}]}"
-done
-
-
+  done
 
 

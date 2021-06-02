@@ -4,49 +4,38 @@ SHELL=/bin/bash
 .DELETE_ON_ERROR:
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
-###################################
 
-APP_LIST = git curl stow
-assert-command-present = $(if $(shell which $1),,$(error '$1' missing and needed for this build))
-$(foreach src,$(APP_LIST),$(call assert-command-present,$(src)))
-
-# https://wiki.archlinux.org/index.php/XDG_Base_Directory
-XDG_CACHE_HOME ?= $(HOME)/.cache
-XDG_CONFIG_HOME ?= $(HOME)/.config
-XDG_DATA_HOME ?= $(HOME)/.local/share
-XDG_BIN ?= $(HOME)/.local/bin
+XDG_CACHE_HOME := ~/.cache
+XDG_CONFIG_HOME := ~/.config
+XDG_DATA_HOME := ~/.local/share
+XDG_BIN := $(HOME)/.local/bin
 UP_TARG_DIR := $(abspath ../)
-EMPTY := SPACE := $(EMPTY) $(EMPTY)
-
 HOME_BACKUP_DIR := /old_home/gmack
 
-assert-is-root = $(if $(shell id -u | grep -oP '^0$$'),\
- $(info OK! root user, so we can change some system files),\
- $(error changing system files so need to sudo) )
-
-define mkHelp
-=========================================================
- `make configs` will use stow to create symlinks
-                default target so just `make` is ok
- `make configs-clean` will use stow to remove symlinks
- `make help`    this
- `make update` update programs
-
-installs
-  ledger
-	gh-cli github client
-
-=========================================================
-endef
-
-
-# .PHONY: lua-cjson
-# lua-cjson:
-# 	@#cd ../../ && git clone git@github.com:openresty/lua-cjson.git
-# 	@#cd ../../lua-cjson && make
-# 	@# cd ../../lua-cjson && git pull
-# 	@#cd ../../nvimpager && sudo $(MAKE)
-# 	@#cd /usr/local/bin; stow -v -t $(XDG_BIN) .
+neovim:
+	@if [ -d $(HOME)/projects/neovim ]
+	@then
+	@pushd	~/projects/neovim
+	@#git pull --merge
+	@#make distclean
+	@mkdir -p .deps && pushd .deps
+	@#cmake ../third-party
+	@make tree-sitter
+	@ls
+	@popd
+	@# make CMAKE_INSTALL_PREFIX=$(HOME)/local/nvim installmkdir .deps
+	else
+	@pushd ~$(HOME)/projects
+	@gh repo clone neovim/neovim
+	@pushd neovim
+	@mkdir -p .deps 
+	@pushd .deps
+	@cmake ../third-party
+	@ninja
+	@popd
+	@popd
+	@fi
+	@popd
 
 .PHONY: configs
 configs:
@@ -76,7 +65,7 @@ home-backup-restore:
 	@#cp -rv $(HOME_BACKUP_DIR)/.ssh $(HOME)/
 	@cp -rv $(HOME_BACKUP_DIR)/.docker $(HOME)/
 	@#ls -alr $(HOME)/.ssh
-	@#echo 'TASK: XDG config dir'
+	@#echo 'TASK/: XDG config dir'
 	@#cp -rv $(HOME_BACKUP_DIR)/.config/gh $(HOME)/.config/
 	@#cp -rv $(HOME_BACKUP_DIR)/.config/gcloud $(HOME)/.config/
 	@#echo 'TASK: XDG data dir'
@@ -86,9 +75,11 @@ home-backup-restore:
 	@# https://github.com/cli/cli/releases/download/v0.11.1/gh_0.11.1_linux_amd64.tar.gz
 	@#https://github.com/jesseduffield/lazygit/releases/latest
 	@#cp -v $(HOME_BACKUP_DIR)/.local/bin/{tree-sitter,silicon} $(HOME)/.local/bin/
-	@# https://github.com/junegunn/fzf/releases/latest
+
+
 
 update:  gh nvimpager
+
 default: help
 help: export mkHelp:=$(mkHelp)
 help:
@@ -98,11 +89,39 @@ help:
 ignore-syms:
 	find . -type l >> .gitignore
 
-.PHONEY: rustup
+.PHONY: rustup
 rustup:
 	@curl https://sh.rustup.rs -sSf | sh
 	@#cargo install skim
 	@#cd $(HOME)/.cargo/bin && stow -v -t $(XDG_BIN) .
+
+.PHONY: neovim
+neovim:
+	@if [ -d $(HOME)/projects/neovim ]
+	@then
+	@cd	$(HOME)/projects/neovim
+	@git pull
+	@rm -rf .deps
+	@rm -rf build
+	@make \
+		BUNDLED_CMAKE_FLAG="-DUSE_BUNDLED=OFF -DUSE_BUNDLED_LUV=ON -DUSE_BUNDLED_TS=ON -DUSE_BUNDLED_LIBVTERM=ON -DUSE_BUNDLED_LIBUV=ON"\
+		CMAKE_EXTRA_FLAGS='-DCMAKE_INSTALL_PREFIX=~/.local/neovim' \
+		CMAKE_BUILD_TYPE=Release
+	@#make CMAKE_EXTRA_FLAGS='-DCMAKE_INSTALL_PREFIX=$(HOME)/.local/neovim' 
+	@#make install
+	#export PATH="$HOME/neovim/bin:$PATH"
+	else
+	@pushd $(HOME)/projects
+	@gh repo clone neovim/neovim
+	@pushd neovim
+	@mkdir -p .deps 
+	@pushd .deps
+	@cmake ../third-party
+	@ninja
+	@popd
+	@popd
+	@fi
+	@popd
 
 .PHONY: ledger
 ledger:
@@ -145,8 +164,18 @@ linters:
 formatters:
 	@cargo install stylua
 
-.PHONY: lsp
-lsp:
+.PHONY: lsp-erlang_ls
+lsp-erlang_ls:
+	@[ -d ../../erlang_ls ] || pushd ../..; gh repo clone https://github.com/erlang-ls/erlang_ls
+	@pushd ../../erlang_ls
+	@git pull
+	@make
+	@pushd _build/default/bin; stow -v -t $(XDG_BIN) . && popd
+	@pushd _build/dap/bin; stow -v -t $(XDG_BIN) . && popd
+	@popd
+
+.PHONY: lsp-sumneko
+lsp-sumneko:
 	@#pushd ../../lua-language-server
 	@#gh repo clone https://github.com/sumneko/lua-language-server
 	@#git submodule update --init --recursive
@@ -155,14 +184,23 @@ lsp:
 	@#cd ../..
 	@#./3rd/luamake/luamake rebuild
 	@#popd
+
+.PHONY: lsp
+lsp:
+	@which vscode-json-languageserver 2>/dev/null || yarn add --verbose vscode-json-languageserver
+	@which bash-language-server 2>/dev/null || yarn add --verbose bash-language-server
+	@pushd node_modules/.bin && stow -v -t $(XDG_BIN) .
+
+lsp-other:
 	@# TODO erlang elixer
-	@#npm install i -g vscode-json-languageserver
+	@which bash-language-server 2>/dev/null && npm uninstall  bash-language-server
 	@#npm install -g vscode-html-languageserver-bin
-	@#npm install -g vscode-css-languageserver-bin
+	@#which css-languageserver 2>/dev/null || npm uninstall -g vscode-css-languageserver-bin
 	@#npm install -g dockerfile-language-server-nodejs
 	@#npm i -g bash-language-server
 	@#npm install -g yaml-language-server
-	@npm install -g typescript typescript-language-server
+	@#which typescript-language-server  2>/dev/null || npm install -g typescript typescript-language-server
+	@which bash-language-server 2>/dev/null && npm uninstall bash-language-server
 	@#go get github.com/mattn/efm-langserver 
 
 
@@ -231,7 +269,9 @@ packages: bin/my-solus-packages.list
 	@sudo bin/install-solus-packages.sh $<
 	@sudo eopkg up
 	@setxkbmap -option caps:swapescape
-	@#git remote add origin git@github.com:grantmacken/dots.git
+	@#[ -d ../../rebar3 ] || pushd ../../; gh repo clone https://github.com/erlang/rebar3.git; pushd rebar3 ; ./bootstrap; popd; popd
+	@#pushd $(XDG_BIN) && ln -s $(HOME)/projects/rebar3/rebar3 && popd
+
 
 .PHONY: solus-build-essentials
 solus-build-essentials:
@@ -278,6 +318,4 @@ fonts:
 	grep -e scalable=True | sort
 	#fc-cache -r
 	@popd
-
-
 

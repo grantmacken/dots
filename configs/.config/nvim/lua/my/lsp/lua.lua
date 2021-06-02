@@ -48,6 +48,9 @@ require("lspconfig").sumneko_lua.setup {
         preloadFileSize = 400,
         library = library,
       },
+      telemetry = {
+        enable = false
+      }
     },
   }
 }

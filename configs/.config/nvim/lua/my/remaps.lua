@@ -38,11 +38,6 @@ local s_tab_complete = function()
   end
 end
 
-
-
-
-
-
 -- local opts = { silent = true }
 --[[ Default options for opts
 {
