@@ -17,6 +17,7 @@ local tab_complete = function()
   if vim.fn.pumvisible() == 1 then
     return t('<C-n>')
   elseif require('luasnip').expand_or_jumpable() then
+    print('expand')
     return t('<Plug>luasnip-expand-or-jump')
   elseif check_back_space() then
     return t('<Tab>')
@@ -26,6 +27,7 @@ local tab_complete = function()
 end
 
 local s_tab_complete = function()
+  local ls = require("luasnip")
   local t = function(str)
     return vim.api.nvim_replace_termcodes(str, true, true, true)
   end
@@ -37,6 +39,8 @@ local s_tab_complete = function()
     return t('<S-Tab>')
   end
 end
+
+
 
 -- local opts = { silent = true }
 --[[ Default options for opts

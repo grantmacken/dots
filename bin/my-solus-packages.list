@@ -21,3 +21,4 @@ gcc
 unzip
 patch
 llvm-clang
+shellcheck

@@ -18,6 +18,7 @@ function yep(){
   tput setaf 15
 }
 
+
 function nope(){
   tput setaf 1
   echo -n ' ✗ '

@@ -37,6 +37,12 @@ local on_attach = function(client, bufnr )
   vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
   require("my.lsp").mappings( client, bufnr )
   require('lspkind').init({})
+  require "lsp_signature".on_attach({
+      bind = true, -- This is mandatory, otherwise border config won't get registered.
+      handler_opts = {
+        border = "single"
+      }
+    })
 end
 
 local on_init = function(client)

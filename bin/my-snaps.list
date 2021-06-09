@@ -1,3 +1,2 @@
-nvim --edge --classic
-node --classic --channel=edge
+node --classic --channel=16/stable
 go --classic

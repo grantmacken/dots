@@ -12,31 +12,6 @@ XDG_BIN := $(HOME)/.local/bin
 UP_TARG_DIR := $(abspath ../)
 HOME_BACKUP_DIR := /old_home/gmack
 
-neovim:
-	@if [ -d $(HOME)/projects/neovim ]
-	@then
-	@pushd	~/projects/neovim
-	@#git pull --merge
-	@#make distclean
-	@mkdir -p .deps && pushd .deps
-	@#cmake ../third-party
-	@make tree-sitter
-	@ls
-	@popd
-	@# make CMAKE_INSTALL_PREFIX=$(HOME)/local/nvim installmkdir .deps
-	else
-	@pushd ~$(HOME)/projects
-	@gh repo clone neovim/neovim
-	@pushd neovim
-	@mkdir -p .deps 
-	@pushd .deps
-	@cmake ../third-party
-	@ninja
-	@popd
-	@popd
-	@fi
-	@popd
-
 .PHONY: configs
 configs:
 	@echo 'TASK: use stow to create symlinks in home dir'
@@ -76,9 +51,7 @@ home-backup-restore:
 	@#https://github.com/jesseduffield/lazygit/releases/latest
 	@#cp -v $(HOME_BACKUP_DIR)/.local/bin/{tree-sitter,silicon} $(HOME)/.local/bin/
 
-
-
-update:  gh nvimpager
+update:  gh neovim
 
 default: help
 help: export mkHelp:=$(mkHelp)
@@ -97,30 +70,12 @@ rustup:
 
 .PHONY: neovim
 neovim:
-	@if [ -d $(HOME)/projects/neovim ]
-	@then
-	@cd	$(HOME)/projects/neovim
-	@git pull
-	@rm -rf .deps
-	@rm -rf build
-	@make \
-		BUNDLED_CMAKE_FLAG="-DUSE_BUNDLED=OFF -DUSE_BUNDLED_LUV=ON -DUSE_BUNDLED_TS=ON -DUSE_BUNDLED_LIBVTERM=ON -DUSE_BUNDLED_LIBUV=ON"\
-		CMAKE_EXTRA_FLAGS='-DCMAKE_INSTALL_PREFIX=~/.local/neovim' \
-		CMAKE_BUILD_TYPE=Release
-	@#make CMAKE_EXTRA_FLAGS='-DCMAKE_INSTALL_PREFIX=$(HOME)/.local/neovim' 
-	@#make install
-	#export PATH="$HOME/neovim/bin:$PATH"
-	else
-	@pushd $(HOME)/projects
-	@gh repo clone neovim/neovim
-	@pushd neovim
-	@mkdir -p .deps 
-	@pushd .deps
-	@cmake ../third-party
-	@ninja
-	@popd
-	@popd
-	@fi
+	@mkdir -p	$(HOME)/.local/nvim-linux64
+	@pushd $(HOME)/.local
+	@wget  --progress=bar:force:noscroll https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz
+	@tar -C $(HOME)/.local/ -xf ./nvim-linux64.tar.gz
+	@rm nvim-linux64.tar.gz
+	@pushd $(HOME)/.local/nvim-linux64/bin && stow -v -t $(XDG_BIN) . && popd
 	@popd
 
 .PHONY: ledger
@@ -187,22 +142,8 @@ lsp-sumneko:
 
 .PHONY: lsp
 lsp:
-	@which vscode-json-languageserver 2>/dev/null || yarn add --verbose vscode-json-languageserver
-	@which bash-language-server 2>/dev/null || yarn add --verbose bash-language-server
-	@pushd node_modules/.bin && stow -v -t $(XDG_BIN) .
-
-lsp-other:
-	@# TODO erlang elixer
-	@which bash-language-server 2>/dev/null && npm uninstall  bash-language-server
-	@#npm install -g vscode-html-languageserver-bin
-	@#which css-languageserver 2>/dev/null || npm uninstall -g vscode-css-languageserver-bin
-	@#npm install -g dockerfile-language-server-nodejs
-	@#npm i -g bash-language-server
-	@#npm install -g yaml-language-server
-	@#which typescript-language-server  2>/dev/null || npm install -g typescript typescript-language-server
-	@which bash-language-server 2>/dev/null && npm uninstall bash-language-server
-	@#go get github.com/mattn/efm-langserver 
-
+	@#which vscode-json-languageserver 2>/dev/null || yarn remove vscode-json-languageserver
+	@#which bash-language-server 2>/dev/null && yarn remove bash-language-server
 
 .PHONY: npm
 npm:

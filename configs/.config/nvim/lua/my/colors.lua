@@ -1,8 +1,21 @@
-vim.g.nord_style = "nord"
-vim.g.nord_borders = false
-vim.g.nord_contrast = false
-vim.g.nord_cursorline_transparent = true
-vim.g.nord_disable_background = true
-require('nord').set()
-vim.cmd 'hi normal guibg=#2f334d'
-print( 'set up nord colorscheme')
+M = {}
+
+-- before plugin enabled
+local setup = function()
+  vim.g.seoul256_contrast = true
+  vim.g.seoul256_borders = true
+  vim.g.seoul256_disable_background = true
+end
+
+-- after plugin enabled
+local config = function()
+  require('seoul256').set()
+end
+
+M.config = config
+M.setup = setup
+
+return M
+
+
+

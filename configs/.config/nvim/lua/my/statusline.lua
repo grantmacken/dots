@@ -1,18 +1,17 @@
 local lualine = require('lualine')
---
---nord
+
 local colors = {
- bg       = '#2E3440',
- fg       = '#ECEFF4',
- yellow   = '#EBCB8B',
- cyan     = '#8FBCBB',
- darkblue = '#5E81AC',
- green    = '#A3BE8C',
- orange   = '#D08770',
- violet   = '#81A1C1',
- magenta  = '#B48EAD',
- blue     = '#81A1C1';
- red      = '#BF616A';
+bg       = '#545454',
+fg       = '#dfe0e0',
+yellow   = '#c3a769',
+cyan     = '#c3a769',
+darkblue = '#d0a39f',
+green    = '#678568',
+orange   = '#67a9aa',
+violet   = '#84a4c1',
+magenta  = '#d0a39f',
+blue     = '#84a4c1';
+red      = '#a07474';
 }
 
 local conditions = {
@@ -28,7 +27,6 @@ local conditions = {
     return gitdir and #gitdir > 0 and #gitdir < #filepath
   end
 }
-
 -- Config
 local config = {
   options = {
@@ -74,12 +72,12 @@ local function ins_right(component)
   table.insert(config.sections.lualine_x, component)
 end
 
-
 ins_left {
- function() return '▊ ' end,
+ function() return '▊' end,
  color = {fg = colors.blue}, -- Sets highlighting of component
  left_padding = 0 -- We don't need space before this
 }
+
 ins_left {
   -- mode component
   function()
@@ -107,7 +105,7 @@ ins_left {
       t      = colors.red
     }
     vim.api.nvim_command('hi! LualineMode guifg='..mode_color[vim.fn.mode()] .. " guibg="..colors.bg)
-    return ''
+    return ''
   end,
   color = "LualineMode",
   left_padding = 0,
@@ -188,15 +186,6 @@ ins_right {
   function() return 'LF' end,
   color = {fg = colors.darkblue},
 }
-
--- Add components to right sections
-ins_right {
-  'o:encoding', -- option component same as &encoding in viml
-  condition = conditions.hide_in_width,
-  upper = true,
-  color = {fg = colors.darkblue}
-}
-
 ins_right {
   'fileformat', --same one just without the logo
   icons_enabled = true,
@@ -204,11 +193,10 @@ ins_right {
 }
 
 ins_right {
-    'filetype',
-    condition = conditions.buffer_not_empty,
-    icons_enabled = false,
-    upper = true,
-    color = {fg = colors.cyan, gui = 'bold'}
+  'o:encoding', -- option component same as &encoding in viml
+  upper = true, -- I'm not sure why it's upper case either ;)
+  condition = conditions.hide_in_width,
+  color = {fg = colors.darkblue, gui = 'bold'}
 }
 
 ins_right {
@@ -234,7 +222,6 @@ ins_right {
   right_padding = 0,
 }
 
+
+
 lualine.setup(config)
-
-
-

@@ -1,24 +1,7 @@
+
 local setGlobalVars = function( tbl )
   for key,value in pairs( tbl ) do
     vim.g[key] = value
-  end
-end
-
-local setGlobalOptions = function( tbl )
-  for key,value in pairs( tbl ) do
-    vim.o[key] = value
-  end
-end
-
-local setBufferOptions = function( tbl )
-  for key,value in pairs( tbl ) do
-    vim.bo[key] = value
-  end
-end
-
-local setWindowOptions = function( tbl )
-  for key,value in pairs( tbl ) do
-    vim.wo[key] = value
   end
 end
 
@@ -48,92 +31,63 @@ setGlobalVars({
   did_install_syntax_menu = 1,
 })
 
-setGlobalOptions({
- -- COLORS
- termguicolors = true;
- background = 'dark';
- t_Co = '256';
-  -- indentation also specified in buffer opts
-  shiftwidth = 2;
-  tabstop = 2;
-  expandtab = true;
-  textwidth = 120;
-  shiftround  = true; -- round indent to multiple of 'shiftwidth'.
-  -- splits
-  splitbelow = true;
-  splitright = true;
-  --  search behaviour
-  ignorecase  = true;
-  incsearch   = true;
-  inccommand  = 'split'; -- incrementally show result of command
-  laststatus  = 2;
-  -- file management
-  autoread    = true;
-  backup      = false;
-  swapfile    = false;
-  undofile    = true;
-  undolevels  = 5000;
-  undoreload  = 10000;
-  -- chrome
-  number        =  true;
-  relativenumber  = true;
-  helpheight    = 10;
-  modeline      = false;
-  equalalways   = false;  -- Don't resize windows on split or close
-  title         = false;  -- No need for a title
-  scrolloff     = 2;      -- Keep at least 2 lines above/below
-  sidescrolloff = 3;    -- Keep at least 2 lines left/right
-  showmode    = false;  --global: default on TODO turn off
-  pumblend = 10;
-  pumheight = 25;
- --  TEXT EDITING
-  encoding  = 'UTF-8';  
-  wrap     = false;
- --  cursor
-  mouse       = 'a';
-  mousetime = 0;
-  -- whichwrap = 'b,h,l,s,<,>,[,],~';
-  -- guicursor = table.concat( tGuicursor, ',');
-  virtualedit = 'block';
-  clipboard   = 'unnamedplus';         -- global
-  guifont     = 'BlexMono Nerd Font';
-  listchars = table.concat({'tab:»·',
-                            'eol:¬',
-                            'nbsp:␣',
-                            'extends:→',
-                            'precedes:←',
-                            'trail:•',},',');
-  fillchars = table.concat({'eob: ',
-                            'stlnc:─',
-                            'diff:─'}, ',');
-  completeopt = table.concat({'menuone','noselect', 'noselect', 'noinsert'},',');
-  joinspaces = false;
-  shada = "!,'100,<50,s10,h,:1000,/1000";
-  timeout     = true;
-  ttimeout    = true;
-  timeoutlen  = 500;
-  ttimeoutlen = 10;
-  updatetime  = 100;
-  redrawtime  = 1500;
-  grepformat  = "%f:%l:%c:%m";
-  grepprg     = 'rg --hidden --vimgrep --smart-case --';
-  hidden      = true
-})
- -- maybe set formatprg and grepprg
+local global_opt = vim.opt_global
+-- global
+global_opt.shortmess:remove("F"):append("c")
+global_opt.path:append("**")
+global_opt.termguicolors = true
+global_opt.hidden = true
+global_opt.showtabline = 1
+global_opt.updatetime = 300
+global_opt.showmatch = true
+global_opt.laststatus = 2
+global_opt.wildignore = { ".git", "*/node_modules/*"}
+global_opt.ignorecase = true
+global_opt.smartcase = true
+global_opt.clipboard = "unnamed"
+global_opt.completeopt = { "menu", "menuone", "noselect" }
 
-setWindowOptions({
-  linebreak = true;
-  breakindent = true;
-  cursorline = true;
-  signcolumn = 'yes:2';
-  number        =  true;
-  relativenumber  = true;
-  list = true;
-})
+local opt = vim.opt
+opt.mouse = "a"           -- enable mouse
+opt.errorbells = false
+opt.visualbell = true
+opt.guifont     = 'BlexMono Nerd Font'
+opt.number = true        -- set numbered lines
+opt.relativenumber  = true   --
+opt.title = false        -- Nope to setting the terminal title
+opt.showmode = false
+opt.background = "dark"
+-- file management
+opt.autoread = true
+opt.backup = false       -- nope
+opt.writebackup = false  -- nope
+opt.swapfile = false     -- nope
+opt.undofile    = true  -- ok use undo
+opt.undolevels  = 5000     --  with lots of undolevels
+opt.undoreload  = 10000     -- and reloads
+-- windows
+opt.cursorline = true    -- Enable highlighting of the current line
+opt.wrap = false
+opt.signcolumn = "yes"
+-- buffers
+opt.expandtab = true     -- Insert 2 spaces for a tab
+opt.tabstop = 2          -- Change the number of space characters inserted for indentation
+opt.shiftwidth = 2       -- Converts tabs to spaces
+opt.shiftround  = true; -- Round indent to multiple of 'shiftwidth'.
+opt.smartindent = true   -- Makes indenting smart
+opt.textwidth = 120;
+-- splits
+opt.splitbelow = true
+opt.splitright = true
+--  search behaviour
+opt.incsearch   = true
+opt.inccommand  = 'nosplit'
 
-setBufferOptions({
- undofile = true;
- shiftwidth = 2;
- tabstop = 2;
- expandtab = true;
-})
+opt.timeout     = true;
+opt.ttimeout    = true;
+opt.timeoutlen  = 500;
+opt.ttimeoutlen = 10;
+opt.updatetime  = 100;
+opt.redrawtime  = 1500;
+opt.grepformat  = "%f:%l:%c:%m";
+opt.grepprg     = 'rg --hidden --vimgrep --smart-case --';
