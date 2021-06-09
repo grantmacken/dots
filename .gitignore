@@ -6,5 +6,5 @@ bu_*
 node
 node_modules
 tags
-#nvim
-#!*/nvim
+nvim
+!*/nvim
