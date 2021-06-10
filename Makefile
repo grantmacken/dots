@@ -15,19 +15,12 @@ HOME_BACKUP_DIR := /old_home/gmack
 .PHONY: configs
 configs:
 	@echo 'TASK: use stow to create symlinks in home dir'
-	@export CWD=$(CURDIR)
 	if ! [ -L ~/.bashrc ] 
 	then
 	rm -fv ~/.bashrc
 	fi
-	@#[ -f ~/.gitconfig ] && rm ~/.gitconfig
 	$(if $(wildcard  $(XDG_CONFIG_HOME)/bash ),,mkdir -p $(XDG_CONFIG_HOME)/bash)
 	@stow -v -t ~ configs
-	@#source $(HOME)/.bashrc
-	@mkdir -p nvim
-	@pushd configs/.config &>/dev/null
-	@stow -v -t $(CURDIR)/nvim nvim
-	@popd &>/dev/null
 
 .PHONY: clean-config
 clean-config:
@@ -155,6 +148,7 @@ npm:
 	@#npm install -g neovim
 	@npm outdated -g --depth=0
 	@#cd $(HOME)/.local/npm/bin; stow -v -t $(XDG_BIN) 
+
 
 .PHONY: nvimpager
 nvimpager:

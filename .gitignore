@@ -3,8 +3,5 @@ bu_*
 .*.log
 ./notes
 .secrets
-node
-node_modules
 tags
-nvim
-!*/nvim
+# !*/nvim

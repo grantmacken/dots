@@ -9,19 +9,27 @@ local plugins = function()
   -- APPEARANCE
   -- colors
   use { 'shaunsingh/seoul256.nvim',
-    setup = require('my.colors').setup,
-    config = require('my.colors').config
+    setup = require('my.seoul256').setup,
+    config = require('my.seoul256').config
 }  -- icons
+
+  use {
+    'norcalli/nvim-colorizer.lua',
+    config = require('my.colorizer').config
+  }
+
   use {
     "kyazdani42/nvim-web-devicons",
     --[[ requires = {
       "yamatsum/nvim-nonicons"
   } ]]
   }
+
+
 -- statusline
   use { --TODO
     'hoob3rt/lualine.nvim',
-    config = function() require('my.statusline') end
+    config = function() require('my.lualine') end
 }
 -- bufferline
 -- @see https://github.com/akinsho/nvim-bufferline.lua
@@ -32,7 +40,7 @@ local plugins = function()
 
   -- git
 
-  use { --TODO
+  use { -- TODO trying
     'TimUntersberger/neogit',
     requires = 'nvim-lua/plenary.nvim',
       config = function() require('neogit').setup({}) end
@@ -46,29 +54,24 @@ use {
 -- indentation
   use {
     'lukas-reineke/indent-blankline.nvim',
-    branch = "lua",
-    config = function()
-    end
+    branch = "lua"
   }
 -- BUFFER MANAGEMENT
   use {'mhinz/vim-sayonara',
-    opt = true,
     cmd = 'Sayonara'
   }
   use {
     'tpope/vim-eunuch',
-    opt = true,
     cmd = { 'Delete', 'Remove', 'Move','Chmod', 'Wall', 'Rename'}
   }
 
 -- FILE MANAGEMENT
   use { 'lambdalisue/suda.vim',
-    opt = true,
     cmd = { 'SudaRead', 'SudaWrite'},
     config = function() vim.g.suda_smart_edit = true end
 }
 -- sessions --
-use {
+--[[ use {
   'rmagatti/auto-session',
   config = function()
     require('auto-session').setup({
@@ -81,7 +84,9 @@ use {
 use {
   'rmagatti/session-lens',
   requires = {'rmagatti/auto-session'}
-}
+} ]]
+
+
 
 -- navigation
   -- A file explorer tree for neovim written in lua.
@@ -89,8 +94,6 @@ use {
   use {'justinmk/vim-dirvish'}
   use {
     'nvim-lua/telescope.nvim',
-    run = ':TSUpdate',
-    config = require('my.treesitter').config,
     requires = {
       {'nvim-lua/popup.nvim'},
       {'nvim-lua/plenary.nvim'},
@@ -104,16 +107,9 @@ use { "b3nj5m1n/kommentary" }
   -- remember key bindings
 -- @see https://github.com/folke/which-key.nvim
   -- @ ./my/which-key.lua
-  use {
-    "folke/which-key.nvim",
-    config = function()
-      require("which-key").setup {
-        spelling = {
-          enabled = true, -- enabling this will show WhichKey when pressing z= to select spelling suggestions
-          suggestions = 20, -- how many suggestions should be shown in the list?
-        },
-      }
-    end
+use {
+  "folke/which-key.nvim",
+  config = require([[my.which-key]]).config
 }
 
 -- https://github.com/karb94/neoscroll.nvim
@@ -124,9 +120,6 @@ use {
     config = function() require('neoscroll').setup() end
   }
 
-
-
-
 --TERMINAL JOBS
   use { --TODO
     'akinsho/nvim-toggleterm.lua',
@@ -135,9 +128,9 @@ use {
   -- TREESITTER
   use {
     'nvim-treesitter/nvim-treesitter',
-    opt = false,
-    config = function() require("my.treesitter") end,
-        requires = {
+    run = ':TSUpdate',
+    config = require('my.treesitter').config,
+    requires = {
       {'nvim-treesitter/playground'},
       {'nvim-treesitter/nvim-treesitter-textobjects'},
       {'vigoux/architext.nvim'},
@@ -153,12 +146,11 @@ use {
     requires = {
       {'kabouzeid/nvim-lspinstall', config = function() require("my.lsp.servers") end },
       -- { 'glepnir/lspsaga.nvim'},
-      
       {'kosayoda/nvim-lightbulb'},
       { 'onsails/lspkind-nvim'}, -- OK
       --{ 'simrat39/symbols-outline.nvim', config = function() require('my.lsp.symbols-outline') end }, -- TODO add mapping
-     -- { 'folke/trouble.nvim', config = function() require('my.lsp.trouble') end }, -- TODO add mapping
-      { 'ray-x/lsp_signature.nvim'}, --OK
+      { 'folke/trouble.nvim', config = require('my.trouble').config },
+      { 'ray-x/lsp_signature.nvim'} , --OK
      -- use {
       --  "ahmedkhalf/lsp-rooter.nvim",
       --  config = function() require("lsp-rooter").setup { ignore_lsp = {'efm'}} end
@@ -195,6 +187,15 @@ use {'ethanholz/nvim-lastplace'}
       vim.api.nvim_set_keymap('n', '<F12>', '[[<Cmd>TZAtaraxis<CR>]]',{noremap = true, silent = true})
     end
   }
+  use {
+    'glepnir/dashboard-nvim',
+    -- requires = {'nvim-lua/telescope.nvim'},
+    -- config = require('my.dashboard').config,
+    setup = require('my.dashboard').setup
+  }
+
+
+
 end
 
 M.plugins = plugins
