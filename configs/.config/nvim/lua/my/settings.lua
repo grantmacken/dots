@@ -1,39 +1,9 @@
 
-local setGlobalVars = function( tbl )
-  for key,value in pairs( tbl ) do
-    vim.g[key] = value
-  end
-end
 
-setGlobalVars({
-  loaded_2html_plugin = 1,
-  loaded_getscript = 1,
-  loaded_getscriptPlugin = 1,
-  loaded_gzip = 1,
-  loaded_gzipPlugin = 1,
-  loaded_logiPat = 1,
-  loaded_matchit = 1,
-  loaded_matchparen = 1,
-  loaded_netrw = 1,
-  loaded_netrwFileHandlers  = 1,
-  loaded_netrwPlugin  = 1,
-  loaded_netrwSettings  = 1,
-  loaded_python_provider = 1,
-  loaded_rrhelper = 1,
-  loaded_tar  = 1,
-  loaded_tarPlugin = 1,
-  loaded_tutor_mode_plugin = 1,
-  loaded_vimball = 1,
-  loaded_vimballPlugin = 1,
-  loaded_zip = 1,
-  loaded_zipPlugin = 1,
-  did_install_default_menus = 1,
-  did_install_syntax_menu = 1,
-})
+
 
 local global_opt = vim.opt_global
 -- global
-global_opt.shortmess:remove("F"):append("c")
 global_opt.path:append("**")
 global_opt.termguicolors = true
 global_opt.hidden = true
@@ -45,7 +15,11 @@ global_opt.wildignore = { ".git", "*/node_modules/*"}
 global_opt.ignorecase = true
 global_opt.smartcase = true
 global_opt.clipboard = "unnamed"
-global_opt.completeopt = { "menu", "menuone", "noselect" }
+
+--[[ set in compe
+-- global_opt.shortmess:remove("F"):append("c")
+-- global_opt.completeopt = { "menu", "menuone", "noselect" }
+--]]
 
 local opt = vim.opt
 opt.mouse = "a"           -- enable mouse

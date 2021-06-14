@@ -64,12 +64,13 @@ rustup:
 .PHONY: neovim
 neovim:
 	@mkdir -p	$(HOME)/.local/nvim-linux64
-	@pushd $(HOME)/.local
+	@pushd $(HOME)/.local &>/dev/null
 	@wget  --progress=bar:force:noscroll https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.tar.gz
 	@tar -C $(HOME)/.local/ -xf ./nvim-linux64.tar.gz
 	@rm nvim-linux64.tar.gz
-	@pushd $(HOME)/.local/nvim-linux64/bin && stow -v -t $(XDG_BIN) . && popd
-	@popd
+	@#pushd $(HOME)/.local/nvim-linux64/bin && stow -v -t $(XDG_BIN) . && popd
+	@popd &>/dev/null
+
 
 .PHONY: ledger
 ledger:
