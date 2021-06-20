@@ -158,9 +158,14 @@ require('packer').startup( function()
 }
 --}}}
 --{{{ - [[ statusline bufferline ]]
+  --
+  --[[ use {'tjdevries/express_line.nvim',
+    --config = require('my.express_line').config
+  } ]]
+
   use { --TODO
     'hoob3rt/lualine.nvim',
-    config = require('my.lualine').config
+   config = require('my.lualine').config
 }
 -- bufferline
 -- @see https://github.com/akinsho/nvim-bufferline.lua
@@ -190,38 +195,30 @@ use {
   use {'mhinz/vim-sayonara',
     cmd = 'Sayonara'
   }
+
+use {
+  'tamago324/lir.nvim',
+  requires = {
+    {'nvim-lua/popup.nvim'},
+    {'kyazdani42/nvim-web-devicons'}
+  },
+  config = require('my.lir').config
+}
   use {
     'tpope/vim-eunuch',
     cmd = { 'Delete', 'Remove', 'Move','Chmod', 'Wall', 'Rename'}
   }
-
--- FILE MANAGEMENT
+-- {{{ - [[ file management and navigation ]]
   use { 'lambdalisue/suda.vim',
     cmd = { 'SudaRead', 'SudaWrite'},
-    config = function() vim.g.suda_smart_edit = true end
+    startup = function() vim.g.suda_smart_edit = true end
 }
--- sessions --
---[[ use {
-  'rmagatti/auto-session',
-  config = function()
-    require('auto-session').setup({
-      auto_session_root_dir = vim.fn.stdpath('cache')..'/sessions/';
-      -- Enables/disables auto save/restore
-      auto_session_enabled = true
-    })
-  end
-}
-use {
-  'rmagatti/session-lens',
-  requires = {'rmagatti/auto-session'}
-} ]]
-
-
 
 -- navigation
-  -- A file explorer tree for neovim written in lua.
- --  use {"kyazdani42/nvim-tree.lua",config = function() require("my.plugins.nvimtree") end,}
-  use {'justinmk/vim-dirvish'}
+ -- A file explorer tree for neovim written in lua.
+--  use {"kyazdani42/nvim-tree.lua",config = function() require("my.plugins.nvimtree") end,}
+-- use {'justinmk/vim-dirvish'}
+
   use {
     'nvim-lua/telescope.nvim',
     config = require([[my.telescope]]).config,
@@ -232,6 +229,7 @@ use {
       {'nvim-telescope/telescope-fzf-native.nvim', run = 'make' }
     }
 }
+-- }}}
 --TEXT EDITING
   -- commenting
 use { "b3nj5m1n/kommentary" }
@@ -356,6 +354,8 @@ km('n', '<M-l>', '<C-w>l', { silent = true })
 -- Indent selected lines
 km('v', '<', '<gv', { noremap = true, silent = true })
 km('v', '>', '>gv', { noremap = true, silent = true })
+--km('n', '-', [[<Cmd>execute 'e ' .. expand('%:p:h')<CR>]],{ noremap = true })
+km('n', '-', [[<Cmd>lua require('lir.float').toggle()<CR>]],{ noremap = true,silent = true })
 --[[ km("i", "<Tab>", "v:lua.tab_complete()", {expr = true})
 km("s", "<Tab>", "v:lua.tab_complete()", {expr = true})
 km("i", "<S-Tab>", "v:lua.s_tab_complete()", {expr = true})
@@ -374,6 +374,9 @@ km("i", "<C-d>", "compe#scroll({ 'delta': -4 }", {expr = true}) ]]
 -- {{{ - [[ auto commands ]]
 local augroups = require('my.globals').create_augroups
 augroups({
+    ['lir-settings'] = {
+      {'Filetype', 'lir lua require("my.lir").settings()'}
+    };
     Lint = {
       {"BufWritePost", [[<buffer> lua require('lint').try_lint()]]};
     };

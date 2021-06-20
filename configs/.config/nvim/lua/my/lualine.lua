@@ -4,19 +4,6 @@ M = {}
 -- local setup = function() end
 --
 --
-local colors = {
-bg       = '#545454',
-fg       = '#dfe0e0',
-yellow   = '#c3a769',
-cyan     = '#c3a769',
-darkblue = '#d0a39f',
-green    = '#678568',
-orange   = '#67a9aa',
-violet   = '#84a4c1',
-magenta  = '#d0a39f',
-blue     = '#84a4c1';
-red      = '#a07474';
-}
 
  
 local conditions = {
@@ -33,46 +20,79 @@ local conditions = {
   end
 }
 
-local tblMode = {
-  function()
-    local mode_color = {
-      n      = colors.red,
-      i      = colors.green,
-      v      = colors.blue,
-      [''] = colors.blue,
-      V      = colors.blue,
-      c      = colors.magenta,
-      no     = colors.red,
-      s      = colors.orange,
-      S      = colors.orange,
-      [''] = colors.orange,
-      ic     = colors.yellow,
-      R      = colors.violet,
-      Rv     = colors.violet,
-      cv     = colors.red,
-      ce     = colors.red,
-      r      = colors.cyan,
-      rm     = colors.cyan,
-      ['r?'] = colors.cyan,
-      ['!']  = colors.red,
-      t      = colors.red
-    }
-    vim.api.nvim_command('hi! LualineMode guifg='..mode_color[vim.fn.mode()] .. " guibg="..colors.bg)
-    return ''
-  end,
-  color = "LualineMode",
-  left_padding = 0,
-}
 
 -- after plugin enabled
 local config = function()
-  require('lualine').setup({
+  local lualine = require('lualine')
+  local colors = {
+    bg0    = '#323d43',
+    bg1    = '#3c474d',
+    bg3    = '#505a60',
+    fg     = '#d8caac',
+    aqua   = '#87c095',
+    green  = '#a7c080',
+    orange = '#e39b7b',
+    magenta = '#d39bb6',
+    red    = '#e68183',
+    grey1  = '#868d80',
+  }
+
+
+
+
+  local mode =  function()
+      local mode_color = {
+        n      = colors.red,
+        i      = colors.green,
+        v      = colors.aqua,
+        [''] = colors.aqua,
+        V      = colors.aqua,
+        c      = colors.magenta,
+        no     = colors.red,
+        s      = colors.orange,
+        S      = colors.orange,
+        [''] = colors.orange,
+        ic     = colors.yellow,
+        R      = colors.yellow,
+        Rv     = colors.magenta,
+        cv     = colors.red,
+        ce     = colors.red,
+        r      = colors.grey1,
+        rm     = colors.grey1,
+        ['r?'] = colors.grey1,
+        ['!']  = colors.red,
+        t      = colors.red
+      }
+      vim.api.nvim_command('hi! LualineMode guifg='..mode_color[vim.fn.mode()] .. " guibg="..colors.bg0)
+      return ''
+    end
+
+  lualine.setup({
     options = {
+      icons_enabled = true,
       theme = 'everforest',
-      -- Disable sections and component separators
       component_separators = '',
       section_separators = '',
-    }
+      disabled_filetypes = {}
+    },
+    sections = {
+      lualine_a = { {mode,color = "LualineMode",left_padding = 0}},
+      lualine_b = {'branch'},
+      lualine_c = {'filename'},
+      lualine_x = {'encoding', 'fileformat', 'filetype'},
+      lualine_y = {'progress'},
+      lualine_z = {'location'}
+    },
+    inactive_sections = {
+      lualine_a = {},
+      lualine_b = {},
+      lualine_c = {'filename'},
+      lualine_x = {'location'},
+      lualine_y = {},
+      lualine_z = {}
+    },
+    tabline = {},
+    extensions = {}
   })
 end
 

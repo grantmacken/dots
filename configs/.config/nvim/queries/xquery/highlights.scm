@@ -229,10 +229,6 @@
 
 
 ; TYPE TESTS
-
-
-
-
 (sequence_type
   [
    type: (keyword) @type

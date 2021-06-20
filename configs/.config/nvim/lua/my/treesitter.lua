@@ -5,7 +5,14 @@ M = {}
 
 -- after plugin enabled
 local config = function()
-  require "nvim-treesitter.configs".setup({
+local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+parser_config.xquery = {
+  install_info = {
+    url = "~/projects/grantmacken/tree-sitter-xquery",
+    files = {"src/parser.c"}
+  }
+}
+  require("nvim-treesitter.configs").setup({
     ensure_installed = {
       "bash",
       "css",
