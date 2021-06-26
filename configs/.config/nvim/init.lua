@@ -2,6 +2,7 @@
 --- {{{ [[ local functions ]]
 local fn = vim.fn
 local exec = vim.api.nvim_exec
+local cmd = vim.cmd
 local km =   vim.api.nvim_set_keymap
 local vars = require('my.globals').set_vars
 local options = require('my.globals').set_options
@@ -40,7 +41,9 @@ global_options({
   smartcase = true;
   clipboard = "unnamed";
 })
- vim.cmd('colorscheme everforest')
+
+
+
 
 --- }}}
 --- {{{ [[ options - file management ]]
@@ -111,229 +114,18 @@ if fn.empty(fn.glob(install_path)) > 0 then
     install_path,
   })
 end
-vim.cmd [[packadd packer.nvim]]
 --}}}
--- {{{ - [[ packer configuration startup ]]
-require('packer').startup( function()
-  -- Packer can manage itself as an optional plugin
-  use {'wbthomason/packer.nvim', opt = true}
- -- {{{ - [[ luarocks ]]
-  use_rocks {'lua-resty-http'}
-  use_rocks {'lua-cjson'}
-  -- }}}
-  -- APPEARANCE
-  --{{{ colors and  icons
- -- use { 'rktjmp/lush.nvim' }
-  use { "briones-gabriel/darcula-solid.nvim", requires = "rktjmp/lush.nvim" }
-  use {'MordechaiHadad/nvim-papadark', requires = {'rktjmp/lush.nvim'}}
-  use {"npxbr/gruvbox.nvim", requires = {"rktjmp/lush.nvim"}}
-  use { 'Iron-E/nvim-highlite' }
-  use { 'shaunsingh/seoul256.nvim',
-    --opt = false,
-    --setup = require('my.seoul256').setup,
-    --config = require('my.seoul256').config
-  }
-  use {'Th3Whit3Wolf/one-nvim'}
-  use {'savq/melange'}
-  use { 'lourenci/github-colors' }
-  use {'sainnhe/everforest'}
-  use {'sainnhe/edge'}
-  use{ 'sainnhe/gruvbox-material' }
-  use {'marko-cerovac/material.nvim'--,
-    --[[ opt = false,
-    setup = require('my.material').setup,
-    config = require('my.material').config ]]
-  }
-
-  use {
-    'norcalli/nvim-colorizer.lua',
-    config = require('my.colorizer').config
-  }
-
-  use {
-    "kyazdani42/nvim-web-devicons",
---[[ requires = {
-"yamatsum/nvim-nonicons"
-    } ]]
-}
---}}}
---{{{ - [[ statusline bufferline ]]
-  --
-  --[[ use {'tjdevries/express_line.nvim',
-    --config = require('my.express_line').config
-  } ]]
-
-  use { --TODO
-    'hoob3rt/lualine.nvim',
-   config = require('my.lualine').config
-}
--- bufferline
--- @see https://github.com/akinsho/nvim-bufferline.lua
-  use { -- TODO
-    'akinsho/nvim-bufferline.lua',
-    config = require('my.bufferline').config
-  }
--- }}}
-  -- git
-  use { -- TODO trying
-    'TimUntersberger/neogit',
-    requires = 'nvim-lua/plenary.nvim',
-    config = function() require('neogit').setup({}) end
-}
---signs
-use {
-  'lewis6991/gitsigns.nvim',
-  requires = { 'nvim-lua/plenary.nvim'},
-  config = function() require('my.signs') end
-}
--- indentation
-  use {
-    'lukas-reineke/indent-blankline.nvim',
-    branch = "lua"
-  }
--- BUFFER MANAGEMENT
-  use {'mhinz/vim-sayonara',
-    cmd = 'Sayonara'
-  }
-
-use {
-  'tamago324/lir.nvim',
-  requires = {
-    {'nvim-lua/popup.nvim'},
-    {'kyazdani42/nvim-web-devicons'}
-  },
-  config = require('my.lir').config
-}
-  use {
-    'tpope/vim-eunuch',
-    cmd = { 'Delete', 'Remove', 'Move','Chmod', 'Wall', 'Rename'}
-  }
--- {{{ - [[ file management and navigation ]]
-  use { 'lambdalisue/suda.vim',
-    cmd = { 'SudaRead', 'SudaWrite'},
-    startup = function() vim.g.suda_smart_edit = true end
-}
-
--- navigation
- -- A file explorer tree for neovim written in lua.
---  use {"kyazdani42/nvim-tree.lua",config = function() require("my.plugins.nvimtree") end,}
--- use {'justinmk/vim-dirvish'}
-
-  use {
-    'nvim-lua/telescope.nvim',
-    config = require([[my.telescope]]).config,
-    requires = {
-      {'nvim-lua/popup.nvim'},
-      {'nvim-lua/plenary.nvim'},
-      {'nvim-telescope/telescope-github.nvim'},
-      {'nvim-telescope/telescope-fzf-native.nvim', run = 'make' }
-    }
-}
--- }}}
---TEXT EDITING
-  -- commenting
-use { "b3nj5m1n/kommentary" }
-  -- remember key bindings
--- @see https://github.com/folke/which-key.nvim
-  -- @ ./my/which-key.lua
-use {
-  "folke/which-key.nvim",
-  config = require([[my.which-key]]).config
-}
-
--- https://github.com/karb94/neoscroll.nvim
--- smooth scrolling
--- using defaults
-use {
-    'karb94/neoscroll.nvim',
-    config = function() require('neoscroll').setup() end
-  }
-
---TERMINAL JOBS
-  use { --TODO
-    'akinsho/nvim-toggleterm.lua',
-    config = require('my.toggleterm').setup
-  }
-  -- TREESITTER
-  use {
-    'nvim-treesitter/nvim-treesitter',
-    run = ':TSUpdate',
-    config = require('my.treesitter').config,
-    requires = {
-      {'nvim-treesitter/playground'},
-      {'nvim-treesitter/nvim-treesitter-textobjects'},
-      {'vigoux/architext.nvim'},
-      {'p00f/nvim-ts-rainbow'},
-      {'andymass/vim-matchup'},
-      {
-        'lewis6991/spellsitter.nvim',
-        config = require('my.spellsitter').config,
-      }
-    }
-  }
-
--- LANGUAGE SERVER PROTOCOL
-  use {
-    'neovim/nvim-lspconfig',
-    -- config = function() require("my.lsp").setup() end,
-    requires = {
-      {'kabouzeid/nvim-lspinstall', config = function() require("my.lsp.servers") end },
-      -- { 'glepnir/lspsaga.nvim'},
-      {'kosayoda/nvim-lightbulb'},
-      { 'onsails/lspkind-nvim'}, -- OK
-      --{ 'simrat39/symbols-outline.nvim', config = function() require('my.lsp.symbols-outline') end }, -- TODO add mapping
-      { 'folke/trouble.nvim', config = require('my.trouble').config },
-      { 'ray-x/lsp_signature.nvim'} , --OK
-      use {
-       "ahmedkhalf/lsp-rooter.nvim",
-       config = function() require("lsp-rooter").setup({}) end
-      }
-   --   { 'jose-elias-alvarez/nvim-lsp-ts-utils', branch = 'develop'}, -- TODO
-   --   { 'jose-elias-alvarez/null-ls.nvim' } --TODO
-    }
-  }
-
-  use {'mfussenegger/nvim-lint', config = require('my.lint').config }
-    -- Auto completion plugin for nvim written in Lua.
-  --
-  -- {{{ - [[ completions ]]
-  --[[ use {
-    "hrsh7th/nvim-compe",
-    setup =  require("my.compe").setup,
-    config = require("my.compe").config,
-    requires = {
-      {
-        "L3MON4D3/LuaSnip",
-        config = function() require("my.snippets") end,
-      },
-    },
-  } ]]
--- }}}
-  -- TODO trying ...
--- use {'beauwilliams/focus.nvim'}
-use {'phaazon/hop.nvim'}
-use {'ethanholz/nvim-lastplace'}
-
--- https://github.com/Pocco81/TrueZen.nvim#configuration
--- TODO try as replacement for goyo
-  -- WIP not restoring to previous setting
-  use {
-    'Pocco81/TrueZen.nvim',
-    config = function()
-      vim.api.nvim_set_keymap('n', '<F12>', '[[<Cmd>TZAtaraxis<CR>]]',{noremap = true, silent = true})
-    end
-  }
-  use {
-    'glepnir/dashboard-nvim',
-    -- config = require('my.dashboard').config,
-    setup = require('my.dashboard').setup
-  }
-end)
-
--- }}}
 -- {{{ - [[ commands ]]
+-- Commands
+-- cmd([[colorscheme everforest]])
+cmd([[colorscheme gruvbox-material]])
+cmd([[command! PackerInstall packadd packer.nvim | lua require('plugins').install()]])
+cmd([[command! PackerUpdate packadd packer.nvim | lua require('plugins').update()]])
+cmd([[command! PackerSync packadd packer.nvim | lua require('plugins').sync()]])
+cmd([[command! PackerClean packadd packer.nvim | lua require('plugins').clean()]])
+cmd([[command! PackerCompile packadd packer.nvim | lua require('plugins').compile()]])
 -- use vim.lsp.buf.formatting()
-vim.cmd([[ command! Format execute 'lua vim.lsp.buf.formatting()' ]])
+cmd([[ command! Format execute 'lua vim.lsp.buf.formatting()' ]])
 -- LspLog: take a quick peek at the latest LSP log messages. Useful for debugging
 -- LspStop: stop all active clients
 -- Redirect: show the results of an ex command in a buffer rather than the built-in pager

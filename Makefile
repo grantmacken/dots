@@ -199,7 +199,13 @@ clean-projects:
 	@cd projects;stow -D -v  -t ../../ .
 
 .PHONY: packages
-packages: bin/my-solus-packages.list
+packages: bin/dnf.list
+	@#echo 'TASK: install my solus essentials'
+	@#mkdir -p  ~/.local/bin
+	@sudo bin/packages.sh $<
+
+.PHONY: xpackages
+xpackages: bin/my-solus-packages.list
 	@echo 'TASK: install my solus essentials'
 	@#mkdir -p  ~/.local/bin
 	@sudo bin/install-solus-packages.sh $<
@@ -246,7 +252,14 @@ init-ssh:
 
 .PHONY: fonts
 fonts:
-	@pushd ~/.local/share/fonts
+	@mkdir -p $(HOME)/.local/share/fonts
+	@pushd $(HOME)/Downloads
+	@wget -nc --progress=bar:force:noscroll https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/DejaVuSansMono.zip
+	@wget -nc --progress=bar:force:noscroll https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/IBMPlexMono.zip
+	@#unzip  IBMPlexMono.zip -d $(HOME)/.local/share/fonts/
+	@#unzip  IBMPlexMono.zip -d $(HOME)/.local/share/fonts/
+	@popd
+	@pushd $(HOME)/.local/share/fonts
 	ls .
 	@fc-list : family spacing outline scalable |
 	grep -e spacing=100 -e spacing=90 | 
@@ -254,4 +267,3 @@ fonts:
 	grep -e scalable=True | sort
 	#fc-cache -r
 	@popd
-

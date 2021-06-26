@@ -1,5 +1,4 @@
 #!/bin/bash +x
-source /usr/share/defaults/etc/profile
 if [ -d $HOME/.config/bash ] ; then
     for script in $HOME/.config/bash/*.sh
     do
@@ -21,4 +20,4 @@ if [ -f '/home/gmack/projects/google-cloud-sdk/path.bash.inc' ]; then . '/home/g
 # The next line enables shell command completion for gcloud.
 if [ -f '/home/gmack/projects/google-cloud-sdk/completion.bash.inc' ]; then . '/home/gmack/projects/google-cloud-sdk/completion.bash.inc'; fi
 
-. "$HOME/.cargo/env"
+# . "$HOME/.cargo/env"

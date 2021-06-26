@@ -6,20 +6,10 @@
 	followTags = true
 [core]
 	pager = ''
-  
-  [diff]
-    tool = nvr
-[difftool "nvr"]
-    cmd = nvr -s -d $LOCAL $REMOTE
-[merge]
-    tool = nvr
-[mergetool "nvr"]
-    cmd = nvr -s -d $LOCAL $BASE $REMOTE $MERGED -c 'wincmd J | wincmd ='
 [tag]
 	sort = version:refname
 [color]
 	pager = no
-[pull]
-	rebase = false
+
 [init]
 	defaultBranch = main
