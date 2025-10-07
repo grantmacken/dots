@@ -128,4 +128,7 @@ task: ## copilot task for the project
 .PHONY: commit
 commit: ## as copilot to add commit message
 	copilot -p 'add commit message since last commit' --allow-all-tools --add-dir $(CURDIR)
+	# ask if want to push the commit
+	read -p "Do you want to push the commit? (y/n): "
+	if [[ $$REPLY =~ ^[Yy]$ ]]; then git push; else echo "Commit not pushed."; fi
 	## copilot task --add-dir $(CURDIR)
