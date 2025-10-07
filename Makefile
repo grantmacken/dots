@@ -57,8 +57,6 @@ clean_nvim:
 	rm -rf $(CONFIG_HOME)/nvim
 	$(MAKE)
 
-
-
 ai:
 	# uv a python package manager
 	uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
@@ -118,4 +116,11 @@ tbx_test: ## manually run tbx-reset and pty_conf services
 .PHONY: copilot
 copilot: ## Copilot for the project
 	copilot --help
-	copilot --banner --allow-all-tools --add-dir $(CURDIR)
+	## copilot --banner --allow-all-tools --add-dir $(CURDIR)
+
+.PHONY: task
+task: ## copilot task for the project
+	# Execute a prompt directly
+	# copilot -p 'vim plugin resession errors with latest nvim. disable ' --allow-all-tools
+	copilot -p 'add commit message for last copilot task' --allow-all-tools
+	## copilot task --add-dir $(CURDIR)

@@ -1,5 +1,7 @@
 vim.o.sessionoptions          = 'curdir,folds,globals,help,tabpages,terminal,winsize'
 
+-- Resession plugin disabled due to compatibility issues with latest nvim
+--[[
 local resession_ok, resession = pcall(require, "resession")
 if not resession_ok then
   vim.notify('Resession not found, skipping session management', vim.log.levels.WARN)
@@ -39,3 +41,4 @@ vim.api.nvim_create_autocmd("VimEnter", {
     resession.load("last")
   end,
 })
+--]]
