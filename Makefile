@@ -124,3 +124,8 @@ task: ## copilot task for the project
 	# copilot -p 'vim plugin resession errors with latest nvim. disable ' --allow-all-tools
 	copilot -p 'add commit message for last copilot task' --allow-all-tools
 	## copilot task --add-dir $(CURDIR)
+
+.PHONY: commit
+commit: ## as copilot to add commit message
+	copilot -p 'add commit message since last commit' --allow-all-tools --add-dir $(CURDIR)
+	## copilot task --add-dir $(CURDIR)
