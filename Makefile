@@ -23,17 +23,17 @@ PROJECTS := $(HOME)/Projects
 # WGET := wget -q --no-check-certificate --timeout=10 --tries=3
 # https://docs.rockylinux.org/10/books/nvchad/nerd_fonts/
 
-default: # init fonts ## stow dotfiles
-	echo '##[ stow dotfiles ]##'
-	chmod +x dot-local/bin/* || true
-	stow --verbose --dotfiles --target ~/ .
-	echo '✅ completed task'
-
-help: ## show this help
+help: ## show available make targets
 	cat $(MAKEFILE_LIST) |
 	grep -oP '^[a-zA-Z_-]+:.*?## .*$$' |
 	sort |
 	awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-10s\033[0m %s\n", $$1, $$2}'
+
+default: ## install dotfiles (runs init, stow)
+	echo '##[ stow dotfiles ]##'
+	chmod +x dot-local/bin/* || true
+	stow --verbose --dotfiles --target ~/ .
+	echo '✅ completed task'
 
 delete: ## delete stow dotfiles
 	echo '##[ $@ ]##'
@@ -115,7 +115,7 @@ tbx_test: ## manually run tbx-reset and pty_conf services
 
 .PHONY: copilot
 copilot: ## Copilot for the project
-	copilot --help
+	# copilot --help
 	## copilot --banner --allow-all-tools --add-dir $(CURDIR)
 
 .PHONY: task

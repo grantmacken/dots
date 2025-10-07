@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# when in tbx-coding toolbox
+# use fzf to list files in the ~/Projects dir
+# when selected run  a command to run copilot in the directoy selected
