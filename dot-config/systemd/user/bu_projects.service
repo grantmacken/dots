@@ -1,0 +1,12 @@
+[Unit]
+Description=Backup Projects directory to Seagate drive
+Documentation=man:rsync(1)
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/bu_projects
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

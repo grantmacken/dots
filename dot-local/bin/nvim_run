@@ -1,0 +1,18 @@
+#!/usr/bin/env -S nvim -l
+print("Hello from nvim_run")
+--read a file and print its contents
+-- local filename = arg[1]
+-- if not filename then
+--   print("Usage: nvim_run <filename>")
+--   os.exit(1)
+-- end
+--
+--vim.fn.jason_decode(vim.fn.readfile(filename))
+-- print("Reading file: " .. filename)
+local fList = vim.fn.stdpath("data") .. "/lists/mason_bins"
+local bins = vim.fn.readfile(fList)
+for _, bin in ipairs(bins) do
+  print("Running: " .. bin)
+  local result = vim.fn.system(bin .. " --version")
+  print(result)
+end

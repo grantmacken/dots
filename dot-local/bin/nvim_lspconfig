@@ -1,0 +1,36 @@
+#!/usr/bin/env -S nvim -l
+--[[
+https://github.com/neovim/nvim-lspconfig/tree/master/lsp
+]]--
+
+local url_base = 'https://raw.githubusercontent.com/neovim/nvim-lspconfig/refs/heads/master/lsp'
+local home = vim.uv.os_homedir()
+local sep = '/'
+local path_parts = {vim.uv.os_homedir(), 'Projects', 'dots', 'dot-config', 'nvim', 'lsp'}
+local dir = table.concat(path_parts, sep)
+vim.print(dir)
+
+local configs = {
+  'bashls',
+  'harper_ls',
+  'marksman',
+  'gleam',
+  }
+--
+print("Starting synchronous downloads...")
+for _, config in ipairs(configs) do
+  local basename = config .. '.lua'
+  local url = table.concat({url_base,basename }, sep)
+  local file = table.concat({dir,basename }, sep)
+  print("Downloading " .. url .. "...")
+  local result = vim.system({"wget", "--quiet", "-nc", "-O", file , url}, { text = false }):wait()
+  if result.code == 0 then
+    print("Downloaded successfully!")
+  else
+    print("Failed to download!")
+  end
+end
+
+print("All synchronous downloads finished!")
+
+

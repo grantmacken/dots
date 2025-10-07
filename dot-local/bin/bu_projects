@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+## use rsync to back ~/Projects folder to /run/media/gmack/seagate
+## sync occurs daily with the file names as iso date stamp $(date --iso )
+## At the last day of the week the last daily backup becomes a 'week of the year' date stamped back up file
+## and the previous day backups are removed
+## At the end of the month the last weekly backup becomes the 'month of the year' backup file and the previous weekly
+# backups are removed
+# a systemd timer is used to trigger the backup on the daily basis
+
+set -euo pipefail
+
+# Configuration
+SOURCE_DIR="$HOME/Projects"
+BACKUP_BASE="/run/media/gmack/seagate/backups/Projects"
+DATE_ISO=$(date --iso-8601)
+WEEK_NUM=$(date +%Y-W%V)
+MONTH_NUM=$(date +%Y-%m)
+DAY_OF_WEEK=$(date +%u)  # 1-7 (Monday-Sunday)
+DAY_OF_MONTH=$(date +%d)
+
+# Create backup base directory if it doesn't exist
+mkdir -p "$BACKUP_BASE"
+
+# Daily backup
+DAILY_BACKUP="$BACKUP_BASE/daily-$DATE_ISO"
+echo "Creating daily backup: $DAILY_BACKUP"
+rsync -av --delete --exclude='.git' --exclude='node_modules' --exclude='target' \
+    "$SOURCE_DIR/" "$DAILY_BACKUP/"
+
+# End of week processing (Sunday = 7)
+if [ "$DAY_OF_WEEK" -eq 7 ]; then
+    WEEKLY_BACKUP="$BACKUP_BASE/weekly-$WEEK_NUM"
+    echo "End of week detected. Creating weekly backup: $WEEKLY_BACKUP"
+    
+    # Copy the daily backup to weekly backup
+    rsync -av --delete "$DAILY_BACKUP/" "$WEEKLY_BACKUP/"
+    
+    # Remove previous daily backups (keep only today's)
+    find "$BACKUP_BASE" -maxdepth 1 -type d -name "daily-*" ! -name "daily-$DATE_ISO" -exec rm -rf {} +
+    echo "Removed old daily backups"
+fi
+
+# End of month processing (last day of month)
+TOMORROW=$(date -d "tomorrow" +%d)
+if [ "$TOMORROW" = "01" ]; then
+    MONTHLY_BACKUP="$BACKUP_BASE/monthly-$MONTH_NUM"
+    echo "End of month detected. Creating monthly backup: $MONTHLY_BACKUP"
+    
+    # Find the most recent weekly backup and copy it to monthly
+    LATEST_WEEKLY=$(find "$BACKUP_BASE" -maxdepth 1 -type d -name "weekly-*" | sort -r | head -n1)
+    if [ -n "$LATEST_WEEKLY" ]; then
+        rsync -av --delete "$LATEST_WEEKLY/" "$MONTHLY_BACKUP/"
+        
+        # Remove previous weekly backups (keep only the current week's)
+        find "$BACKUP_BASE" -maxdepth 1 -type d -name "weekly-*" ! -name "weekly-$WEEK_NUM" -exec rm -rf {} +
+        echo "Removed old weekly backups"
+    fi
+fi
+
+echo "Backup completed successfully at $(date)"
+

@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+set -e
+
+VIMRUNTIME="$(nvim --clean --headless --cmd 'echo $VIMRUNTIME|q')" 
+echo $VIMRUNTIME
+
+# -- To get the runtimepath as a string (similar to :echo &runtimepath)
+# print(vim.opt.runtimepath:get())
+#
+# -- To get the runtimepath as a Lua table (list of directories)
+# print(vim.api.nvim_list_runtime_paths())
+
+ls -al /usr/local/share/nvim/runtime/queries
+ls -al /usr/local/share/nvim/site
+
+
+# VIM="$(nvim --clean --headless --cmd 'echo $VIM|q')" 
+# echo $VIM
+#
+# VIMINIT="$(nvim --clean --headless --cmd 'echo $VIMINIT|q')" 
+# echo $VIMINIT
+#
+# HOST="$(nvim --clean --headless --cmd 'echo $HOST|q')" 
+# echo $HOST
+#
+# LOG=startup.log
+#
+# rm -f $LOG
+#
+# nvim --headless --startuptime -V10 $LOG --cmd 'quit' &>/dev/null
+# sleep 5
+# # nvim --clean --headless --startuptime ~/Projects/startuptime_clean.log --cmd 'quit' &>/dev/null
+#
+# cat $LOG
+
+
+
+
+
+

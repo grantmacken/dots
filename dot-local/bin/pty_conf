@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+# echo  " ---------------------------------------"
+# echo " Setup the Ptyxis default profile       "
+# echo " ---------------------------------------"
+# echo " With the Ptyxis default profile uuid: $PROFILE_UUID"
+# echo " - 1: set the label:  ${PROFILE_LABEL} "
+# dconf write /org/gnome/Ptyxis/Profiles/${PROFILE_UUID}/label "'${PROFILE_LABEL}'"
+# echo " - 2: set the palette:  ${PROFILE_PALETTE} "
+# dconf write /org/gnome/Ptyxis/Profiles/${PROFILE_UUID}/palette "'$PROFILE_PALETTE'"
+# echo " - 3: set the default container :  ${PROFILE_DEFAULT_CONTAINER}"
+# dconf write /org/gnome/Ptyxis/Profiles/${PROFILE_UUID}/default-container "'${PROFILE_DEFAULT_CONTAINER}'"
+#
+# echo "==========================================================="
+# echo " - view Ptyxis default profile"
+# echo "==========================================================="
+CONTAINER=tbx-coding
+TOOLBOX_DEFAULT_CONTAINER=$(podman inspect ${CONTAINER} | jq -r '.[0].Id')
+PROFILE_UUID=$(gsettings get org.gnome.Ptyxis default-profile-uuid | tr -d "'")
+PROFILE_DEFAULT_CONTAINER=$(gsettings get org.gnome.Ptyxis.Profile:/org/gnome/Ptyxis/Profiles/${PROFILE_UUID}/ default-container | tr -d "'")
+printf "PROFILE_UUID: %s\n" $PROFILE_UUID
+printf "PROFILE DEFAULT CONTAINER: %s\n" $PROFILE_DEFAULT_CONTAINER
+printf "TOOLBOX DEFAULT CONTAINER: %s\n" $TOOLBOX_DEFAULT_CONTAINER
+# dconf dump /org/gnome/Ptyxis/Profiles/${PROFILE_UUID}/
+# dconf dump /org/gnome/Ptyxis/
+#
+PROFILE_PALETTE=Kanagawa
+
+echo " ---------------------------------------"
+echo " Setup the Ptyxis default profile       "
+echo " ---------------------------------------"
+echo " With the Ptyxis default profile uuid: $PROFILE_UUID"
+echo " - 1: set the label: ${CONTAINER}"
+dconf write "/org/gnome/Ptyxis/Profiles/$PROFILE_UUID}/label" "'${CONTAINER}'"
+echo " - 2: set the palette:  ${PROFILE_PALETTE} "
+dconf write "/org/gnome/Ptyxis/Profiles/${PROFILE_UUID}/palette" "'$PROFILE_PALETTE'"
+echo " - 3: set the default container :  ${TOOLBOX_DEFAULT_CONTAINER}"
+dconf write "/org/gnome/Ptyxis/Profiles/${PROFILE_UUID}/default-container" "'${TOOLBOX_DEFAULT_CONTAINER}'"
+
+echo " ---------------------------------------"
+echo " Setup the key bind for ptyxis          "
+echo " ---------------------------------------"
+# org.gnome.settings-daemon.plugins.media-keys
+
+# dconf dump "/org/gnome/Ptyxis/Profiles/${PROFILE_UUID}/"
+
+# mkdir -p ${HOME}/Projects
+CUSTOM_0_NAME="${CONTAINER}_neovim"
+WORKING_DIR=${HOME}/Projects
+# --standalone
+# --tab-with-profile=${PROFILE_UUID} \
+
+# echo " ---------------------------------------"
+# echo " Setup Custom Key Binding Name: ${CUSTOM_0_NAME} "
+# echo " Setup Custom Key Binding: ${CUSTOM_0_BINDING} "
+# echo " The key binding opens Ptyxis with default profile"
+# echo " The following custom command is run in this container: ${CUSTOM_0_COMMAND}"
+
+# Add custom0 to the list of custom keybindings
+custom_keybindings=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings
+
+custom0=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
+custom1=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/
+
+# dconf reset -f /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
+dconf write "${custom_keybindings}" "['$custom0','$custom1']"
+
+CUSTOM_0_NAME='neovim'
+CUSTOM_0_BINDING='<Control><Alt>t'
+CUSTOM_0_COMMAND="ptyxis --working-directory=${WORKING_DIR} -- nvim"
+
+# Configure custom0 keybinding
+dconf write "${custom0}name" "'${CUSTOM_0_NAME}'"
+dconf write "${custom0}binding" "'${CUSTOM_0_BINDING}'"
+dconf write "${custom0}command" "'${CUSTOM_0_COMMAND}'"
+
+CUSTOM_1_NAME='copilot'
+CUSTOM_1_BINDING='<Control><Alt>c'
+CUSTOM_1_COMMAND="ptyxis --working-directory=${WORKING_DIR} --tab-with-profile=${PROFILE_UUID} -- copilot"
+
+dconf write "${custom1}name" "'${CUSTOM_1_NAME}'"
+dconf write "${custom1}binding" "'${CUSTOM_1_BINDING}'"
+dconf write "${custom1}command" "'${CUSTOM_1_COMMAND}'"
+
+#
+echo "==========================================================="
+echo " - view Ptyxis default profile changes made via dconf dump "
+echo "==========================================================="
+dconf dump /org/gnome/Ptyxis/Profiles/${PROFILE_UUID}/
+echo
+echo "==========================================================="
+echo " - view custom keybinding configuration "
+echo "==========================================================="
+dconf dump $custom0
+echo "==========================================================="
+dconf dump $custom1
+echo

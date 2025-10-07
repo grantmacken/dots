@@ -1,0 +1,8 @@
+# Comments and blank lines are allowed.
+\.git
+\.gitignore
+/README.*
+/LICENSE
+/Makefile
+/files
+/latest

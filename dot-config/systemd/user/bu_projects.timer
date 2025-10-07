@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily backup timer for Projects directory
+Documentation=man:systemd.timer(5)
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+RandomizedDelaySec=30min
+
+[Install]
+WantedBy=timers.target

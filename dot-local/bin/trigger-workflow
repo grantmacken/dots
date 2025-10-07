@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -e
+
+# GitHub repository information
+OWNER="grantmacken"
+REPO="tbx"
+WORKFLOW_FILE="default.yml"
+
+GITHUB_TOKEN=$(cat ~/Projects/.github-access-token)
+echo $GITHUB_TOKEN
+# Check for GitHub token
+if [ -z "$GITHUB_TOKEN" ]; then
+  echo "Error: GitHub Personal Access Token required"
+  echo "Usage: GITHUB_TOKEN=your_token ./trigger-workflow.sh"
+  exit 1
+fi
+
+echo "Triggering Sequential Toolbox Builds workflow..."
+
+# API call to trigger the workflow_dispatch event
+RESPONSE=$(curl -s -X POST \
+  -H "Accept: application/vnd.github.v3+json" \
+  -H "Authorization: token $GITHUB_TOKEN" \
+  "https://api.github.com/repos/$OWNER/$REPO/actions/workflows/$WORKFLOW_FILE/dispatches" \
+  -d '{"ref":"main"}' \
+  -w "%{http_code}")
+
+HTTP_STATUS=${RESPONSE: -3}
+RESPONSE_BODY=${RESPONSE:0:${#RESPONSE}-3}
+
+if [[ "$HTTP_STATUS" == "204" ]]; then
+  echo "✓ Workflow successfully triggered!"
+else
+  echo "✗ Failed to trigger workflow (HTTP Status: $HTTP_STATUS)"
+  echo "Response: $RESPONSE_BODY"
+  exit 1
+fi

@@ -1,0 +1,14 @@
+[Unit]
+Description=Configure PTY after toolbox reset
+Documentation=man:toolbox(1)
+After=tbx-reset.service
+Requires=tbx-reset.service
+
+[Service]
+Type=oneshot
+ExecStart=pty_conf
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

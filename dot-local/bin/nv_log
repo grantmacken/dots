@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+cd ~/Projects
+rm nvim_debug.log || true
+# nvim --clean --headless --startuptime  startup.log --cmd 'quit' &>/dev/null
+nvim -V10nvim_debug.log
+

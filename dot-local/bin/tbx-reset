@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+CONTAINER=tbx-coding
+IMAGE=ghcr.io/grantmacken/${CONTAINER}
+LOCAL_DIGEST=$(podman image inspect ${IMAGE}:latest | jq -r '.[0].Digest')
+# REMOTE_DIGEST=$(skopeo inspect docker://${IMAGE}:latest | jq -r '.Digest')
+# printf "Remote Digest: %s\n" "$REMOTE_DIGEST"
+printf " Local Digest: %s\n" "$LOCAL_DIGEST"
+
+if [ "$LOCAL_DIGEST" != "$REMOTE_DIGEST" ]; then
+  echo "Local and Remote Digests do not match"
+  echo " - pull the latest image"
+  podman pull ${IMAGE}:latest
+else
+  echo "Local and Remote Digests Match"
+  echo " - pull not needed"
+fi
+
+OLD_CONTAINER_ID=$(podman inspect ${CONTAINER} | jq -r '.[0].Id')
+# podman ps --format {{.Names}} | grep -q $CONTAINER && podman stop CONTAINER
+# podman images | grep $IMAGE
+printf " - old container id: %s \n" "$OLD_CONTAINER_ID"
+echo " ----------------------------------------------"
+echo " Recreate the toolbox container ${CONTAINER} "
+echo " -------------------------------------------------"
+if toolbox list containers | grep -q "${CONTAINER}"; then
+  echo " - 1: Remove the toolbox container ${CONTAINER}"
+  toolbox rm -f ${CONTAINER} &>/dev/null
+  echo " - 2: Recreate toolbox from the latest image and"
+  echo "      give it the same name as the removed container"
+  toolbox create --image $IMAGE:latest ${CONTAINER} &>/dev/null
+fi
+
+NEW_CONTAINER_ID=$(podman inspect ${CONTAINER} | jq -r '.[0].Id')
+printf " - new container id: %s \n" "$NEW_CONTAINER_ID"
+PROFILE_UUID=$(dconf read /org/gnome/Ptyxis/default-profile-uuid | tr -d "'")
+PROFILE_LABEL=${CONTAINER}
+PROFILE_PALETTE=Kanagawa
+PROFILE_DEFAULT_CONTAINER=${NEW_CONTAINER_ID}
+
+echo " ---------------------------------------"
+echo " Setup the Ptyxis default profile       "
+echo " ---------------------------------------"
+echo " With the Ptyxis default profile uuid: $PROFILE_UUID"
+echo " - 1: set the label:  ${PROFILE_LABEL} "
+dconf write /org/gnome/Ptyxis/Profiles/${PROFILE_UUID}/label "'${PROFILE_LABEL}'"
+echo " - 2: set the palette:  ${PROFILE_PALETTE} "
+dconf write /org/gnome/Ptyxis/Profiles/${PROFILE_UUID}/palette "'$PROFILE_PALETTE'"
+echo " - 3: set the default container :  ${PROFILE_DEFAULT_CONTAINER}"
+dconf write /org/gnome/Ptyxis/Profiles/${PROFILE_UUID}/default-container "'${PROFILE_DEFAULT_CONTAINER}'"

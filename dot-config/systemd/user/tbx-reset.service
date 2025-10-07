@@ -1,0 +1,12 @@
+[Unit]
+Description=Reset toolbox container
+Documentation=man:toolbox(1)
+
+[Service]
+Type=oneshot
+ExecStart=tbx-reset
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target
