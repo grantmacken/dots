@@ -1,4 +1,17 @@
-#!/usr/bin/env bash
+##!/usr/bin/env bash
 # when in tbx-coding toolbox
-# use fzf to list files in the ~/Projects dir
-# when selected run  a command to run copilot in the directoy selected
+# use fzf to list directories in the ~/Projects dir
+# when selected, run a command to run copilot in the directory selected
+
+if [ -f "/run/.toolboxenv" ]; then
+  # List directories in ~/Projects, select with fzf
+  selected_dir=$(find ~/Projects -mindepth 1 -maxdepth 1 -type d | fzf)
+  if [[ -n "$selected_dir" ]]; then
+    # Change to selected directory and run copilot (replace 'copilot' with your actual command)
+    cd "$selected_dir" || exit 1
+    copilot --banner --allow-all-tools --resume --add-dir $selected_dir
+  else
+    echo "No directory selected."
+    exit 1
+  fi
+fi
