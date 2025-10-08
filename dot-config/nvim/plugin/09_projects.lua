@@ -334,35 +334,9 @@ vim.api.nvim_create_user_command('BottomWindowToggle', toggle_bottom_windows, {
   desc = 'Toggle between terminal, quickfix, and location list'
 })
 
-local function run_copilot()
-  local on_exit = function(obj)
-    vim.notify(vim.inspect(obj.code))
-    vim.notify(vim.inspect(obj.stdout))
-    --vim.notify(obj.signal)
-    --vim.notify(obj.stdout)
-    --:vim.notify(obj.stderr)
-  end
-  -- Runs asynchronously:
-  -- copilot -p 'add commit message since last commit' --allow-all-tools --add-dir $(CURDIR)
-  --
-  local obj = vim.system({
-      'copilot',
-      '-p',
-      'add commit message since last commit',
-      '--allow-all-tools',
-      '--add-dir', vim.fn.getcwd()
-    },
-    { text = true }):wait()
-
-  vim.notify(vim.inspect(obj.code))
-  vim.notify(vim.inspect(obj.stdout))
-end
-
-
-vim.api.nvim_create_user_command('CopilotToggle', run_copilot, {
-  desc = 'Toggle copilot cli'
+vim.api.nvim_create_user_command('GitCommit', require('git').commit, {
+  desc = 'Use Copilot to generate a git commit message',
 })
-
 
 --[[
 --KEY BINDS
