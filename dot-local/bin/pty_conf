@@ -39,12 +39,6 @@ dconf write "/org/gnome/Ptyxis/Profiles/${PROFILE_UUID}/default-container" "'${T
 echo " ---------------------------------------"
 echo " Setup the key bind for ptyxis          "
 echo " ---------------------------------------"
-# org.gnome.settings-daemon.plugins.media-keys
-
-# dconf dump "/org/gnome/Ptyxis/Profiles/${PROFILE_UUID}/"
-
-# mkdir -p ${HOME}/Projects
-CUSTOM_0_NAME="${CONTAINER}_neovim"
 WORKING_DIR=${HOME}/Projects
 # --standalone
 # --tab-with-profile=${PROFILE_UUID} \
@@ -57,29 +51,40 @@ WORKING_DIR=${HOME}/Projects
 
 # Add custom0 to the list of custom keybindings
 custom_keybindings=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings
-
 custom0=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
 custom1=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/
+custom2=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/
 
 # dconf reset -f /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
-dconf write "${custom_keybindings}" "['$custom0','$custom1']"
+dconf write "${custom_keybindings}" "['$custom0','$custom1','$custom2' ]"
 
+# ptyxis to open coding toolbox and open neovim
 CUSTOM_0_NAME='neovim'
 CUSTOM_0_BINDING='<Control><Alt>t'
-CUSTOM_0_COMMAND="ptyxis --working-directory=${WORKING_DIR} -- nvim"
+CUSTOM_0_COMMAND="ptyxis --working-directory=${WORKING_DIR} --tab-with-profile=${PROFILE_UUID} -- nvim"
 
 # Configure custom0 keybinding
 dconf write "${custom0}name" "'${CUSTOM_0_NAME}'"
 dconf write "${custom0}binding" "'${CUSTOM_0_BINDING}'"
 dconf write "${custom0}command" "'${CUSTOM_0_COMMAND}'"
 
-CUSTOM_1_NAME='copilot'
-CUSTOM_1_BINDING='<Control><Alt>c'
-CUSTOM_1_COMMAND="ptyxis --working-directory=${WORKING_DIR} --tab-with-profile=${PROFILE_UUID} -- copilot"
+# ptyxis to open coding toolbox and invoke host-spawn
+CUSTOM_1_NAME='host_spawn'
+CUSTOM_1_BINDING='<Control><Alt>h'
+CUSTOM_1_COMMAND="ptyxis --standalone --working-directory=${WORKING_DIR} --tab-with-profile=${PROFILE_UUID} -- host-spawn"
 
 dconf write "${custom1}name" "'${CUSTOM_1_NAME}'"
 dconf write "${custom1}binding" "'${CUSTOM_1_BINDING}'"
 dconf write "${custom1}command" "'${CUSTOM_1_COMMAND}'"
+
+# ptyxis to open coding toolbox and invoke copilot
+CUSTOM_2_NAME='copilot'
+CUSTOM_2_BINDING='<Control><Alt>c'
+CUSTOM_2_COMMAND="ptyxis --standalone --working-directory=${WORKING_DIR} --tab-with-profile=${PROFILE_UUID} -- copilot --banner --allow-all-tools "
+
+dconf write "${custom2}name" "'${CUSTOM_2_NAME}'"
+dconf write "${custom2}binding" "'${CUSTOM_2_BINDING}'"
+dconf write "${custom2}command" "'${CUSTOM_2_COMMAND}'"
 
 #
 echo "==========================================================="
@@ -93,4 +98,6 @@ echo "==========================================================="
 dconf dump $custom0
 echo "==========================================================="
 dconf dump $custom1
+echo "==========================================================="
+dconf dump $custom2
 echo

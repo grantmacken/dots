@@ -9,15 +9,9 @@
  - [ ] Project commands - BUILD TEST
 --]]
 --
---
---
---
---
 local keymap = require('util').keymap
-
-
-
 -- Assume you required the module above as 'git_utils'
+--
 local git_utils = require("git")
 vim.api.nvim_create_autocmd({ "BufEnter", "DirChanged" }, {
   group = vim.api.nvim_create_augroup("GitBranchUpdate", { clear = true }),
@@ -26,20 +20,13 @@ vim.api.nvim_create_autocmd({ "BufEnter", "DirChanged" }, {
   pattern = "*",
 })
 
-
-
-
-
-
 -- Project selector using fzf
 local function select_project()
   local projects_dir = vim.fn.expand('~/Projects')
-
   -- Get list of folders using vim.uv
   local function get_project_folders()
     local handle = vim.uv.fs_scandir(projects_dir)
     local folders = {}
-
     if handle then
       repeat
         local name, type = vim.uv.fs_scandir_next(handle)
@@ -97,6 +84,9 @@ local function select_project()
     }
   })
 end
+
+
+
 
 -- Create user command
 vim.api.nvim_create_user_command('ProjectSelect', select_project, {
@@ -236,6 +226,33 @@ local function open_terminal()
   end
 end
 
+-- local function open_copilot()
+--   local current_tab = vim.fn.tabpagenr()
+--   local tab_var_name = 'terminal_buf_' .. current_tab
+--   local term_buf = vim.t[tab_var_name]
+--   if term_buf and vim.api.nvim_buf_is_valid(term_buf) then
+--     -- If terminal buffer exists, switch to it
+--     for _, win in ipairs(vim.api.nvim_list_wins()) do
+--       if vim.api.nvim_win_get_buf(win) == term_buf then
+--         vim.api.nvim_set_current_win(win)
+--         -- run copilot in terminal if not already running
+--         local term_job_id = vim.b[term_buf].terminal_job_id
+--         if term_job_id and vim.fn.jobwait({term_job_id}, 0)[1] == -1 then
+--           -- Job is still running, assume copilot is active
+--           vim.notify('Copilot terminal already running', vim.log.levels.INFO)
+--         else
+--           -- Start copilot in terminal
+--           vim.api.nvim_buf_set_lines(term_buf, 0, -1, false, {'copilot'})
+--           vim.cmd('startinsert')
+--         end
+--         return
+--       end
+--     end
+--   end
+-- end
+
+
+
 -- Open quickfix window
 local function open_quickfix()
   vim.cmd('botright copen')
@@ -317,6 +334,34 @@ vim.api.nvim_create_user_command('BottomWindowToggle', toggle_bottom_windows, {
   desc = 'Toggle between terminal, quickfix, and location list'
 })
 
+local function run_copilot()
+  local on_exit = function(obj)
+    vim.notify(vim.inspect(obj.code))
+    vim.notify(vim.inspect(obj.stdout))
+    --vim.notify(obj.signal)
+    --vim.notify(obj.stdout)
+    --:vim.notify(obj.stderr)
+  end
+  -- Runs asynchronously:
+  -- copilot -p 'add commit message since last commit' --allow-all-tools --add-dir $(CURDIR)
+  --
+  local obj = vim.system({
+      'copilot',
+      '-p',
+      'add commit message since last commit',
+      '--allow-all-tools',
+      '--add-dir', vim.fn.getcwd()
+    },
+    { text = true }):wait()
+
+  vim.notify(vim.inspect(obj.code))
+  vim.notify(vim.inspect(obj.stdout))
+end
+
+
+vim.api.nvim_create_user_command('CopilotToggle', run_copilot, {
+  desc = 'Toggle copilot cli'
+})
 
 
 --[[
