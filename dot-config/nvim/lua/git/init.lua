@@ -53,10 +53,10 @@ function M.commit()
       '--allow-all-tools',
       '--add-dir', vim.fn.getcwd()
     },
-    { text = true }):wait()
-
-  local scratch = require('scratch')
-  scratch.show(vim.split(obj.stdout, '\n'), 'Copilot')
+    { text = true }, function(obj)
+      local scratch = require('scratch')
+      scratch.show(vim.split(obj.stdout, '\n'), 'Copilot')
+    end)
 end
 
 return M
