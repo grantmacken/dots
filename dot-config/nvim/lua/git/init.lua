@@ -43,8 +43,6 @@ function M.commit()
   local on_exit = function(obj)
     vim.notify(vim.inspect(obj.code))
     vim.notify(vim.inspect(obj.stdout))
-    local scratch = require('scratch')
-    scratch.show(vim.split(obj.stdout, '\n'), 'Copilot')
   end
   -- Runs asynchronously:
 
@@ -55,11 +53,10 @@ function M.commit()
       '--allow-all-tools',
       '--add-dir', vim.fn.getcwd()
     },
-    { text = true, on_exit })
+    { text = true }):wait()
+
+  local scratch = require('scratch')
+  scratch.show(vim.split(obj.stdout, '\n'), 'Copilot')
 end
-
-
-
-
 
 return M
