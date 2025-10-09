@@ -40,6 +40,8 @@ echo " ---------------------------------------"
 echo " Setup the key bind for ptyxis          "
 echo " ---------------------------------------"
 WORKING_DIR=${HOME}/Projects
+DOTS_DIR=${HOME}/Projects/dots
+
 # --standalone
 # --tab-with-profile=${PROFILE_UUID} \
 
@@ -54,9 +56,10 @@ custom_keybindings=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindi
 custom0=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
 custom1=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/
 custom2=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/
+custom3=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/
 
 # dconf reset -f /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
-dconf write "${custom_keybindings}" "['$custom0','$custom1','$custom2' ]"
+dconf write "${custom_keybindings}" "['$custom0','$custom1','$custom2', '$custom3']"
 
 # ptyxis to open coding toolbox and open neovim
 CUSTOM_0_NAME='neovim'
@@ -86,6 +89,15 @@ dconf write "${custom2}name" "'${CUSTOM_2_NAME}'"
 dconf write "${custom2}binding" "'${CUSTOM_2_BINDING}'"
 dconf write "${custom2}command" "'${CUSTOM_2_COMMAND}'"
 
+# ptyxis to open coding toolbox and invoke neovim in project 1 [dots]
+CUSTOM_3_NAME='dots'
+CUSTOM_3_BINDING='<Control><Alt>d'
+CUSTOM_3_COMMAND="ptyxis --standalone --working-directory=${DOTS_DIR} --tab-with-profile=${PROFILE_UUID} -- nvim"
+
+dconf write "${custom3}name" "'${CUSTOM_3_NAME}'"
+dconf write "${custom3}binding" "'${CUSTOM_3_BINDING}'"
+dconf write "${custom3}command" "'${CUSTOM_3_COMMAND}'"
+
 #
 echo "==========================================================="
 echo " - view Ptyxis default profile changes made via dconf dump "
@@ -100,4 +112,6 @@ echo "==========================================================="
 dconf dump $custom1
 echo "==========================================================="
 dconf dump $custom2
+echo "==========================================================="
+dconf dump $custom3
 echo

@@ -40,18 +40,23 @@ function M.update_branch_name()
 end
 
 function M.commit()
-  local on_exit = function(obj)
-    vim.notify(vim.inspect(obj.code))
-    vim.notify(vim.inspect(obj.stdout))
-  end
-  -- Runs asynchronously:
-
   local obj = vim.system({
       'copilot',
       '-p',
       'add commit message since last commit',
       '--allow-all-tools',
       '--add-dir', vim.fn.getcwd()
+    },
+    { text = true }, function(obj)
+      local scratch = require('scratch')
+      scratch.show(vim.split(obj.stdout, '\n'), 'Copilot')
+    end)
+end
+
+function M.push()
+  local obj = vim.system({
+      'git',
+      'push',
     },
     { text = true }, function(obj)
       local scratch = require('scratch')

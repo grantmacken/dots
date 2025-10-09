@@ -41,6 +41,12 @@ When working with this codebase, always follow these constitutional principles f
 5. **Neovim-Centric**: LSP configs support offline operation and reproducible setup
 6. **Makefile Targets**: Target are tasks that can be run with `make [target]`
 
+- Neovim setup is in `dot-config/nvim/`
+  - Lua Modules are in `dot-config/nvim/lua/`. Use LuaCATS annotations for lua code modules @see https://luals.github.io/wiki/annotation
+  - Plugin configs are in `dot-config/nvim/plugin/` these load in sequential numbered order after `init.lua`
+- Systemd units are in `dot-config/systemd/user/`
+- Bash scripts are in `dot-local/bin/`
+
 ## Spec Kit Workflow Integration
 
 This project uses a structured feature development workflow through the Spec Kit system located in `.specify/` and `.github/prompts/`. When developing new features or making significant changes, use these commands:

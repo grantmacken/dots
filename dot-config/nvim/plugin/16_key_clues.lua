@@ -38,6 +38,7 @@ if ok_clues then
     { mode = 'n', keys = '<Leader>l', desc = '+LSP' },
     { mode = 'n', keys = '<Leader>m', desc = '+markdown' },
     { mode = 'n', keys = '<Leader>p', desc = '+project' },
+    { mode = 'n', keys = '<Leader>t', desc = '+terminal' },
 
     --{ mode = 'n', keys = '<Leader>S', desc = '+mk[S]ession' },
     --{ mode = 'n', keys = '<Leader>t', desc = '+Toggle' },
