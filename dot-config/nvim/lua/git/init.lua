@@ -1,5 +1,13 @@
 local M = {}
 
+--[[
+Helper function to execute a shell command and return the output.
+@see dot-config/nvim/plugin/10_git.lua
+@see dot-config/nvim/lua/git/init.lua
+@see dot-config/nvim/lua/scratch/init.lua
+
+]] --
+
 -- Executes a shell command and returns the output (trimmed)
 local function get_shell_output(cmd)
   -- Use vim.fn.system() to execute the command.
@@ -39,6 +47,8 @@ function M.update_branch_name()
   end
 end
 
+-- Commit changes using copilot-cli to generate commit message
+-- and show the output in a scratch buffer
 function M.commit()
   local obj = vim.system({
       'copilot',
@@ -61,6 +71,42 @@ function M.push()
     { text = true }, function(obj)
       local scratch = require('scratch')
       scratch.show(vim.split(obj.stdout, '\n'), 'Copilot')
+    end)
+end
+
+function M.revert()
+  local obj = vim.system({
+      'git',
+      'revert',
+      '--no-edit',
+      'HEAD',
+    },
+    { text = true }, function(obj)
+      local scratch = require('scratch')
+      scratch.show(vim.split(obj.stdout, '\n'), 'Git Revert')
+    end)
+end
+
+-- Find the commit hash: git log -1
+M.get_last_commit_hash = function()
+  local commit_hash = get_shell_output("git log -1 --pretty=format:%H")
+  return commit_hash
+end
+
+
+M.list = function()
+  local obj = vim.system({
+      'git',
+      'log',
+      '--oneline',
+      '--graph',
+      '--decorate',
+      '--all',
+      '--color=always'
+    },
+    { text = true }, function(obj)
+      local scratch = require('scratch')
+      scratch.show(vim.split(obj.stdout, '\n'), 'Git List Commits')
     end)
 end
 
