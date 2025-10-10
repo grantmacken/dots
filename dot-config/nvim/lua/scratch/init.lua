@@ -23,15 +23,13 @@ local width = math.ceil(math.min(vim.o.columns, math.max(80, vim.o.columns - 80)
 local height = math.ceil(math.min(vim.o.lines, math.max(20, vim.o.lines - 10)))
 
 
--- vim.defer_fn({fn}, {timeout}) -- delay execution of fn by timeout ms
--- E5560: nvim_get_option_value must not be called in a fast event context
--- vim.schedule(function()
 local create_buffer = function()
   local listed = false
   local scratch = true -- always 'nomodified'
   local buf = vim.api.nvim_create_buf(listed, scratch)
-  -- vim.api.nvim_set_option_value("filetype", "terminal", { buf = buf })
+  -- Set buffer-local options outside fast event context
   vim.schedule(function()
+    vim.api.nvim_set_option_value("filetype", "scratch", { buf = buf })
     vim.api.nvim_create_autocmd("BufEnter", {
       buffer = buf,
       callback = function()
