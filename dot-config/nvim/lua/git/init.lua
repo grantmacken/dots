@@ -4,7 +4,7 @@ local M = {}
 Helper function to execute a shell command and return the output.
 @see dot-config/nvim/plugin/10_git.lua
 @see dot-config/nvim/lua/git/init.lua
-@see dot-config/nvim/lua/scratch/init.lua
+@see dot-config/nvim/lua/show/init.lua
 
 ]] --
 
@@ -50,7 +50,7 @@ end
 -- Commit changes using copilot-cli to generate commit message
 -- and show the output in a scratch buffer
 function M.commit()
-  local obj = vim.system({
+  vim.system({
       'copilot',
       '-p',
       'add commit message since last commit',
@@ -58,8 +58,9 @@ function M.commit()
       '--add-dir', vim.fn.getcwd()
     },
     { text = true }, function(obj)
-      local scratch = require('scratch')
-      scratch.show(vim.split(obj.stdout, '\n'), 'Copilot')
+      vim.split(obj.stdout, '\n')
+      --local show = require('show')
+      --show.scratch(vim.split(obj.stdout, '\n'), 'Copilot')
     end)
 end
 
@@ -69,8 +70,8 @@ function M.push()
       'push',
     },
     { text = true }, function(obj)
-      local scratch = require('scratch')
-      scratch.show(vim.split(obj.stdout, '\n'), 'Copilot')
+      local show = require('show')
+      show.scratch(vim.split(obj.stdout, '\n'), 'Git Push')
     end)
 end
 
@@ -93,7 +94,7 @@ M.get_last_commit_hash = function()
   return commit_hash
 end
 
-
+--- @return string | nil
 M.list = function()
   local obj = vim.system({
       'git',
@@ -104,10 +105,8 @@ M.list = function()
       '--all',
       '--color=always'
     },
-    { text = true }, function(obj)
-      local scratch = require('scratch')
-      scratch.show(vim.split(obj.stdout, '\n'), 'Git List Commits')
-    end)
+    { text = true }):wait()
+  return obj.stdout
 end
 
 return M

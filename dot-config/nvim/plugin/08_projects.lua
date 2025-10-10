@@ -136,7 +136,7 @@ au({ 'BufEnter', 'TabNew' }, '*', function()
   set_tab_project_vars()
 end, 'Set tab project variables')
 
---[[ end section: set tab project variables ]]--
+--[[ end section: set tab project variables ]] --
 
 -- vim.api.nvim_create_autocmd({ 'BufEnter', 'TabNew' }, {
 --   callback = function()
@@ -144,30 +144,30 @@ end, 'Set tab project variables')
 --   end,
 -- })
 
-vim.api.nvim_create_user_command('TermOpen', require('term').open, {
-  desc = 'open terminal window'
-})
+-- vim.api.nvim_create_user_command('TermOpen', require('term').open, {
+--   desc = 'open terminal window'
+-- })
+--
+--
+-- vim.api.nvim_create_user_command('TermClose', require('term').close, {
+--   desc = 'close terminal window'
+-- })
 
-
-vim.api.nvim_create_user_command('TermClose', require('term').close, {
-  desc = 'close terminal window'
-})
-
-vim.api.nvim_create_user_command(
-  'Make',
-  function()
-    require('term').open()
-    local chan = vim.t.term_chan
-    if chan then
-      --vim.api.nvim_chan_send(chan, "clear\r\n")
-      vim.api.nvim_chan_send(chan, "clear && make\n")
-    else
-      vim.notify("No terminal channel found", vim.log.levels.WARN, { title = 'Make Command' })
-    end
-  end
-  , {
-    desc = 'open terminal window and run make'
-  })
+-- vim.api.nvim_create_user_command(
+--   'Make',
+--   function()
+--     require('term').open()
+--     local chan = vim.t.term_chan
+--     if chan then
+--       --vim.api.nvim_chan_send(chan, "clear\r\n")
+--       vim.api.nvim_chan_send(chan, "clear && make\n")
+--     else
+--       vim.notify("No terminal channel found", vim.log.levels.WARN, { title = 'Make Command' })
+--     end
+--   end
+--   , {
+--     desc = 'open terminal window and run make'
+--   })
 
 vim.api.nvim_create_user_command('TabSet', set_tab_project_vars, {
   desc = 'set_tab_project_vars'
@@ -175,9 +175,9 @@ vim.api.nvim_create_user_command('TabSet', set_tab_project_vars, {
 
 
 
-local keymap = require('util').keymap
-keymap('<leader>to', require('term').open, 'open [t]erminal window')
-keymap('<leader>tc', require('term').close, 'close [t]erminal window')
-keymap('<leader>tm', ':Make<CR>', '[t]erminal run [m]ake')
+-- local keymap = require('util').keymap
+-- keymap('<leader>to', require('term').open, 'open [t]erminal window')
+-- keymap('<leader>tc', require('term').close, 'close [t]erminal window')
+-- keymap('<leader>tm', ':Make<CR>', '[t]erminal run [m]ake')
 
 --

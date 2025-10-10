@@ -7,18 +7,34 @@ Git commands using custom lua module
 --]]
 
 
-vim.api.nvim_create_user_command('GitPush', require('git').push, {
-  desc = 'Use git to push commits to remote',
-})
+vim.api.nvim_create_user_command(
+  'GitPush',
+  require('git').push, {
+    desc = 'Use git to push commits to remote',
+  })
 
-vim.api.nvim_create_user_command('GitCommit', require('git').commit, {
-  desc = 'Use Copilot to generate a git commit message',
-})
+vim.api.nvim_create_user_command(
+  'GitCommit',
+  function()
+    vim.schedule(function()
+      local res = require('git').commit()
+      local show = require('show')
+      show.open_term(res, 'Git Commit Message')
+    end)
+  end,
+  { desc = 'Use Copilot to generate a git commit message' }
+)
 
 
 vim.api.nvim_create_user_command(
   'GitListCommits',
-  require('git').list,
+  function()
+    vim.schedule(function()
+      local res = require('git').list()
+      local show = require('show')
+      show.open_term(res, 'Git Commits')
+    end)
+  end,
   { desc = 'List git commits in scratch buffer' }
 )
 

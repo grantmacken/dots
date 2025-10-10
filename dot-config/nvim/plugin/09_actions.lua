@@ -30,36 +30,28 @@ The results of an actions can be of 4 types:
  - [ ] terminal always opens in bottom right split window occupying the full window width.
  ]] --
 
-
-vim.api.nvim_create_user_command('TermOpen', require('term').open, {
-  desc = 'open terminal window'
-})
-
-
-vim.api.nvim_create_user_command('TermClose', require('term').close, {
-  desc = 'close terminal window'
-})
-
+--
+-- vim.api.nvim_create_user_command('TermOpen', require('term').open, {
+--   desc = 'open terminal window'
+-- })
+--
+--
+-- vim.api.nvim_create_user_command('TermClose', require('term').close, {
+--   desc = 'close terminal window'
+-- })
+--
 vim.api.nvim_create_user_command(
   'Make',
   function()
-    require('term').open()
-    local chan = vim.t.term_chan
-    if chan then
-      --vim.api.nvim_chan_send(chan, "clear\r\n")
-      vim.api.nvim_chan_send(chan, "clear && make\n")
-    else
-      vim.notify("No terminal channel found", vim.log.levels.WARN, { title = 'Make Command' })
-    end
+    local show = require('show')
+    show.interactive_term({ 'clear && make\r\n' }, 'Make')
   end
   , {
     desc = 'open terminal window and run make'
   })
 
 
-
-
-local keymap = require('util').keymap
-keymap('<leader>to', require('term').open, 'open [t]erminal window')
-keymap('<leader>tc', require('term').close, 'close [t]erminal window')
-keymap('<leader>tm', ':Make<CR>', '[t]erminal run [m]ake')
+-- local keymap = require('util').keymap
+-- keymap('<leader>to', require('term').open, 'open [t]erminal window')
+-- keymap('<leader>tc', require('term').close, 'close [t]erminal window')
+-- keymap('<leader>tm', ':Make<CR>', '[t]erminal run [m]ake')
