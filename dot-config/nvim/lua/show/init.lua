@@ -22,6 +22,48 @@ vim.api.nvim_buf_is_loaded(bufnr)
 --
 --vim.api.nvim_set_hl(0, 'WinBar', { fg = 'white', bg = '#3C3C3C', bold = true })
 -- vim.api.nvim_set_hl(0, 'WinBarNC', { fg = 'LightGrey', bg = '#2C2C2C' })
+--
+--
+--[[ utils
+ - accept only a string
+ - convert to table by splitting on spaces
+ - check if command is executable
+--]]
+--- @param cmd string
+--- @return boolean
+local function is_string(cmd)
+  if type(cmd) ~= 'string' or cmd == '' then
+    vim.notify('Invalid command provided: ' .. vim.inspect(cmd), vim.log.levels.ERROR)
+    return false
+  end
+  return true
+end
+
+--- check if command is executable
+--- @param tbl table
+--- @return boolean
+local function is_executable(tbl)
+  if type(tbl) ~= 'table' or #tbl == 0 then
+    vim.notify('Invalid command table provided: ' .. vim.inspect(tbl), vim.log.levels.ERROR)
+    return false
+  end
+  local cmd_name = tbl[1]
+  if not cmd_name or not vim.fn.executable(cmd_name) then
+    vim.notify('Command not found: ' .. tostring(cmd_name), vim.log.levels.ERROR)
+    return false
+  end
+  return true
+end
+
+--- Convert a space-separated string into a table of arguments.
+--- @param str string
+--- @return table
+local function string_to_table(str)
+  -- regex split string into table by one or more spaces
+  -- handles quoted strings as single arguments
+  return vim.split(str, '%s+', { trimempty = true })
+end
+
 
 
 local function noninteractive_term_buffer()
@@ -54,9 +96,13 @@ local function scratch_buffer()
   if vim.t.scratch_buf and vim.api.nvim_buf_is_valid(vim.t.scratch_buf) then
     return vim.t.scratch_buf
   end
-  local listed = true
-  local scratch = false
-  vim.t.scratch_buf = vim.api.nvim_create_buf(listed, scratch)
+  local listed            = false
+  local scratch           = true
+  vim.t.scratch_buf       = vim.api.nvim_create_buf(listed, scratch)
+  local bufnr             = vim.t.scratch_buf
+  vim.bo[bufnr].bufhidden = 'hide'
+  vim.bo[bufnr].buftype   = 'nofile'                  -- Scratch buffers typically use 'nofile'
+  vim.api.nvim_buf_set_name(bufnr, 'scratch_my_itch') -- set a name for the buffer
 end
 
 local function open_show_window(bufnr)
@@ -98,57 +144,165 @@ local function open_show_window(bufnr)
   return vim.t.show_win
 end
 
-M.scratch = function(tbl, title)
+--[[ After results show utils
+ - move the cursor to the end of the buffer
+ - clear lines in buffer before cmd results are added
+
+]] --
+
+local function move_cursor_to_end(bufnr, win)
   vim.schedule(function()
-    scratch_buffer()
-    vim.notify('buffer ' .. vim.t.scratch_buf .. ' ready')
-    open_show_window(vim.t.scratch_buf)
-    vim.notify('window ' .. vim.t.show_win .. ' ready')
-    local start_line = 0
-    local end_line = -1
-    local strict = false
-    vim.api.nvim_buf_set_lines(vim.t.scratch_buf, start_line, end_line, strict, tbl)
+    if not (bufnr and win) then
+      return
+    end
+    local line_count = vim.api.nvim_buf_line_count(bufnr)
+    vim.api.nvim_win_set_cursor(win, { line_count, 9999 })
   end)
 end
 
----@param str string
-M.noninteractive_term = function(str)
+local function clear_buffer(bufnr)
   vim.schedule(function()
-    noninteractive_term_buffer()
-    local bufnr = vim.t.noninteractive_term_buf
-    vim.notify('buffer ' .. bufnr .. ' ready')
-    open_show_window(bufnr)
-    local win = vim.t.show_win
-    vim.notify('window ' .. win .. ' ready')
-    local opts = { force_crlf = true }
-    -- set the channel for the terminal
-    local chan = vim.api.nvim_open_term(bufnr, opts)
-    vim.fn.chansend(chan, str)
-    -- Schedule the cursor movement to run after the terminal is fully open
-    vim.schedule(function()
+    -- check if buffer is modifable
+    if vim.bo[bufnr].modifiable == false then
+      vim.bo[bufnr].modifiable = true
       local line_count = vim.api.nvim_buf_line_count(bufnr)
-      vim.api.nvim_win_set_cursor(win, { line_count, 9999 })
+      if line_count > 1 then
+        local strict = false
+        local start_line = 0
+        local end_line = line_count - 1 -- -1 because end_line is exclusive
+        vim.api.nvim_buf_set_lines(bufnr, start_line, end_line, strict, {})
+      end
+      vim.bo[bufnr].modifiable = false
+    end
+  end)
+end
+
+-- append new lines
+-- @param bufnr number
+-- @param res table
+local function append_lines(bufnr, res)
+  vim.schedule(function()
+    local strict = false
+    local line_count = vim.api.nvim_buf_line_count(bufnr)
+    local start_line = 1
+    local end_line = line_count + #res - 1 -- -1 because end_line is exclusive
+    vim.api.nvim_buf_set_lines(bufnr, start_line, end_line, strict, res)
+    -- move cursor to the end
+  end)
+end
+
+
+---@param cmd string
+M.noninteractive_term = function(cmd)
+  -- massage the command input
+  if not is_string(cmd) then
+    return
+  end
+  -- convert string to table
+  local tbl = string_to_table(cmd)
+  if not is_executable(tbl) then
+    return
+  end
+  vim.system(tbl, { text = true }, function(obj)
+    --local res = vim.split(obj.stdout, '\n')
+    local res = obj.stdout
+    if obj.code ~= 0 then
+      res = res .. '\nError: ' .. (obj.stderr or 'unknown error') .. '\nExit code: ' .. obj.code
+    end
+    -- open the noninteractive terminal buffer and window
+    -- and send the command output to the terminal
+    -- we do this in a scheduled function to ensure it runs
+    -- after the current function completes
+    vim.schedule(function()
+      noninteractive_term_buffer()
+      local bufnr = vim.t.noninteractive_term_buf
+      vim.notify('buffer ' .. bufnr .. ' ready')
+      -- TODO! try to clear existing lines in buffer
+      clear_buffer(bufnr)
+      open_show_window(bufnr)
+      local win = vim.t.show_win
+      vim.notify('window ' .. win .. ' ready')
+      local opts = { force_crlf = true }
+      -- set the channel for the terminal
+      local chan = vim.api.nvim_open_term(bufnr, opts)
+      vim.fn.chansend(chan, cmd)
+      -- Schedule the cursor movement to run after the terminal is fully open
+      move_cursor_to_end(bufnr, win)
     end)
   end)
 end
 
---- @param cmd string|string[]
+--- @param cmd string
 M.interactive_term = function(cmd)
+  if not is_string(cmd) then
+    return
+  end
+  local tbl = string_to_table(cmd)
+  if not is_executable(tbl) then
+    return
+  end
+  -- ensure command ends with newline to execute it
+  -- also clear the terminal before running the command
+  if not cmd:match('\n$') then
+    cmd = 'clear && ' .. cmd .. '\n'
+  end
   interactive_term_buffer()
   local bufnr = vim.t.interactive_term_buf
   vim.notify('buffer ' .. bufnr .. ' ready')
   open_show_window(bufnr)
-  -- local win = vim.t.show_win
-  vim.notify('window ' .. vim.t.show_win .. ' ready')
-  vim.api.nvim_set_current_win(vim.t.show_win)
+  local win = vim.t.show_win
+  vim.notify('window ' .. win .. ' ready')
   -- Start terminal in the buffer if not already started
-  if not vim.bo[bufnr].channel then
+  if not vim.bo[bufnr].channel or vim.bo[bufnr].channel == 0 then
     vim.notify('no channel, starting terminal in buffer ' .. bufnr)
-    vim.api.nvim_buf_call(bufnr, function() vim.cmd.term() end)
+    vim.api.nvim_buf_call(bufnr, function()
+      vim.fn.jobstart(vim.o.shell, {
+        term = true,
+        pty = true,
+      })
+    end)
   end
-  -- Send the command to the terminal
   local chan = vim.bo[bufnr].channel
-  vim.fn.chansend(chan, cmd)
+  if chan and chan > 0 then
+    vim.fn.chansend(chan, cmd)
+  else
+    vim.notify('Failed to get terminal channel for buffer ' .. bufnr, vim.log.levels.ERROR)
+    return
+  end
+  vim.schedule(function()
+    local line_count = vim.api.nvim_buf_line_count(bufnr)
+    vim.api.nvim_win_set_cursor(win, { line_count, 9999 })
+  end)
+end
+
+--- @param cmd string
+M.scratch = function(cmd)
+  if not is_string(cmd) then
+    return
+  end
+  local tbl = string_to_table(cmd)
+  if not is_executable(tbl) then
+    return
+  end
+  scratch_buffer()
+  local bufnr = vim.t.scratch_buf
+  vim.notify('buffer ' .. bufnr .. ' ready')
+  open_show_window(bufnr)
+  local win = vim.t.show_win
+  vim.notify('window ' .. win .. ' ready')
+
+  vim.system(
+    tbl, { text = true }, function(obj)
+      -- check for errors
+      if obj.code ~= 0 then
+        vim.notify('Error running command: ' .. (obj.stderr or 'unknown error'), vim.log.levels.ERROR)
+        return
+      end
+      local res = vim.split(obj.stdout, '\n')
+      clear_buffer(bufnr)
+      append_lines(bufnr, res)
+      move_cursor_to_end(bufnr, win)
+    end)
 end
 
 return M

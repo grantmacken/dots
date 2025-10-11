@@ -1,3 +1,6 @@
+--- @see dot-config/nvim/plugin/09_actions.lua for commands that use the show module
+--- @see dot-config/nvim/lua/show/init.lua     for the show module
+---
 --[[ markdown block
 
 Commands for actions like opening terminal, running make, etc.
@@ -11,8 +14,7 @@ The results of an actions can be of 4 types:
  3. display in scratch buffer TODO explain
  4. display in **quickfix** window TODO explain
 
-@see dot-config/nvim/lua/term/init.lua
-@see dot-config/nvim/lua/scratch/init.lua
+
 
 ## Out of scope
  - LSP diagnostics - these are handled by the LSP client
@@ -47,17 +49,19 @@ The results of an actions can be of 4 types:
 vim.api.nvim_create_user_command(
   'ActionExampleNonInteractive',
   function()
-    vim.schedule(function()
-      vim.system({
-        'echo',
-        'This is an example action showing output in a noninteractive terminal'
-      }, { text = true }, function(obj)
-        --local res = vim.split(obj.stdout, '\n')
-        local res = obj.stdout
-        local show = require('show')
-        show.noninteractive_term(res, 'Example Action Output')
-      end)
-    end)
+    local show = require('show')
+    show.noninteractive_term('echo "This is an example action showing output in a noninteractive terminal"')
+    -- vim.schedule(function()
+    --   vim.system({
+    --     'echo',
+    --     'This is an example action showing output in a noninteractive terminal'
+    --   }, { text = true }, function(obj)
+    --     --local res = vim.split(obj.stdout, '\n')
+    --     local res = obj.stdout
+    --     local show = require('show')
+    --     show.noninteractive_term(res, 'Example Action Output')
+    --   end)
+    -- end)
   end,
   { desc = 'An example action that shows output in a noninteractive terminal' }
 )
@@ -72,22 +76,57 @@ vim.api.nvim_create_user_command(
   function()
     vim.schedule(function()
       local show = require('show')
-      show.interactive_term('ls .\r\n')
+      show.interactive_term('ls -al .')
     end)
   end,
   { desc = 'An example action that shows output in a Interactive Terminal' }
 )
-
+-- send bash commands to scratch buffer
+-- @see dot-config/nvim/lua/show/init.lua
+-- This action opens a scratch buffer (if not already open)
+-- and sends the bash commands to the scratch buffer
+-- The scratch buffer remains open for further interaction
+vim.api.nvim_create_user_command(
+  'ActionExampleScratch',
+  function()
+    local show = require('show')
+    show.scratch('ls .')
+  end,
+  { desc = 'An example action that shows output in a Interactive Terminal' }
+)
 
 vim.api.nvim_create_user_command(
   'Make',
   function()
     local show = require('show')
-    show.interactive_term({ 'clear && make\r\n' }, 'Make')
+    show.scratch('make')
   end
   , {
     desc = 'open terminal window and run make'
   })
+
+vim.api.nvim_create_user_command(
+  'GitStatus',
+  function()
+    local show = require('show')
+    show.scratch('git status --short --branch --porcelain')
+  end
+  , {
+    desc = 'show git status in scratch buffer'
+  })
+
+vim.api.nvim_create_user_command(
+  'GitLog',
+  function()
+    local show = require('show')
+    show.noninteractive_term('git log --oneline --graph --decorate --all')
+  end
+  , {
+    desc = 'show git log in scratch buffer' --
+  })
+
+
+
 
 
 -- local keymap = require('util').keymap
