@@ -39,7 +39,46 @@ The results of an actions can be of 4 types:
 -- vim.api.nvim_create_user_command('TermClose', require('term').close, {
 --   desc = 'close terminal window'
 -- })
---
+
+-- show results in a noninteractive terminal window
+-- here we use vim.system() to run a shell command asynchronously
+-- and show the output in a noninteractive terminal window
+-- @see dot-config/nvim/lua/show/init.lua
+vim.api.nvim_create_user_command(
+  'ActionExampleNonInteractive',
+  function()
+    vim.schedule(function()
+      vim.system({
+        'echo',
+        'This is an example action showing output in a noninteractive terminal'
+      }, { text = true }, function(obj)
+        --local res = vim.split(obj.stdout, '\n')
+        local res = obj.stdout
+        local show = require('show')
+        show.noninteractive_term(res, 'Example Action Output')
+      end)
+    end)
+  end,
+  { desc = 'An example action that shows output in a noninteractive terminal' }
+)
+
+-- send bash commands to interactive terminal window
+-- @see dot-config/nvim/lua/show/init.lua
+-- This action opens an interactive terminal window (if not already open)
+-- and sends the bash commands to the terminal window
+-- The terminal window remains open for further interaction
+vim.api.nvim_create_user_command(
+  'ActionExampleInteractiveTerminal',
+  function()
+    vim.schedule(function()
+      local show = require('show')
+      show.interactive_term('ls .\r\n')
+    end)
+  end,
+  { desc = 'An example action that shows output in a Interactive Terminal' }
+)
+
+
 vim.api.nvim_create_user_command(
   'Make',
   function()
