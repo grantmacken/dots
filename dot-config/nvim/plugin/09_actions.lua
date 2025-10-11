@@ -50,33 +50,22 @@ vim.api.nvim_create_user_command(
   'ActionExampleNonInteractive',
   function()
     local show = require('show')
-    show.noninteractive_term('echo "This is an example action showing output in a noninteractive terminal"')
-    -- vim.schedule(function()
-    --   vim.system({
-    --     'echo',
-    --     'This is an example action showing output in a noninteractive terminal'
-    --   }, { text = true }, function(obj)
-    --     --local res = vim.split(obj.stdout, '\n')
-    --     local res = obj.stdout
-    --     local show = require('show')
-    --     show.noninteractive_term(res, 'Example Action Output')
-    --   end)
-    -- end)
+    show.noninteractive_term('ls -al .')
   end,
   { desc = 'An example action that shows output in a noninteractive terminal' }
 )
 
 -- send bash commands to interactive terminal window
--- @see dot-config/nvim/lua/show/init.lua
 -- This action opens an interactive terminal window (if not already open)
 -- and sends the bash commands to the terminal window
 -- The terminal window remains open for further interaction
+--- @see dot-config/nvim/lua/show/init.lua
 vim.api.nvim_create_user_command(
   'ActionExampleInteractiveTerminal',
   function()
     vim.schedule(function()
       local show = require('show')
-      show.interactive_term('ls -al .')
+      show.interactive_term('echo "Hello from ActionExampleInteractiveTerminal"')
     end)
   end,
   { desc = 'An example action that shows output in a Interactive Terminal' }
@@ -90,7 +79,7 @@ vim.api.nvim_create_user_command(
   'ActionExampleScratch',
   function()
     local show = require('show')
-    show.scratch('ls .')
+    show.scratch('ls -al .')
   end,
   { desc = 'An example action that shows output in a Interactive Terminal' }
 )
@@ -119,15 +108,30 @@ vim.api.nvim_create_user_command(
   'GitLog',
   function()
     local show = require('show')
-    show.noninteractive_term('git log --oneline --graph --decorate --all')
+    show.scratch('git log --oneline --graph --decorate')
   end
   , {
-    desc = 'show git log in scratch buffer' --
+    desc = 'show git log in scratch buffer'
   })
 
 
+vim.api.nvim_create_user_command(
+  'GitCommit',
+  function()
+    local show = require('show')
+    show.scratch('copilot -p "add commit message since last commit" --allow-all-tools --add-dir' .. vim.fn.getcwd())
+  end,
+  { desc = 'Use Copilot to generate a git commit message' }
+)
 
-
+vim.api.nvim_create_user_command(
+  'GitPush',
+  function()
+    local show = require('show')
+    show.scratch('git push')
+  end,
+  { desc = 'Use Copilot to generate a git commit message' }
+)
 
 -- local keymap = require('util').keymap
 -- keymap('<leader>to', require('term').open, 'open [t]erminal window')

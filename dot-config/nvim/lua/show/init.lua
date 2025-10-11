@@ -1,7 +1,6 @@
 --[[ Show Module
-
+ @see dot-config/nvim/lua/show/init.lua
  @see dot-config/nvim/plugin/09_actions.lua
- @see dot-config/nvim/plugin/10_git.lua
  ]] --
 M = {}
 
@@ -24,11 +23,7 @@ vim.api.nvim_buf_is_loaded(bufnr)
 -- vim.api.nvim_set_hl(0, 'WinBarNC', { fg = 'LightGrey', bg = '#2C2C2C' })
 --
 --
---[[ utils
- - accept only a string
- - convert to table by splitting on spaces
- - check if command is executable
---]]
+--[[ utils ]] --
 --- @param cmd string
 --- @return boolean
 local function is_string(cmd)
@@ -218,7 +213,7 @@ M.noninteractive_term = function(cmd)
       local bufnr = vim.t.noninteractive_term_buf
       vim.notify('buffer ' .. bufnr .. ' ready')
       -- TODO! try to clear existing lines in buffer
-      clear_buffer(bufnr)
+      --clear_buffer(bufnr)
       open_show_window(bufnr)
       local win = vim.t.show_win
       vim.notify('window ' .. win .. ' ready')
@@ -241,17 +236,23 @@ M.interactive_term = function(cmd)
   if not is_executable(tbl) then
     return
   end
-  -- ensure command ends with newline to execute it
-  -- also clear the terminal before running the command
-  if not cmd:match('\n$') then
-    cmd = 'clear && ' .. cmd .. '\n'
+  --[[
+{data} may be a string, string convertible, |Blob|, or a list.
+If {data} is a list, the items will be joined by newlines; any
+newlines in an item will be sent as NUL. To send a final
+newline, include a final empty string.
+]] --
+  -- append final emypty string to ensure newline at end
+  -- this ensures the command is executed in the terminal
+  if tbl[#tbl] ~= '' then
+    table.insert(tbl, '')
   end
   interactive_term_buffer()
   local bufnr = vim.t.interactive_term_buf
-  vim.notify('buffer ' .. bufnr .. ' ready')
+  --vim.notify('buffer ' .. bufnr .. ' ready')
   open_show_window(bufnr)
   local win = vim.t.show_win
-  vim.notify('window ' .. win .. ' ready')
+  -- vim.notify('window ' .. win .. ' ready')
   -- Start terminal in the buffer if not already started
   if not vim.bo[bufnr].channel or vim.bo[bufnr].channel == 0 then
     vim.notify('no channel, starting terminal in buffer ' .. bufnr)
@@ -264,15 +265,12 @@ M.interactive_term = function(cmd)
   end
   local chan = vim.bo[bufnr].channel
   if chan and chan > 0 then
-    vim.fn.chansend(chan, cmd)
+    vim.fn.chansend(chan, tbl)
+    move_cursor_to_end(bufnr, win)
   else
     vim.notify('Failed to get terminal channel for buffer ' .. bufnr, vim.log.levels.ERROR)
     return
   end
-  vim.schedule(function()
-    local line_count = vim.api.nvim_buf_line_count(bufnr)
-    vim.api.nvim_win_set_cursor(win, { line_count, 9999 })
-  end)
 end
 
 --- @param cmd string
@@ -280,17 +278,20 @@ M.scratch = function(cmd)
   if not is_string(cmd) then
     return
   end
-  local tbl = string_to_table(cmd)
-  if not is_executable(tbl) then
+  if not is_executable(string_to_table(cmd)) then
     return
   end
+  local tbl = {}
+  tbl[1] = 'bash'
+  tbl[2] = '-c'
+  tbl[3] = cmd
   scratch_buffer()
   local bufnr = vim.t.scratch_buf
   vim.notify('buffer ' .. bufnr .. ' ready')
   open_show_window(bufnr)
   local win = vim.t.show_win
   vim.notify('window ' .. win .. ' ready')
-
+  -- run the command asynchronously and capture output
   vim.system(
     tbl, { text = true }, function(obj)
       -- check for errors
