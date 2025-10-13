@@ -54,9 +54,8 @@ clean_nvim:
 	rm -rf $(CONFIG_HOME)/nvim
 	$(MAKE)
 
-ai:
-	# uv a python package manager
-	uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+list-configurables: ## list configurable files in container
+	ls /usr/local/bin/
 
 backup_enable: ## enable and start bu_projects systemd timer
 	echo '##[ $@ ]##'
