@@ -95,6 +95,16 @@ vim.api.nvim_create_user_command(
   })
 
 vim.api.nvim_create_user_command(
+  'MakeHelp',
+  function()
+    local show = require('show')
+    show.scratch('make help')
+  end
+  , {
+    desc = 'open terminal window and run make help target'
+  })
+
+vim.api.nvim_create_user_command(
   'GitStatus',
   function()
     local show = require('show')
