@@ -173,13 +173,41 @@ vim.api.nvim_create_user_command(
 )
 
 vim.api.nvim_create_user_command(
-  'GitPush',
+  'GitPushCommit',
   function()
     local show = require('show')
-    show.scratch('git push')
+    local git_root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
+    if not git_root or git_root == '' then
+      vim.notify('Not in a git repository', vim.log.levels.ERROR)
+      return
+    end
+    -- Build the command as a raw string to send directly to the shell
+    -- Don't use bash -c wrapper since interactive_term sends to an already-running shell
+    local cmd = "git push && sleep 10 && gh repo view"
+    vim.notify('Running command: ' .. cmd, vim.log.levels.INFO)
+    -- Ensure interactive terminal is open
+    show.interactive_term_open()
+
+    -- Get buffer and channel
+    local bufnr = vim.t.interactive_term_buf
+    local win = vim.t.show_win
+    local chan = vim.bo[bufnr].channel
+
+    if chan and chan > 0 then
+      -- Send the raw command string directly to the shell with newline
+      vim.schedule(function()
+        vim.fn.chansend(chan, cmd .. '\n')
+        vim.api.nvim_set_current_win(win)
+        vim.cmd.startinsert()
+      end)
+    else
+      vim.notify('Failed to get terminal channel', vim.log.levels.ERROR)
+    end
   end,
-  { desc = 'Use Copilot to generate a git commit message' }
+  { desc = 'push git commit message then ' }
 )
+
+
 
 --[[ Enhanced Interactive Terminal Commands
 These commands demonstrate the new features of interactive_term():
