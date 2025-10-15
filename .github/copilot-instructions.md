@@ -34,16 +34,23 @@ These are dotfiles for a Fedora Silverblue system that prioritizes:
 
 When working with this codebase, always follow these principles:
 
+Important principles to follow when working with this codebase:
+
 1. **Declarative Configuration**: Use config files over scripts; make scripts idempotent
 2. **Stow-Based Management**: All dotfiles via GNU Stow; Makefile orchestrates operations
 3. **Toolbox Isolation**: Dev tools in containers, not on host; minimal host modifications
 4. **Systemd-First**: Use systemd user units for automation; Makefile wraps systemctl
 5. **Neovim-Centric**: LSP configs support offline operation and reproducible setup
 6. **Makefile Targets**: Target are tasks that can be run with `make [target]`
+7. **No Direct Edits**: Edit files in `dot-*` directories, not in `~` directly
+8. **No Manual Symlinks**: Use Stow via Makefile; no symlinks in `dot-*` directories
+9. **Review**: After ask in copilot cli prompt, let me review review changes before committing to files
+10 **Command line**: when using copilot commandline `-p` flag with the changes can be applied directly to files
 
 - Neovim setup is in `dot-config/nvim/`
-  - Lua Modules are in `dot-config/nvim/lua/`. Use LuaCATS annotations for lua code modules @see https://luals.github.io/wiki/annotation
-  - Plugin configs are in `dot-config/nvim/plugin/` these load in sequential numbered order after `init.lua`
+  - Lua Modules are in `dot-config/nvim/lua/{name}.lua`. Use LuaCATS annotations for lua code modules @see https://luals.github.io/wiki/annotation
+  - Plugin configs are in `dot-config/nvim/plugin/{integer_name}.lua` these load in sequential numbered order after `init.lua`
+  - Busted specs are nlua files in `dot-config/nvim/tests/`
 - Systemd units are in `dot-config/systemd/user/`
 - Bash scripts are in `dot-local/bin/`
 

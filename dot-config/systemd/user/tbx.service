@@ -1,0 +1,12 @@
+[Unit]
+Description=Toolbox reset and Ptyxis configuration
+Documentation=man:toolbox(1)
+
+[Service]
+Type=oneshot
+ExecStart=/var/home/gmack/.local/bin/tbx_reset
+ExecStart=/var/home/gmack/.local/bin/pty_conf
+RemainAfterExit=no
+
+[Install]
+WantedBy=default.target

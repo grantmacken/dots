@@ -64,7 +64,7 @@ dconf write "${custom_keybindings}" "['$custom0','$custom1','$custom2', '$custom
 # ptyxis to open coding toolbox and open neovim
 CUSTOM_0_NAME='neovim'
 CUSTOM_0_BINDING='<Control><Alt>t'
-CUSTOM_0_COMMAND="ptyxis --working-directory=${WORKING_DIR} --tab-with-profile=${PROFILE_UUID} -- nvim"
+CUSTOM_0_COMMAND="ptyxis --working-directory=${DOTS_DIR} --tab-with-profile=${PROFILE_UUID} -- nvim"
 
 # Configure custom0 keybinding
 dconf write "${custom0}name" "'${CUSTOM_0_NAME}'"
@@ -83,16 +83,16 @@ dconf write "${custom1}command" "'${CUSTOM_1_COMMAND}'"
 # ptyxis to open coding toolbox and invoke copilot
 CUSTOM_2_NAME='copilot'
 CUSTOM_2_BINDING='<Control><Alt>c'
-CUSTOM_2_COMMAND="ptyxis --standalone --working-directory=${WORKING_DIR} --tab-with-profile=${PROFILE_UUID} -- copilot --banner --allow-all-tools "
+CUSTOM_2_COMMAND="ptyxis --standalone --working-directory=${DOTS_DIR} --tab-with-profile=${PROFILE_UUID} -- copilot --banner --allow-all-tools "
 
 dconf write "${custom2}name" "'${CUSTOM_2_NAME}'"
 dconf write "${custom2}binding" "'${CUSTOM_2_BINDING}'"
 dconf write "${custom2}command" "'${CUSTOM_2_COMMAND}'"
 
 # ptyxis to open coding toolbox and invoke neovim in project 1 [dots]
-CUSTOM_3_NAME='dots'
-CUSTOM_3_BINDING='<Control><Alt>d'
-CUSTOM_3_COMMAND="ptyxis --standalone --working-directory=${DOTS_DIR} --tab-with-profile=${PROFILE_UUID} -- nvim"
+CUSTOM_3_NAME='my_computer'
+CUSTOM_3_BINDING='<Control><Alt>m'
+CUSTOM_3_COMMAND="ptyxis --standalone --working-directory=${WORKING_DIR} --tab-with-profile=11e1f02151d1a4f6e435dbf668ed9c16"
 
 dconf write "${custom3}name" "'${CUSTOM_3_NAME}'"
 dconf write "${custom3}binding" "'${CUSTOM_3_BINDING}'"

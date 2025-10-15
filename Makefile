@@ -79,35 +79,31 @@ backup_status: ## check bu_projects timer and service status
 backup_test: ## manually run bu_projects backup service
 	echo '##[ $@ ]##'
 	systemctl --no-pager --user start bu_projects.service
-	systemctl --no-pager --user status bu_projects.service
+	systemctl --no-pager --user status bu_projects.service || true
 
-tbx_enable: ## enable and start tbx-reset systemd timer
+tbx_enable: ## enable and start tbx systemd timer
 	echo '##[ $@ ]##'
 	systemctl --no-pager --user daemon-reload
-	systemctl --no-pager --user enable --now tbx-reset.timer
-	systemctl --no-pager --user status tbx-reset.timer
-	echo '✅ tbx-reset timer enabled and started'
+	systemctl --no-pager --user enable --now tbx.timer
+	systemctl --no-pager --user status tbx.timer
+	echo '✅ tbx timer enabled and started'
 
-tbx_disable: ## disable and stop tbx-reset systemd timer
+tbx_disable: ## disable and stop tbx systemd timer
 	echo '##[ $@ ]##'
-	systemctl --no-pager --user disable --now tbx-reset.timer
-	echo '✅ tbx-reset timer disabled and stopped'
+	systemctl --no-pager --user disable --now tbx.timer
+	echo '✅ tbx timer disabled and stopped'
 
-tbx_status: ## check tbx-reset timer and services status
+tbx_status: ## check tbx timer and service status
 	echo '##[ $@ ]##'
-	systemctl --no-pager --user status tbx-reset.timer || true
-	systemctl --no-pager --user list-timers tbx-reset.timer
+	systemctl --no-pager --user status tbx.timer || true
+	systemctl --no-pager --user list-timers tbx.timer
 	echo ''
-	systemctl --no-pager --user status tbx-reset.service || true
-	echo ''
-	systemctl --no-pager --user status pty_conf.service || true
+	systemctl --no-pager --user status tbx.service || true
 
-tbx_test: ## manually run tbx-reset and pty_conf services
+tbx_test: ## manually run tbx service
 	echo '##[ $@ ]##'
-	systemctl --no-pager --user start pty_conf.service
-	systemctl --no-pager --user status tbx-reset.service
-	echo ''
-	systemctl --no-pager --user status pty_conf.service
+	systemctl --no-pager --user start tbx.service
+	systemctl --no-pager --user status tbx.service || true
 
 .PHONY: copilot
 copilot: ## Copilot for the project

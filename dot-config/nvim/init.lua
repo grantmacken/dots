@@ -17,7 +17,6 @@ for _, plugin in ipairs(plugins) do
 end
 
 vim.g.mapleader = vim.keycode("<space>") -- Set leader key to space
-
 local uv = vim.uv or vim.loop
 -- Get the XDG data directory for Neovim
 local data_dir = vim.fn.stdpath("data")
@@ -114,6 +113,8 @@ end, "[P]Spelling repeat")
 vim.keymap.set('t', '<Esc>', [[<C-\><C-n>]], { noremap = true, silent = true })
 
 keymap('<Leader>r', ':restart<CR>', '[r]estart nvim')
+-- In your Neovim config (Lua)
+keymap('gF', '<C-w>gf', 'Go to file in vertical split')
 -- keymap('<Leader>ll', function() vim.cmd.edit( vim.lsp.log.get_filename() ) end, '[L]sp [l]og')')
 keymap('<leader>q', '<cmd>lua vim.diagnostic.setqflist()<CR>', 'set [q]uickfix list')
 
@@ -140,3 +141,7 @@ au(
     keymap('q', '<cmd>close<cr>', 'close window')
   end, 'Close help and oil with q'
 )
+
+if vim.fn.has('termguicolors') == 1 then
+  vim.g.termguicolors = true -- This is actually a global option
+end
