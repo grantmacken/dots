@@ -183,7 +183,7 @@ vim.api.nvim_create_user_command(
     end
     -- Build the command as a raw string to send directly to the shell
     -- Don't use bash -c wrapper since interactive_term sends to an already-running shell
-    local cmd = "git push && sleep 10 && gh repo view"
+    local cmd = "git push"
     vim.notify('Running command: ' .. cmd, vim.log.levels.INFO)
     -- Ensure interactive terminal is open
     show.interactive_term_open()
@@ -205,6 +205,45 @@ vim.api.nvim_create_user_command(
     end
   end,
   { desc = 'push git commit message then ' }
+)
+
+-- Open Copilot CLI in interactive terminal
+vim.api.nvim_create_user_command(
+  'CopilotCLI',
+  function()
+    local show = require('show')
+    local git_root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
+    if not git_root or git_root == '' then
+      vim.notify('Not in a git repository', vim.log.levels.ERROR)
+      return
+    end
+
+    -- Build the copilot command with --add-dir pointing to git root
+    -- Check if there's an existing session by checking for copilot process in terminal
+    local bufnr = vim.t.interactive_term_buf
+    local has_session = false
+    
+    if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
+      local chan = vim.bo[bufnr].channel
+      if chan and chan > 0 then
+        -- Terminal is running, check if copilot is already running
+        -- We'll send the command which will either start copilot or continue the session
+        has_session = true
+      end
+    end
+    
+    if has_session then
+      -- Just focus the terminal, copilot session should still be active
+      vim.notify('Opening existing Copilot session', vim.log.levels.INFO)
+      show.interactive_term_open()
+    else
+      -- Start new copilot session with git root
+      local cmd = string.format("copilot --add-dir '%s'", git_root)
+      vim.notify('Starting Copilot CLI: ' .. cmd, vim.log.levels.INFO)
+      show.interactive_term_send_raw(cmd, { mode = 'focus' })
+    end
+  end,
+  { desc = 'Open Copilot CLI in interactive terminal (continues session if exists)' }
 )
 
 

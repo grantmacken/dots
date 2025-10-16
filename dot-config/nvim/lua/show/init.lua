@@ -443,7 +443,6 @@ M.noninteractive_term = function(cmd)
   end)
 end
 
-
 --[[
 --- Run a job via jobstart and show output in a terminal buffer
 --- see :h jobstart()
@@ -673,6 +672,48 @@ M.interactive_term_toggle = function()
 
   -- Otherwise open it
   M.interactive_term_open()
+end
+
+--- Send a raw command string directly to the interactive terminal
+--- Bypasses string_to_table splitting for commands with complex quoting
+--- @param cmd string The raw command to send
+--- @param opts? { mode?: 'focus'|'blur'|'back'|'insert' }
+--- @return nil
+M.interactive_term_send_raw = function(cmd, opts)
+  opts = opts or {}
+  local mode = opts.mode or 'focus'
+
+  if not is_string(cmd) then
+    return
+  end
+
+  -- Ensure interactive terminal is open
+  M.interactive_term_open()
+
+  -- Get buffer and channel
+  local bufnr = vim.t.interactive_term_buf
+  local win = vim.t.show_win
+  local chan = vim.bo[bufnr].channel
+
+  if chan and chan > 0 then
+    -- Send the raw command string directly to the shell with newline
+    vim.schedule(function()
+      vim.fn.chansend(chan, cmd .. '\n')
+      move_cursor_to_end(bufnr, win)
+
+      -- Handle different modes
+      if mode == 'focus' or mode == 'insert' then
+        vim.api.nvim_set_current_win(win)
+        vim.cmd.startinsert()
+      elseif mode == 'back' then
+        vim.cmd.wincmd('p')
+      elseif mode == 'blur' then
+        -- Do nothing - keep focus on current window
+      end
+    end)
+  else
+    vim.notify('Failed to get terminal channel', vim.log.levels.ERROR)
+  end
 end
 
 --- @param cmd string
