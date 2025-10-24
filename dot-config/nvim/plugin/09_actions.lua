@@ -175,34 +175,13 @@ vim.api.nvim_create_user_command(
 vim.api.nvim_create_user_command(
   'GitPushCommit',
   function()
-    local show = require('show')
     local git_root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
     if not git_root or git_root == '' then
       vim.notify('Not in a git repository', vim.log.levels.ERROR)
       return
     end
-    -- Build the command as a raw string to send directly to the shell
-    -- Don't use bash -c wrapper since interactive_term sends to an already-running shell
-    local cmd = "git push"
-    vim.notify('Running command: ' .. cmd, vim.log.levels.INFO)
-    -- Ensure interactive terminal is open
-    show.interactive_term_open()
-
-    -- Get buffer and channel
-    local bufnr = vim.t.interactive_term_buf
-    local win = vim.t.show_win
-    local chan = vim.bo[bufnr].channel
-
-    if chan and chan > 0 then
-      -- Send the raw command string directly to the shell with newline
-      vim.schedule(function()
-        vim.fn.chansend(chan, cmd .. '\n')
-        vim.api.nvim_set_current_win(win)
-        vim.cmd.startinsert()
-      end)
-    else
-      vim.notify('Failed to get terminal channel', vim.log.levels.ERROR)
-    end
+    local show = require('show')
+    show.interactive_term_send_raw('git push', { mode = 'blur' })
   end,
   { desc = 'push git commit message then ' }
 )
@@ -211,7 +190,6 @@ vim.api.nvim_create_user_command(
 vim.api.nvim_create_user_command(
   'CopilotCLI',
   function()
-    local show = require('show')
     local git_root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
     if not git_root or git_root == '' then
       vim.notify('Not in a git repository', vim.log.levels.ERROR)
@@ -231,6 +209,7 @@ vim.api.nvim_create_user_command(
       end
     end
 
+    local show = require('show')
     if has_session then
       -- Just focus the terminal, copilot session should still be active
       vim.notify('Opening existing Copilot session', vim.log.levels.INFO)
@@ -274,11 +253,19 @@ vim.api.nvim_create_user_command(
 
 -- General command runner with user input
 vim.api.nvim_create_user_command(
-  'TermRun',
+  'TermRunFocus',
   function(opts)
     require('show').interactive_term(opts.args, { mode = 'focus' })
   end,
   { desc = 'Run command in interactive terminal (focus mode)', nargs = 1 }
+)
+
+vim.api.nvim_create_user_command(
+  'TermRunBlur',
+  function(opts)
+    require('show').interactive_term(opts.args, { mode = 'blur' })
+  end,
+  { desc = 'Run command in interactive terminal (blur mode)', nargs = 1 }
 )
 
 -- Make commands using interactive terminal

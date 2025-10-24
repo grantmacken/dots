@@ -1,6 +1,9 @@
 # GitHub Copilot CLI Instructions for Dotfiles Project
 
-This project contains personal dotfiles managed through a structured workflow combining Stow-based deployment, systemd automation, and toolbox isolation for Fedora Silverblue.
+This project contains personal dotfiles managed through a structured workflow combining 
+ - Stow-based deployment, 
+ - systemd automation, and 
+ - toolbox isolation for Fedora Silverblue.
 
 ## Project Overview
 
@@ -17,6 +20,7 @@ These are dotfiles for a Fedora Silverblue system that prioritizes:
 2. **Makefile** - Primary orchestration layer for all operations
 3. **Git** - Version control and branch-based feature development
 4. **Bash Shell scripts** - Idempotent setup and configuration tasks
+5. **NLua Scripts** - Neovim configuration and plugin management
 5. **dconf** - GNOME settings management
 6. **systemd** - User units (quadlets, services, timers) for automation
 7. **Toolbox/Podman** - Containerized development environment
@@ -45,7 +49,7 @@ Important principles to follow when working with this codebase:
 7. **No Direct Edits**: Edit files in `dot-*` directories, not in `~` directly
 8. **No Manual Symlinks**: Use Stow via Makefile; no symlinks in `dot-*` directories
 9. **Review**: After ask in copilot cli prompt, let me review review changes before committing to files
-10 **Command line**: when using copilot commandline `-p` flag with the changes can be applied directly to files
+10. **Command line**: when using copilot commandline `-p` flag with the changes can be applied directly to files
 
 - Neovim setup is in `dot-config/nvim/`
   - Lua Modules are in `dot-config/nvim/lua/{name}.lua`. Use LuaCATS annotations for lua code modules @see https://luals.github.io/wiki/annotation
