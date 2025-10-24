@@ -63,3 +63,10 @@ if [ -z "$PROMPT_COMMAND" ]; then
 else
   PROMPT_COMMAND="${PROMPT_COMMAND};set_terminal_title"
 fi
+
+# Set simple prompt: toolbox icon if in container, otherwise >
+if [ -f /run/.toolboxenv ]; then
+  PS1='🧰 '
+else
+  PS1='> '
+fi

@@ -217,12 +217,11 @@ vim.api.nvim_create_user_command(
       vim.notify('Not in a git repository', vim.log.levels.ERROR)
       return
     end
-
     -- Build the copilot command with --add-dir pointing to git root
     -- Check if there's an existing session by checking for copilot process in terminal
     local bufnr = vim.t.interactive_term_buf
     local has_session = false
-    
+
     if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
       local chan = vim.bo[bufnr].channel
       if chan and chan > 0 then
@@ -231,7 +230,7 @@ vim.api.nvim_create_user_command(
         has_session = true
       end
     end
-    
+
     if has_session then
       -- Just focus the terminal, copilot session should still be active
       vim.notify('Opening existing Copilot session', vim.log.levels.INFO)
@@ -421,6 +420,18 @@ vim.api.nvim_create_user_command(
     require('show').interactive_term(opts.args, { mode = 'blur' })
   end,
   { desc = 'Run command in background without losing focus', nargs = 1 }
+)
+
+-- GitHub workflow watch command
+vim.api.nvim_create_user_command(
+  'GitHubWatchWorkflow',
+  function()
+    local show = require('show')
+    -- Add sleep delay before gh command to allow workflow to be created after force push
+    -- The command uses bash -c to chain sleep and gh watch together
+    show.job_term('bash -c "sleep 5 && gh run watch"')
+  end,
+  { desc = 'Watch GitHub workflow action with 5 second delay (useful after force push)' }
 )
 
 -- local keymap = require('util').keymap

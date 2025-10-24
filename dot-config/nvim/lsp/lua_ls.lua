@@ -1,6 +1,6 @@
 local metaPath = vim.fn.stdpath('config') .. '/meta'
 local logPath = vim.fn.stdpath('cache') .. '/lua_lang_serv.log'
-local tbl_cmd = {  'lua-language-server', '--logpath', logPath, '--metapath', metaPath }
+local tbl_cmd = { 'lua-language-server', '--logpath', logPath, '--metapath', metaPath }
 
 local tbl_settings = {
   Lua = {
@@ -20,8 +20,6 @@ local tbl_settings = {
       checkThirdParty = false,
       library = { vim.env.VIMRUNTIME },
       ignoreSubmodules = true,
-      -- or pull in all of 'runtimepath'. NOTE: this is a lot slower
-      -- library = vim.api.nvim_get_runtime_file("", true)
     },
     telemetry = {
       enable = false,
