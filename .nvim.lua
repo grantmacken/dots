@@ -1,0 +1,13 @@
+--[[
+In my universe, git contolled projects
+- have their own nvim configuration
+- each project is opened in its own tabpage
+- each project tabpage can define its its own tabpage window layout
+- each project tabpage has its own terminal buffer for running project related commands
+- each project tabpage can define its own set of plugins and plugin settings
+- each project tabpage can define its own keymaps and commands
+- each project tabpage can define its own autocommands
+- each project tabpage can define its own fileviews for the project files
+- each project tabpage can define its own makeprg and errformat for building the project
+- each project tabpage can define its own arglist for the project files
+--]]

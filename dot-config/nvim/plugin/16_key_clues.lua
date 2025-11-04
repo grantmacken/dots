@@ -29,6 +29,7 @@ if ok_clues then
 
   local leader_group_clues = {
     --{ mode = 'n', keys = '<Leader>d', desc = '+Diagnostic' },
+    { mode = 'n', keys = '<Leader>n', desc = '+[n]avigation' },
     { mode = 'n', keys = '<Leader>J', desc = '+Split[j]oin' },
     { mode = 'n', keys = '<Leader>S', desc = '+Session' },
     { mode = 'n', keys = '<Leader>b', desc = '+buffer' },

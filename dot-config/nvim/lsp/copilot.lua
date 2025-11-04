@@ -17,19 +17,16 @@ local tbl_init_options = {
 }
 
 local tbl_filetypes = {
+  'desktop',
+  'bash',
+  'sh',
   'css',
-  'elixir',
-  'erlang',
   'gleam',
-  'go',
   'html',
-  'javascript',
   'json',
   'lua',
   'make',
   'markdown',
-  'rust',
-  'typescript',
   'yaml',
 }
 

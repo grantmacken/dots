@@ -1,7 +1,80 @@
 {
   "plugins": {
+    "everforest-nvim": {
+      "rev": "d293618",
+      "src": "https://github.com/neanias/everforest-nvim"
+    },
+    "flash.nvim": {
+      "rev": "3be9bf7",
+      "src": "https://github.com/folke/flash.nvim"
+    },
+    "fzf-lua": {
+      "rev": "3ec1ffb",
+      "src": "https://github.com/ibhagwan/fzf-lua"
+    },
+    "gitsigns.nvim": {
+      "rev": "20ad441",
+      "src": "https://github.com/lewis6991/gitsigns.nvim"
+    },
+    "grug-far.nvim": {
+      "rev": "3e72397",
+      "src": "https://github.com/MagicDuck/grug-far.nvim"
+    },
+    "kanagawa.nvim": {
+      "rev": "aef7f5c",
+      "src": "https://github.com/rebelot/kanagawa.nvim"
+    },
+    "kulala.nvim": {
+      "rev": "183bf44",
+      "src": "https://github.com/mistweaverco/kulala.nvim"
+    },
+    "lsp_signature.nvim": {
+      "rev": "62cadce",
+      "src": "https://github.com/ray-x/lsp_signature.nvim"
+    },
+    "mini.nvim": {
+      "rev": "d1a9158",
+      "src": "https://github.com/nvim-mini/mini.nvim"
+    },
     "nvim-treesitter": {
-      "version": "'main'"
+      "rev": "4a9f5797",
+      "src": "https://github.com/nvim-treesitter/nvim-treesitter"
+    },
+    "oil.nvim": {
+      "rev": "7e1cd77",
+      "src": "https://github.com/stevearc/oil.nvim"
+    },
+    "plenary.nvim": {
+      "rev": "b9fd522",
+      "src": "https://github.com/nvim-lua/plenary.nvim"
+    },
+    "rainbow-delimiters.nvim": {
+      "rev": "3277ad5",
+      "src": "https://github.com/hiphish/rainbow-delimiters.nvim"
+    },
+    "render-markdown.nvim": {
+      "rev": "bfd67f1",
+      "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
+    },
+    "resession.nvim": {
+      "rev": "84c81e5",
+      "src": "https://github.com/stevearc/resession.nvim"
+    },
+    "tiny-code-action.nvim": {
+      "rev": "0c24efc",
+      "src": "https://github.com/rachartier/tiny-code-action.nvim"
+    },
+    "vague.nvim": {
+      "rev": "5689afd",
+      "src": "https://github.com/vague2k/vague.nvim"
+    },
+    "vim-suda": {
+      "rev": "9adda7d",
+      "src": "https://github.com/lambdalisue/vim-suda"
+    },
+    "yanky.nvim": {
+      "rev": "04775cc",
+      "src": "https://github.com/gbprod/yanky.nvim"
     }
   }
 }

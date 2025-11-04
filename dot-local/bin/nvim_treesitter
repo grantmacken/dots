@@ -1,8 +1,4 @@
-#!/usr/bin/env -S nvim -l
--- set XDG_DATA_HOME for vim.pack
--- vim.uv.os_setenv("XDG_DATA_HOME", "/usr/share")
--- unset at scripts end
-
+#!/usr/bin/env -S nlua
 local treesitters = {
 'awk',
 'bash',
@@ -49,8 +45,6 @@ vim.pack.add({
 local ok_ts, ts = pcall(require, 'nvim-treesitter')
 if ok_ts then
 ts.install(treesitters):wait(300000)
-end
-
---vim.uv.os_unsetenv("XDG_DATA_HOME")
+end 
 
 

@@ -1,0 +1,7 @@
+# tests/tab_term_spec.lua @ 13: tab_term module version should have a version string
+ok 1 - tab_term module version should have a version string
+# tests/tab_term_spec.lua @ 18: tab_term module version should match semantic versioning format
+ok 2 - tab_term module version should match semantic versioning format
+# tests/tab_term_spec.lua @ 22: tab_term module version should be version 0.1.0
+ok 3 - tab_term module version should be version 0.1.0
+1..3

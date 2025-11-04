@@ -93,12 +93,12 @@ end
 -- end
 
 -- Suppress "Request was superseded by a new request" messages from LSP
-vim.lsp.handlers['window/showMessage'] = function(err, method, params, client_id)
-  if params.message:find("Request was superseded by a new request") then
-    return
-  end
-  vim.lsp.handlers['window/showMessage'](err, method, params, client_id)
-end
+-- vim.lsp.handlers['window/showMessage'] = function(err, method, params, client_id)
+--   if params.message:find("Request was superseded by a new request") then
+--     return
+--   end
+--   vim.lsp.handlers['window/showMessage'](err, method, params, client_id)
+-- end
 
 -- Enable inline completion if supported by the LSP server
 local support_inline_completion = function(client, bufnr)

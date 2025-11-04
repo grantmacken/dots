@@ -1,29 +1,50 @@
+local ok_fzf, fzf = pcall(require, 'fzf-lua')
+if ok_fzf then
+  fzf.setup({
+    winopts = {
+      split = "belowright new",
+      preview = {
+        default = 'bat',
+        layout = 'flex',
+        horizontal = 'right:60%',
+      },
+    },
+    keymap = {
+      fzf = {
+        ['ctrl-d'] = 'half-page-down',
+        ['ctrl-u'] = 'half-page-up',
+      },
+    },
+  })
+end
+
+
 -- vim.opt.showmode = false
 --
 -----@type rainbow_delimiters.config
--- vim.g.rainbow_delimiters = {
---   strategy = {
---     [''] = 'rainbow-delimiters.strategy.global',
---     vim = 'rainbow-delimiters.strategy.local',
---   },
---   query = {
---     [''] = 'rainbow-delimiters',
---     lua = 'rainbow-blocks',
---   },
---   priority = {
---     [''] = 110,
---     lua = 210,
---   },
---   highlight = {
---     'RainbowDelimiterRed',
---     'RainbowDelimiterYellow',
---     'RainbowDelimiterBlue',
---     'RainbowDelimiterOrange',
---     'RainbowDelimiterGreen',
---     'RainbowDelimiterViolet',
---     'RainbowDelimiterCyan',
---   },
--- }
+vim.g.rainbow_delimiters = {
+  strategy = {
+    [''] = 'rainbow-delimiters.strategy.global',
+    vim = 'rainbow-delimiters.strategy.local',
+  },
+  query = {
+    [''] = 'rainbow-delimiters',
+    lua = 'rainbow-blocks',
+  },
+  priority = {
+    [''] = 110,
+    lua = 210,
+  },
+  highlight = {
+    'RainbowDelimiterRed',
+    'RainbowDelimiterYellow',
+    'RainbowDelimiterBlue',
+    'RainbowDelimiterOrange',
+    'RainbowDelimiterGreen',
+    'RainbowDelimiterViolet',
+    'RainbowDelimiterCyan',
+  },
+}
 --
 --[[ markdown
 with tabline use tabby plugin
@@ -46,13 +67,13 @@ Enhanced tabline configuration:
 -- '  -- "\u{E0A0}"
 
 -- Tab navigation keybinds (1-9)
-local keymap = require('util').keymap
-for i = 1, 9 do
-  keymap(
-    '<leader>' .. i,
-    function() vim.cmd('tabn ' .. i) end,
-    'Go to tab ' .. i)
-end
+-- local keymap = require('util').keymap
+-- for i = 1, 9 do
+--   keymap(
+--     '<leader>' .. i,
+--     function() vim.cmd('tabn ' .. i) end,
+--     'Go to tab ' .. i)
+-- end
 
 -- Additional tab navigation
 -- vim.keymap.set('n', '<leader>0', '<cmd>tablast<cr>', { desc = 'Go to last tab', silent = true })
@@ -61,6 +82,8 @@ end
 -- vim.keymap.set('n', '<leader>tn', '<cmd>tabnext<cr>', { desc = 'Next tab', silent = true })
 -- vim.keymap.set('n', '<leader>tp', '<cmd>tabprevious<cr>', { desc = 'Previous tab', silent = true })
 
+
+-- TODO remove this later if not needed
 local ok_tabby, tabby = pcall(require, 'tabby')
 if ok_tabby then
   vim.o.showtabline = 2

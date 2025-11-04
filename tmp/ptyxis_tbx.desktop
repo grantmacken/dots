@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Icon=ptyxis
+Name=PtyxisToolbox
+Comment=Start Ptyxix fullscreen in the Toolbox mode
+Exec=ptyxis_autostart
+X-GNOME-Autostart-enabled=true

@@ -5,9 +5,9 @@ return {
     lua = "nlua",
   },
   default = {
-    verbose = true
+    ROOT = { 'tests' },
+    verbose = true,
+    output = 'TAP'
   },
-  tests = {
-    verbose = true
-  },
+
 }

@@ -26,33 +26,41 @@ default: ## install dotfiles (runs init, stow)
 	stow --verbose --dotfiles --target ~/ .
 	echo '✅ completed task'
 
-help: ## show available make targets
-	cat $(MAKEFILE_LIST) |
-	grep -oP '^[a-zA-Z_-]+:.*?## .*$$' |
-	sort |
-	awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-10s\033[0m %s\n", $$1, $$2}'
+# help: ## show available make targets
+# 	cat $(MAKEFILE_LIST) |
+# 	grep -oP '^[a-zA-Z_-]+:.*?## .*$$' |
+# 	sort |
+# 	awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-10s\033[0m %s\n", $$1, $$2}'
 
-delete: ## delete stow dotfiles
-	echo '##[ $@ ]##'
-	stow --verbose --dotfiles --delete --target ~/ .
-	echo '✅ completed task'
+# delete: ## delete stow dotfiles
+# 	echo '##[ $@ ]##'
+# 	stow --verbose --dotfiles --delete --target ~/ .
+# 	echo '✅ completed task'
 
 init:
 	echo '##[ $@ ]##'
 	mkdir -p $(BIN_HOME)
 	mkdir -p $(CACHE_HOME)/nvim
 	mkdir -p $(STATE_HOME)/nvim
-	mkdir -p -v $(DATA_HOME)/nvim/lists
 	mkdir -p -v $(DATA_HOME)/nvim/luals/{logs,meta}
-	mkdir -p files latest dot-local/bin  dot-config dot-bashrc.d
+	mkdir -p files latest dot-local/bin dot-config dot-bashrc.d
 	chmod +x dot-local/bin/* &>/dev/null || true
 
-clean_nvim:
+reset_nvim:
+	echo '##[ $@ ]##'
+	echo '- removing stuff not under stow control...'
 	rm -rf $(CACHE_HOME)/nvim
 	rm -rf $(STATE_HOME)/nvim
 	rm -rf $(DATA_HOME)/nvim
-	rm -rf $(CONFIG_HOME)/nvim
+	echo '- removing everything stow control...'
+	stow --verbose --dotfiles --delete --target ~/ .
+	echo 'bring everything back...'
 	$(MAKE)
+	##  use nlua script to install plugins
+	nvim_plugins
+	##  use nlua script to install treesitter parsers and queries
+	nvim_treesitter
+	echo '✅ completed task'
 
 list-configurables: ## list configurable files in container
 	ls /usr/local/bin/
@@ -105,25 +113,11 @@ tbx_test: ## manually run tbx service
 	systemctl --no-pager --user start tbx.service
 	systemctl --no-pager --user status tbx.service || true
 
-.PHONY: copilot
-copilot: ## Copilot for the project
-	# copilot --help
-	## copilot --banner --allow-all-tools --add-dir $(CURDIR)
+test: ## run neovim busted tests with nlua
+	# echo '##[ $@ ]##'
+	pushd dot-config/nvim &>/dev/null
+	busted | faucet && echo
+	popd &>/dev/null
+	echo '✅ busted tests completed'
 
-.PHONY: task
-task: ## copilot task for the project
-	# Execute a prompt directly
-	# copilot -p 'vim plugin resession errors with latest nvim. disable ' --allow-all-tools
-	copilot -p 'add commit message for last copilot task' --allow-all-tools
-	## copilot task --add-dir $(CURDIR)
 
-.PHONY: commit
-commit: ## as copilot to add commit message
-	copilot -p 'add commit message since last commit' --allow-all-tools --add-dir $(CURDIR)
-	# ask if want to push the commit
-	read -p "Do you want to push the commit? (y/n): "
-	if [[ $$REPLY =~ ^[Yy]$$ ]]
-	then git push
-	else echo "Commit not pushed." 
-	fi
-	## copilot task --add-dir $(CURDIR)

@@ -10,7 +10,7 @@ local tbl_settings = {
     },
     diagnostics = {
       -- Get the language server to recognize the `vim` global, etc.
-      globals = { 'vim' },
+      globals = { 'vim', 'describe', 'it', 'before_each', 'after_each', 'setup', 'teardown', 'pending', 'assert', 'spy', 'stub', 'mock' },
       disable = { 'duplicate-set-field', 'need-check-nil' },
       -- Don't make workspace diagnostic, as it consumes too much CPU and RAM
       workspaceDelay = -1,

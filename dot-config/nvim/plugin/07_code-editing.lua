@@ -25,25 +25,25 @@ splitjoin.setup({
   },
 })
 
-local ok_yanky, yanky = pcall(require, 'yanky')
-if ok_yanky then
-  yanky.setup({
-    ring = {
-      history_length = 20,
-    },
-    highlight = {
-      timer = 250,
-    },
-  })
+-- local ok_yanky, yanky = pcall(require, 'yanky')
+-- if ok_yanky then
+--   yanky.setup({
+--     ring = {
+--       history_length = 20,
+--     },
+--     highlight = {
+--       timer = 250,
+--     },
+--   })
 
-  -- Keymaps for yanky.nvim
-  keymap('y', '<Plug>(YankyYank)', 'Yank', { 'x', 'n' })
-  keymap('p', '<Plug>(YankyPutAfter)', 'Put yanked text after cursor')
-  keymap('P', '<Plug>(YankyPutBefore)', 'Put yanked text before cursor')
-  keymap('=p', '<Plug>(YankyPutAfterLinewise)', 'Put yanked text in line below')
-  keymap('=P', '<Plug>(YankyPutBeforeLinewise)', 'Put yanked text in line above')
-  -- yankring
-  keymap('[y', '<Plug>(YankyCycleForward)', 'Cycle forward through yank history')
-  keymap(']y', '<Plug>(YankyCycleForward)', 'Cycle forward through yank history')
-  --
-end
+-- Keymaps for yanky.nvim
+-- keymap('y', '<Plug>(YankyYank)', 'Yank', { 'x', 'n' })
+-- keymap('p', '<Plug>(YankyPutAfter)', 'Put yanked text after cursor')
+-- keymap('P', '<Plug>(YankyPutBefore)', 'Put yanked text before cursor')
+-- keymap('=p', '<Plug>(YankyPutAfterLinewise)', 'Put yanked text in line below')
+-- keymap('=P', '<Plug>(YankyPutBeforeLinewise)', 'Put yanked text in line above')
+-- -- yankring
+-- keymap('[y', '<Plug>(YankyCycleForward)', 'Cycle forward through yank history')
+-- keymap(']y', '<Plug>(YankyCycleForward)', 'Cycle forward through yank history')
+--
+-- end

@@ -1,6 +1,5 @@
 {
     "diagnostics.globals": [
-        "vim",
-        "ffff"
+        'vim', 'describe', 'it', 'before_each', 'after_each', 'setup', 'teardown', 'pending', 'assert', 'spy', 'stub', 'mock'
     ]
 }
