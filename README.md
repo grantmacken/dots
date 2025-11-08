@@ -18,7 +18,6 @@ Note: These are already installed on Fedora
 
 The terminal CLI tools I use are run from a toolbox. 
 
-
 My dot files are managed by stow. I invoke stow with my Makefile default target so
 `make` will symlink the dot files using **Stow**
 

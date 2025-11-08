@@ -64,6 +64,10 @@
       "rev": "0c24efc",
       "src": "https://github.com/rachartier/tiny-code-action.nvim"
     },
+    "tiny-inline-diagnostic.nvim": {
+      "rev": "523c4f4",
+      "src": "https://github.com/rachartier/tiny-inline-diagnostic.nvim"
+    },
     "vague.nvim": {
       "rev": "5689afd",
       "src": "https://github.com/vague2k/vague.nvim"

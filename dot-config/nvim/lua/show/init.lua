@@ -32,6 +32,19 @@ layout of the windows:
  - Move cursor to end of buffer
  ]] ---
 M = {}
+M.version = "0.1.0"
+
+--- Check if show window exists in current tab
+-- --- @return boolean
+M.has_winID = function()
+  local tabID     = vim.api.nvim_get_current_tabpage()
+  local ok, winID = pcall(vim.api.nvim_tabpage_get_var, tabID, 'winID')
+  if not ok then
+    return false
+  else
+    return true
+  end
+end
 
 -- check if window is open and valid
 --- @param winID number|nil
@@ -51,6 +64,21 @@ local is_focused = function(winID)
   return is_open(winID) and vim.api.nvim_get_current_win() == winID
 end
 
+-- param list ['buf_shell' | 'buf_tasks']
+---@return integer bufnr existing or created scratch buffer or zero on failure
+---@param name string  a valid vim.t.{} variable name to store the buffer handle
+M.buffer = function(name)
+  local tabID     = vim.api.nvim_get_current_tabpage()
+  local ok, bufnr = pcall(vim.api.nvim_tabpage_get_var, tabID, name)
+  if ok then
+    return bufnr
+  else
+    local oScratch = true  -- scratch buffer (not saved to disk)
+    local oListed  = false -- not listed in buffer list
+    vim.t[name]    = vim.api.nvim_create_buf(oListed, oScratch)
+    return vim.t[name]
+  end
+end
 
 --- Open or reuse a window to show the buffer
 --- There is a single show window per project stored in vim.t.project['show_win']

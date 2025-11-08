@@ -2,7 +2,12 @@ local ok_fzf, fzf = pcall(require, 'fzf-lua')
 if ok_fzf then
   fzf.setup({
     winopts = {
-      split = "belowright new",
+      split = function()
+        local show = require('show')
+        local bufnr = vim.api.nvim_create_buf(false, true)
+        local winID = show.window(bufnr)
+        return winID
+      end,
       preview = {
         default = 'bat',
         layout = 'flex',

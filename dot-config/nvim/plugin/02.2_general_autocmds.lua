@@ -23,14 +23,20 @@ au(
     keymap('q', '<cmd>close<cr>', 'close window')
   end, 'Close help and oil with q'
 )
--- Create an autocommand to run the function on editor start
-vim.api.nvim_create_autocmd("VimEnter", {
-  callback = function()
-    local projects = require('projects')
-    projects.select()
+
+
+--- auto-load some standard plugins that are not loaded by default
+--- @see https://neovim.io/doc/user/plugins.html#standard-plugin-list
+--- @see /usr/local/share/nvim/runtime/pack/dist/opt/
+---
+au("VimEnter", "*", function()
+    local builtins = { 'cfilter', 'difftool', 'nohlsearch', 'nvim.undotree' }
+    for _, plugin in ipairs(builtins) do
+      vim.cmd.packadd(plugin)
+    end
   end,
-  once = true, -- Only run this once when Neovim starts
-})
+  'load standard plugins'
+)
 
 
 -- Restart lua_ls LSP server

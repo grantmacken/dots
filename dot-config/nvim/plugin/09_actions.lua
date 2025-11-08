@@ -1,5 +1,6 @@
 --- @see dot-config/nvim/plugin/09_actions.lua for commands that use the show module
---- @see dot-config/nvim/lua/show/init.lua     for the show module
+--- @see dot-config/nvim/lua/show/init.lua     the show module implementation
+--- @see dot-config/nvim/lua/term/init.lua     the term module implementation
 ---
 --[[ markdown block
 
@@ -8,13 +9,9 @@ These commands are defined here to keep the configuration modular and organized.
 
 Action defined here are to do with the `build |> test |> review` cycle of a project
 
-The results of an actions can be of 4 types:
- 1. display in **interactive** terminal window
- 2. display in **non-interactive** terminal window TODO explain
- 3. display in scratch buffer TODO explain
- 4. display in **quickfix** window TODO explain
-
-
+The results of an actions can be these types:
+ 1. shell: display in terminal window with the shell running as a job with an channel open, ready to recieve shell commands.
+ 2. tasks: display in terminal window with a tasks channel open, ready to recieve data to display.
 
 ## Out of scope
  - LSP diagnostics - these are handled by the LSP client
@@ -24,44 +21,102 @@ The results of an actions can be of 4 types:
 
 ]] --
 
---[[ markdown block
-# requirements checklist
- - [ ] open terminal should open in the project root directory
- - [ ] toggle terminal - one and only one terminal per tab. i.e. a terminal id handle from the a project tab
- - [ ] open and close terminal for tab. This should hide/open an existing terminal session
- - [ ] terminal always opens in bottom right split window occupying the full window width.
- ]] --
 
 vim.api.nvim_create_user_command(
-  'ActionTermExample',
+  'ActionShellSendCommandExample',
   function()
-    local term   = require('term')
-    local bufnr  = term.buffer()
-    local winID  = require('show').window(bufnr)
-    local chanID = term.chan()
-    term.send('echo "An example action that shows output in a Terminal" \n')
+    require('term').send_cmd('echo "An example action that shows output in a Terminal"')
   end,
   { desc = 'An example action that shows output in a Terminal' }
 )
 
 vim.api.nvim_create_user_command(
-  'GitCommit',
+  'TermClear',
   function()
-    local git_root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
-    if not git_root or git_root == '' then
-      vim.notify('Not in a git repository', vim.log.levels.ERROR)
-      return
-    end
-    local term   = require('term')
-    local bufnr  = term.buffer()
-    local winID  = require('show').window(bufnr)
-    local chanID = term.chan()
-    local cmd    = string.format("copilot -p 'add commit message since last commit' --allow-all-tools --add-dir %s \n'",
-      git_root)
-    term.send(cmd)
+    require('term').send_cmd('clear')
   end,
-  { desc = 'Use Copilot to generate a git commit message' }
+  { desc = 'clear terminal' }
 )
+
+
+vim.api.nvim_create_user_command(
+  'GitStatus',
+  function()
+    require('term').send_cmd('git status --short --branch')
+  end,
+  { desc = 'git status ' }
+)
+-- Use Copilot to generate a git commit message
+vim.api.nvim_create_user_command(
+  'GitCommitMessage',
+  function()
+    require('term').send_cmd("copilot -p 'add commit message since last commit' --allow-all-tools")
+  end,
+  { desc = 'git status ' }
+)
+
+
+vim.api.nvim_create_user_command(
+  'ActionTaskSendDataExample',
+  function()
+    local show = require('show')
+    show.window(show.buffer('buf_tasks'))
+    local term      = require('term')
+    local set       = term.tput_set
+    -- ansi escape codes examples
+    local bold      = set('bold')
+    --local dim       = set('dim')
+    local reverse   = set('rev')
+    local underline = set('smul')
+    local reset     = set('sgr0')
+    -- open the channel for tasks terminal
+    term.chan_tasks()
+    term.send_task_data(bold .. 'Bold Data' .. reset .. ' output in a Terminal')
+    -- term.send_task_data('data output' .. dim .. 'dimmed' .. reset .. 'in a Terminal')
+    -- examples of sending ansi escape codes
+    -- red text
+    -- term.send_task_data('\27[31mThis is red text\27[0m')
+    term.send_task_data(set('warn') .. 'This is red text' .. set('reset'))
+    -- green text
+    term.send_task_data('\27[32mThis is green text\27[0m')
+    -- echo "$(tput bold)This text is bold$(tput sgr0)"
+
+    local out = 'This text is ' .. bold .. 'bold ' .. reset .. 'then resets to normal'
+    term.send_task_data(out) -- send only stdout
+    -- ansync command with error output
+    vim.system({ 'ls', '/nonexistent' }, { text = true }, function(result)
+      vim.schedule(function()
+        if result.stderr then
+          require('term').send_task_data('Error: ' .. result.stderr)
+        elseif result.stdout then
+          require('term').send_task_data('ls output: ' .. result.stdout)
+        end
+      end)
+    end)
+  end,
+  { desc = 'An example action data output to terminal' }
+)
+
+
+-- -- Use Copilot to generate a git commit message
+-- vim.api.nvim_create_user_command(
+--   'GitCommit',
+--   function()
+--     local git_root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
+--     if not git_root or git_root == '' then
+--       vim.notify('Not in a git repository', vim.log.levels.ERROR)
+--       return
+--     end
+--     local show = require('show')
+--     show.window(show.buffer('buf_shell'))
+--     local term = require('term')
+--     local chan = term.chan_shell()
+--     local cmd = string.format(
+--       "copilot -p 'add commit message since last commit' --allow-all-tools --add-dir %s'", git_root)
+--     term.send_shell_cmd(cmd)
+--   end,
+--   { desc = 'Use Copilot to generate a git commit message' }
+-- )
 
 --
 -- vim.api.nvim_create_user_command('TermOpen', require('term').open, {

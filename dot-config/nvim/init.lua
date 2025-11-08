@@ -15,6 +15,8 @@ local plugins = { 'gzip', 'netrwPlugin', 'rplugin', 'tarPlugin', 'tohtml', 'tuto
 for _, plugin in ipairs(plugins) do
   vim.g["loaded_" .. plugin] = 1
 end
+
+-- Load opt plugins automatically
 local uv = vim.uv or vim.loop
 -- Get the XDG data directory for Neovim
 local data_dir = vim.fn.stdpath("data")
@@ -32,6 +34,7 @@ for _, opt_dir in ipairs(vim.fn.glob(pack_glob, true, true)) do
     end
   end
 end
+
 
 -- Globals -- Set leader key
 vim.g.mapleader = vim.keycode("<space>")      -- Set leader key to space

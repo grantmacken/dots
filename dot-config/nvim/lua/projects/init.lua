@@ -75,7 +75,8 @@ M.select = function()
       '--height=40%',
       '--layout=reverse',
       '--border',
-      '--preview-window=hidden'
+      '--preview-window=hidden',
+      '--query=dots'
     }
   })
 end
