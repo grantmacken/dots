@@ -1,17 +1,24 @@
-local M = {
-  VERSION = '0.1.0',
-}
----@module util
---[[
-  This module provides utility functions for key mappings and other common tasks in Neovim.
-  It includes functions for setting keymaps and buffer-specific keymaps with descriptions.
-]]
+local M = {}
+M.version = '0.1.0'
+--[[ markdown
+This module provides utility functions for key mappings and other common tasks in Neovim.
+It includes functions for
+ - setting keymaps and buffer-specific keymaps with descriptions.
+ - creating autocommand groups and autocommands.
+ - splitting strings into words while being UTF-8 aware.
+]] --
+
+--autocommands
+M.augroup = function(name) vim.api.nvim_create_augroup(name, {}) end
+M.au = function(event, pattern, callback, desc)
+  vim.api.nvim_create_autocmd(event, { group = group, pattern = pattern, callback = callback, desc = desc })
+end
 
 ---@param lhs string
 ---@param rhs string|function
 ---@param desc string
 ---@param mode? string|string[]
-local keymap = function(lhs, rhs, desc, mode)
+M.keymap = function(lhs, rhs, desc, mode)
   mode = mode or 'n'
   local opt = { desc = desc }
   vim.keymap.set(mode, lhs, rhs, opt)
@@ -21,7 +28,7 @@ end
 ---@param desc string
 ---@param bufnr? number
 ---@param mode? string|string[]
-keymap_buf = function(lhs, rhs, desc, bufnr, mode)
+M.keymap_buf = function(lhs, rhs, desc, bufnr, mode)
   bufnr = bufnr or 0
   mode = mode or 'n'
   local opt = { buffer = 0, desc = desc }
@@ -33,19 +40,18 @@ end
 ---@param desc string
 ---@param bufnr? number
 ---@param mode? string|string[]
-keymap_dynamic = function(lhs, rhs, desc, bufnr, mode)
+M.keymap_dynamic = function(lhs, rhs, desc, bufnr, mode)
   bufnr = bufnr or 0
   mode = mode or 'n'
   local opt = { buffer = bufnr, desc = desc, expr = true, replace_keycodes = true }
   vim.keymap.set(mode, lhs, rhs, opt)
 end
 
-
 --- UTF-8 aware word splitting. See |keyword|
 ---@see https://github.com/folke/sidekick.nvim/blob/main/lua/sidekick/util.lua
 ---@param str string
 ---@return string[] table list of words
-function M.split_words(str)
+M.split_words = function(str)
   if str == "" then
     return {}
   end
@@ -75,9 +81,46 @@ function M.split_words(str)
   flush()
   return ret
 end
+-- Pattern for the source file (e.g., in a 'src' directory)
 
-M.keymap = keymap
-M.keymap_buf = keymap_buf
-M.keymap_dynamic = keymap_dynamic
+M.get_current_file_name = function()
+  return vim.fn.expand("%:t:r") -- :t gets filename, :r removes extension
+end
+
+-- use uv to read a file
+M.read_file = function(path)
+  local uv = vim.uv
+  local fd = uv.fs_open(path, "r", 438) -- 438 = 0666 in octal
+  if not fd then
+    return nil, "Could not open file: " .. path
+  end
+  local stat = uv.fs_fstat(fd)
+  if not stat then
+    uv.fs_close(fd)
+    return nil, "Could not stat file: " .. path
+  end
+  local data = uv.fs_read(fd, stat.size, 0)
+  uv.fs_close(fd)
+  if not data then
+    return nil, "Could not read file: " .. path
+  end
+  return data
+end
+
+--use uv to write a file
+M.write_file = function(path, data)
+  local uv = vim.uv
+  local fd = uv.fs_open(path, "w", 438) -- 438 = 0666 in octal
+  if not fd then
+    return false, "Could not open file: " .. path
+  end
+  local ok, err = uv.fs_write(fd, data, 0)
+  uv.fs_close(fd)
+  if not ok then
+    return false, "Could not write file: " .. path .. " Error: " .. err
+  end
+  return true
+end
+
 
 return M

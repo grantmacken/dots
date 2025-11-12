@@ -21,13 +21,93 @@ The results of an actions can be these types:
 
 ]] --
 
-
 vim.api.nvim_create_user_command(
-  'ActionShellSendCommandExample',
+  'ActionSendCommandExample',
   function()
     require('term').send_cmd('echo "An example action that shows output in a Terminal"')
   end,
   { desc = 'An example action that shows output in a Terminal' }
+)
+
+vim.api.nvim_create_user_command(
+  'ActionSendDataExample',
+  function()
+    local term  = require('term')
+    local set   = term.tput_set
+    -- ansi escape codes examples
+    local style = {
+      bold    = set('bold'),
+      warn    = set('warn'),
+      good    = set('good'),
+      caution = set('caution'),
+      reset   = set('reset'),
+    }
+    -- open the channel for tasks terminal
+    term.send_data(
+      'With the terminal provided by `nvim_open_term` the buffer can display ANSI escape codes for styling text.')
+    term.send_data('Set ' .. style['warn'] .. 'Warn' .. style['reset'] .. ' style then a reset text to normal')
+    term.send_data('Set ' .. style['bold'] .. 'Bold' .. style['reset'] .. ' style then a reset text to normal')
+    term.send_data('ansync command with error output')
+    vim.system({ 'ls', '/nonexistent' }, { text = true }, function(result)
+      vim.schedule(function()
+        if result.stderr then
+          require('term').send_data('Error: ' .. result.stderr)
+        elseif result.stdout then
+          require('term').send_data('ls output: ' .. result.stdout)
+        end
+      end)
+    end)
+  end,
+  { desc = 'An example action data output to terminal' }
+)
+
+vim.api.nvim_create_user_command(
+  'ActionSendDataAsyncExample',
+  function()
+    local term  = require('term')
+    local set   = term.tput_set
+    -- ansi escape codes examples
+    local style = {
+      bold    = set('bold'),
+      warn    = set('warn'),
+      good    = set('good'),
+      caution = set('caution'),
+      reset   = set('reset'),
+    }
+    term.send_data('ansync command with error output')
+    vim.system({ 'ls', '/nonexistent' }, { text = true }, function(result)
+      vim.schedule(function()
+        if result.stderr then
+          require('term').send_data('Error: ' .. result.stderr)
+        elseif result.stdout then
+          require('term').send_data('ls output: ' .. result.stdout)
+        end
+      end)
+    end)
+  end,
+  { desc = 'An example action data output to terminal' }
+)
+
+
+
+
+
+
+vim.api.nvim_create_user_command(
+  'GhHelp',
+  function()
+    require('term').send_cmd('clear && gh help')
+  end,
+  { desc = 'clear terminal and gh help' }
+)
+
+vim.api.nvim_create_user_command(
+  'GhRepoView',
+  function()
+    local data = vim.system({ 'gh', 'repo', 'view' }, { text = true }):wait().stdout
+    require('term').send_data(data)
+  end,
+  { desc = 'github repo view' }
 )
 
 vim.api.nvim_create_user_command(
@@ -42,7 +122,18 @@ vim.api.nvim_create_user_command(
 vim.api.nvim_create_user_command(
   'GitStatus',
   function()
-    require('term').send_cmd('git status --short --branch')
+    -- -- ansync command with error output
+    -- vim.system({ 'ls', '/nonexistent' }, { text = true }, function(result)
+    --   vim.schedule(function()
+    --     if result.stderr then
+    --       require('term').send_task_data('Error: ' .. result.stderr)
+    --     elseif result.stdout then
+    --       require('term').send_task_data('ls output: ' .. result.stdout)
+    --     end
+    --   end)
+    -- end) -- git log --oneline --graph --decorate
+    local data = vim.system({ 'git', 'status', '--short', 'branch' }, { text = true }):wait()
+    require('term').send_data(data.stdout)
   end,
   { desc = 'git status ' }
 )
@@ -52,50 +143,9 @@ vim.api.nvim_create_user_command(
   function()
     require('term').send_cmd("copilot -p 'add commit message since last commit' --allow-all-tools")
   end,
-  { desc = 'git status ' }
+  { desc = 'git commit message' }
 )
 
-
-vim.api.nvim_create_user_command(
-  'ActionTaskSendDataExample',
-  function()
-    local show = require('show')
-    show.window(show.buffer('buf_tasks'))
-    local term      = require('term')
-    local set       = term.tput_set
-    -- ansi escape codes examples
-    local bold      = set('bold')
-    --local dim       = set('dim')
-    local reverse   = set('rev')
-    local underline = set('smul')
-    local reset     = set('sgr0')
-    -- open the channel for tasks terminal
-    term.chan_tasks()
-    term.send_task_data(bold .. 'Bold Data' .. reset .. ' output in a Terminal')
-    -- term.send_task_data('data output' .. dim .. 'dimmed' .. reset .. 'in a Terminal')
-    -- examples of sending ansi escape codes
-    -- red text
-    -- term.send_task_data('\27[31mThis is red text\27[0m')
-    term.send_task_data(set('warn') .. 'This is red text' .. set('reset'))
-    -- green text
-    term.send_task_data('\27[32mThis is green text\27[0m')
-    -- echo "$(tput bold)This text is bold$(tput sgr0)"
-
-    local out = 'This text is ' .. bold .. 'bold ' .. reset .. 'then resets to normal'
-    term.send_task_data(out) -- send only stdout
-    -- ansync command with error output
-    vim.system({ 'ls', '/nonexistent' }, { text = true }, function(result)
-      vim.schedule(function()
-        if result.stderr then
-          require('term').send_task_data('Error: ' .. result.stderr)
-        elseif result.stdout then
-          require('term').send_task_data('ls output: ' .. result.stdout)
-        end
-      end)
-    end)
-  end,
-  { desc = 'An example action data output to terminal' }
-)
 
 
 -- -- Use Copilot to generate a git commit message

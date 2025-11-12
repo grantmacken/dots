@@ -275,36 +275,6 @@ tput: terminal capabilities
  sgr0: turn off all attributes (normal text)
 --]]
 
---- Get ANSI codes for bold and normal text
---- @return string bold ANSI code for bold text
-M.tput_set = function(tput_name)
-  if not is_string(tput_name) then
-    return ''
-  end
-  if tput_name == 'warn' then
-    return vim.system({ 'tput', 'setaf', '1' }, { text = true }):wait().stdout
-  end
-  if tput_name == 'ok' then
-    return vim.system({ 'tput', 'setaf', '2' }, { text = true }):wait().stdout
-  end
-  if tput_name == 'reset' then
-    return vim.system({ 'tput', 'sgr0' }, { text = true }):wait().stdout
-  end
-  -- Text Styling
-  local list = {
-    'bold',  -- bold
-    'dim',   -- dim
-    'clear', -- clear screen
-    'rev',   --revers
-    'rmul',  -- remove underline
-    'sgr0',  -- reset all attributes
-    'smul',  -- set underline
-  }
-  if vim.list_contains(list, tput_name) then
-    return vim.system({ 'tput', tput_name }, { text = true }):wait().stdout
-  end
-  return ''
-end
 
 
 
@@ -320,6 +290,50 @@ M.send_task_data = function(data)
     vim.api.nvim_chan_send(chan_tasks, append_nl(data))
   end
 end
+
+--- Get ANSI codes for bold and normal text
+--- @param tput_name string 'warn' | 'good' | 'caution' | 'reset' | other tput names
+--- @return string bold ANSI code for bold text
+M.tput_set = function(tput_name)
+  if not is_string(tput_name) then
+    return ''
+  end
+  if tput_name == 'warn' then
+    return vim.system({ 'tput', 'setaf', '1' }, { text = true }):wait().stdout
+  end
+  if tput_name == 'good' then
+    return vim.system({ 'tput', 'setaf', '2' }, { text = true }):wait().stdout
+  end
+  if tput_name == 'caution' then
+    return vim.system({ 'tput', 'setaf', '3' }, { text = true }):wait().stdout
+  end
+  if tput_name == 'reset' then
+    return vim.system({ 'tput', 'sgr0' }, { text = true }):wait().stdout
+  end
+  -- Text Styling
+  local tput_names = {
+    'bold',  -- bold
+    'dim',   -- dim
+    'clear', -- clear screen
+    'rev',   --reverse
+    'rmul',  -- remove underline
+    'sgr0',  -- reset all attributes
+    'smul',  -- set underline
+  }
+  if vim.list_contains(tput_names, tput_name) then
+    return vim.system({ 'tput', tput_name }, { text = true }):wait().stdout
+  end
+  return ''
+end
+
+
+M.send_data = function(data)
+  local show = require('show')
+  show.window(show.buffer('buf_tasks'))
+  M.chan_tasks()
+  M.send_task_data(data)
+end
+
 
 
 

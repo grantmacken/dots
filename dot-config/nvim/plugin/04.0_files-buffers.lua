@@ -19,6 +19,22 @@ if ok_oil then
     skip_confirm_for_simple_edits = true,
     view_options = { show_hidden = true },
     use_default_keymaps = true,
+    keymaps = {
+      ["<C-a>"] = {
+        callback = function()
+          local entry = oil.get_entry_on_line(0, vim.api.nvim_win_get_cursor(0)[1])
+          if entry and entry.type == "file" then
+            local dir = oil.get_current_dir()
+            if dir then
+              local filepath = dir .. entry.name
+              vim.cmd.argadd(filepath)
+              vim.notify("Added to arglist: " .. entry.name)
+            end
+          end
+        end,
+        desc = "[oil] add entry to arglist",
+      },
+    },
   })
   keymap('-', oil.open, ' [oil] open current directory', 'n')
 end

@@ -1,20 +1,34 @@
+--- Fzf-lua setup with custom window and preview options
+--- @see https://github.com/ibhagwan/fzf-lua/blob/main/OPTIONS.md>
+--- @see h: fzf-lua-customization
+--- fzf is a terminal buffer in a floating window that allows for fuzzy finding of files, buffers, etc.
+--- The keymaps are tmap modes for the fzf window
+
 local ok_fzf, fzf = pcall(require, 'fzf-lua')
 if ok_fzf then
+  local oHeight = math.floor(vim.o.lines * 0.3)
   fzf.setup({
     winopts = {
-      split = function()
-        local show = require('show')
-        local bufnr = vim.api.nvim_create_buf(false, true)
-        local winID = show.window(bufnr)
-        return winID
-      end,
+      fullscreen = true,
+      border = 'none',
+      backdrop = 0,
+      --col = 1,
+      -- split = function()
+      --   local show = require('show')
+      --   local bufnr = show.buffer()
+      --   local winID = show.window(bufnr)
+      --   return winID
+      -- end,
       preview = {
-        default = 'bat',
+        default = 'bat', --
         layout = 'flex',
         horizontal = 'right:60%',
       },
     },
+    -- files = { formatter = 'path.filename_first', },
+
     keymap = {
+      builtin = true,
       fzf = {
         ['ctrl-d'] = 'half-page-down',
         ['ctrl-u'] = 'half-page-up',
@@ -22,7 +36,6 @@ if ok_fzf then
     },
   })
 end
-
 
 -- vim.opt.showmode = false
 --

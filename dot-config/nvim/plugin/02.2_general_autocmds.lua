@@ -24,20 +24,19 @@ au(
   end, 'Close help and oil with q'
 )
 
-
 --- auto-load some standard plugins that are not loaded by default
---- @see https://neovim.io/doc/user/plugins.html#standard-plugin-list
---- @see /usr/local/share/nvim/runtime/pack/dist/opt/
+--- @see url   https://neovim.io/doc/user/plugins.html#standard-plugin-list
+--- @see file  /usr/local/share/nvim/runtime/pack/dist/opt/
 ---
 au("VimEnter", "*", function()
     local builtins = { 'cfilter', 'difftool', 'nohlsearch', 'nvim.undotree' }
     for _, plugin in ipairs(builtins) do
       vim.cmd.packadd(plugin)
     end
+    require('projects').picker() -- load project selector on startup
   end,
-  'load standard plugins'
+  'load standard plugins and project picker on startup'
 )
-
 
 -- Restart lua_ls LSP server
 vim.api.nvim_create_user_command('LuaLsRestart', function()

@@ -91,7 +91,7 @@ M.window = function(bufnr)
   local tabID     = vim.api.nvim_get_current_tabpage()
   local ok, winID = pcall(vim.api.nvim_tabpage_get_var, tabID, 'winID')
   if not ok then
-    vim.notify('no existing window for buffer ' .. bufnr)
+    -- vim.notify('no existing window for buffer ' .. bufnr)
     local oHeight = math.floor(vim.o.lines * 0.3)
     local oEnter = false -- do not enter the window after creation
     -- see h: api-win_config
@@ -111,16 +111,16 @@ M.window = function(bufnr)
     vim.wo[win].wrap = false
     return win
   else
-    vim.notify('found existing window ' .. winID .. ' for buffer ' .. bufnr)
+    --vim.notify('found existing window ' .. winID .. ' for buffer ' .. bufnr)
     if -- already open and the buffer is in show window
         vim.api.nvim_win_get_buf(winID) == bufnr
     then
       vim.api.nvim_win_set_buf(winID, bufnr) -- ensure the buffer is set in the window
-      vim.notify('Buffer already shown in window')
+      --vim.notify('Buffer already shown in window')
     else
       -- remove existing buffer from window
       require('mini.bufremove').unshow_in_window(winID)
-      vim.notify('reused window ' .. vim.inspect(winID) .. ' for buffer ' .. vim.inspect(bufnr))
+      -- vim.notify('reused window ' .. vim.inspect(winID) .. ' for buffer ' .. vim.inspect(bufnr))
     end
     vim.api.nvim_win_set_buf(winID, bufnr) -- set the buffer in the window
     return winID
@@ -177,10 +177,14 @@ M.clear_buffer = function(bufnr)
 end
 
 -- append new lines
--- @param bufnr number
 -- @param tbl table of strings
-M.append_lines = function(bufnr, tbl)
+M.append_lines = function(tbl)
   vim.schedule(function()
+    local bufnr = vim.t.scratch
+    if not is_buf_valid(bufnr) then
+      vim.notify('Invalid buffer number: ' .. tostring(bufnr), vim.log.levels.ERROR)
+      return
+    end
     local strict = false
     local line_count = vim.api.nvim_buf_line_count(bufnr)
     local start_line = 1

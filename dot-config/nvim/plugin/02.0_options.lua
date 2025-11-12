@@ -1,6 +1,8 @@
 -- vim.cmd('filetype plugin indent on')      -- Enable all filetype plugins
 vim.cmd([[ highlight iCursor guibg=#FFFF00 guifg=#000000 ]])
 vim.o.guicursor            = "n-v-c:block,i:ver100-iCursor"
+-- FILE HANDLING
+vim.o.exrc                 = false  -- Enable project local .nvimrc files
 -- WINDOW CHROME
 vim.o.signcolumn           = "yes"
 vim.o.showmode             = false    -- Dont show mode since we have a statusline
@@ -14,7 +16,6 @@ vim.o.winminwidth          = 5        -- Minimum window width
 vim.opt.title              = true     -- Vim will change terminal title
 vim.o.winborder            = 'double' -- Border style for floating windows
 -- vim.opt.titlestring    = "%{getpid().':'.getcwd()}"
-
 -- CLIPBOARD KEYBOARD MOUSE
 vim.o.clipboard            = "unnamedplus" -- Sync with system clipboard
 vim.o.timeoutlen           = 1000          -- modal keys --300
