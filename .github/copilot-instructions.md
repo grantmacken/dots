@@ -32,7 +32,7 @@ These are dotfiles for a Fedora Silverblue system that prioritizes:
 - `dot-local/` - Stow-managed local files (→ `~/.local/`)
 - `dot-bashrc.d/` - Bash configuration snippets
 - `.specify/` - Feature specification and planning system
-- `.github/prompts/` - Spec Kit workflow commands
+- `.github/prompts/` - Copilot CLI prompt templates
 
 ### Key Principles
 
@@ -74,7 +74,7 @@ Important principles to follow when working with this codebase:
 
 ### Adding Bash and Lua Scripts
 1. Place scripts in `dot-local/bin/`. 
-2. Executable permissions are make with make usinf default target `make`
+2. Executable permissions are make with make using default target `make`
 1. Ensure idempotency (safe to run multiple times)
 2. Handle existing state gracefully
 3. Add Makefile target for each dot-local/bin/ script if needed
@@ -109,9 +109,6 @@ Important principles to follow when working with this codebase:
    - single word name as the directory name 
    - init.lua as the main entry point
 5. TODO! Test changes in Neovim terminal inside toolbox
-
-## File Locations
-
 
 
 ## Tips for Copilot CLI
