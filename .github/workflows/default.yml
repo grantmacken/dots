@@ -28,24 +28,34 @@ jobs:
             echo "WARNING: Not in a container environment"
           fi
 
+      - name: Cache toolbox image
+        id: cache-toolbox
+        uses: actions/cache@v4
+        with:
+          path: /var/lib/containers
+          key: toolbox-${{ runner.os }}-${{ hashFiles('.github/workflows/default.yml') }}
+          restore-keys: |
+            toolbox-${{ runner.os }}-
+
       - name: Setup toolbox
         run: |
           echo "=== Setting up toolbox ==="
-          echo "1. Installing toolbox if needed..."
-          command -v toolbox || dnf install -y toolbox
-          
+          if [ "${{ steps.cache-toolbox.outputs.cache-hit }}" == "true" ]; then
+            echo "✓ Cache hit - toolbox image restored from cache"
+          else
+            echo "Cache miss - pulling toolbox image..."
+          fi
           echo ""
-          echo "2. Pulling toolbox image..."
+          echo "1. Pulling toolbox image (will use cache if available)..."
           podman pull ghcr.io/grantmacken/tbx-coding:latest
-          
           echo ""
-          echo "3. Creating toolbox container..."
+          echo "2. Creating toolbox container..."
           toolbox create --image ghcr.io/grantmacken/tbx-coding:latest tbx-coding || echo "Toolbox already exists"
-          
           echo ""
-          echo "4. Verifying toolbox..."
-          toolbox list
-
+          echo "3. Verifying toolbox..."
+          toolbox list --images | grep -q grantmacken/tbx-coding
+          toolbox list --containers | grep -q tbx-coding
+        
       - name: Verify toolbox detection
         run: |
           echo "=== Testing check-toolbox script inside toolbox ==="
