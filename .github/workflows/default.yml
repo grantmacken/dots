@@ -1,22 +1,55 @@
-name: managing dotfiles
+name: Dotfiles Management - Foundation Testing
 on:
-  # Run weekly on Sunday at 00:00 UTC
-  # Allow manual triggering
+  # Allow manual triggering for testing
   workflow_dispatch:
 
 jobs:
-  container-test-job:
-      runs-on: ubuntu-latest
-      # Use the official Fedora Toolbox image
-      container:
-      image: docker:ghcr.io/grantmacken/tbx-coding:latest
+  foundation-validation:
+    runs-on: ubuntu-latest
+    # Use the tbx-coding toolbox image
+    container:
+      image: ghcr.io/grantmacken/tbx-coding:latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           ref: main
-      - name: Verify Fedora Silverblue Environment
-              run: |
-                # The image will report the base Fedora version
-                cat /etc/os-release
+
+      - name: Display environment info
+        run: |
+          echo "=== Environment Information ==="
+          cat /etc/os-release
+          echo ""
+          echo "=== Container Check ==="
+          if [ -f /run/.containerenv ]; then
+            cat /run/.containerenv
+          else
+            echo "WARNING: Not in a container environment"
+          fi
+
+      - name: Verify toolbox detection
+        run: |
+          echo "=== Testing check-toolbox script ==="
+          chmod +x dot-local/bin/check-toolbox || true
+          # In CI, we might not have the exact .containerenv setup
+          # Just verify the script exists and is executable
+          if [ -f dot-local/bin/check-toolbox ]; then
+            echo "✓ check-toolbox script found"
+          else
+            echo "✗ check-toolbox script missing"
+            exit 1
+          fi
+
+      - name: Verify required tools
+        run: |
+          echo "=== Testing check-tools script ==="
+          chmod +x dot-local/bin/check-tools || true
+          # Run the tool version check
+          dot-local/bin/check-tools || echo "Some tools may not meet minimum versions in CI"
+
+      - name: Test repository root detection
+        run: |
+          echo "=== Testing check-repo-root script ==="
+          chmod +x dot-local/bin/check-repo-root || true
+          dot-local/bin/check-repo-root

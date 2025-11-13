@@ -81,7 +81,7 @@ description: "Task list for Dotfiles Management System implementation"
 **Note**: Implements all deferred testing tasks from Phase 0 (Makefile target verification, validation scripts)
 
 ### 3.1 GitHub Actions Workflow Setup
-- [ ] T010 Update `.github/workflows/default.yml` workflow_dispatch to use tbx-coding image
+- [x] T010 Update `.github/workflows/default.yml` workflow_dispatch to use tbx-coding image
 - [ ] T011 Add workflow job: Run `make check-toolbox` to verify container
 - [ ] T012 Add workflow job: Run `make check-tools` to verify tool versions
 
@@ -239,3 +239,7 @@ description: "Task list for Dotfiles Management System implementation"
 - No symlinks allowed in `dot-config/systemd/user/` or `dot-config/containers/` (FR-007)
 - Commit after each phase or user story completion
 - Stop at any checkpoint to validate story independently
+
+### 3.4 Workflow Testing
+- [ ] T022-gh Test workflow with gh CLI: Run `dot-local/bin/gh-test-workflow` to trigger and monitor
+
