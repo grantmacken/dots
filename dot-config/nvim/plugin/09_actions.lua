@@ -89,10 +89,6 @@ vim.api.nvim_create_user_command(
 )
 
 
-
-
-
-
 vim.api.nvim_create_user_command(
   'GhHelp',
   function()
@@ -122,16 +118,6 @@ vim.api.nvim_create_user_command(
 vim.api.nvim_create_user_command(
   'GitStatus',
   function()
-    -- -- ansync command with error output
-    -- vim.system({ 'ls', '/nonexistent' }, { text = true }, function(result)
-    --   vim.schedule(function()
-    --     if result.stderr then
-    --       require('term').send_task_data('Error: ' .. result.stderr)
-    --     elseif result.stdout then
-    --       require('term').send_task_data('ls output: ' .. result.stdout)
-    --     end
-    --   end)
-    -- end) -- git log --oneline --graph --decorate
     local data = vim.system({ 'git', 'status', '--short', 'branch' }, { text = true }):wait()
     require('term').send_data(data.stdout)
   end,
@@ -141,7 +127,7 @@ vim.api.nvim_create_user_command(
 vim.api.nvim_create_user_command(
   'GitCommitMessage',
   function()
-    require('term').send_cmd("copilot -p 'add commit message since last commit' --allow-all-tools")
+    require('term').send_cmd('copilot --allow-all-tools -p "conventional-commit"')
   end,
   { desc = 'git commit message' }
 )
