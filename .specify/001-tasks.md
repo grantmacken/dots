@@ -33,7 +33,7 @@ description: "Task list for Dotfiles Management System implementation"
 ### 0.1 Toolbox Environment Validation
 
 - [x] R001 [R0] Check if running inside toolbox by testing for `/run/.containerenv` file (official Fedora method)
-- [ ] R002 [R0] Verify toolbox is tbx-coding (image: ghcr.io/grantmacken/tbx-coding:latest) by reading `/run/.containerenv` contents
+- [x] R002 [R0] Verify toolbox is tbx-coding (image: ghcr.io/grantmacken/tbx-coding:latest) by reading `/run/.containerenv` contents
 - [ ] R003 [R0] Document toolbox creation and entry: `toolbox create --image ghcr.io/grantmacken/tbx-coding:latest tbx-coding` then `toolbox enter tbx-coding`
 - [ ] R004 [R0] Test toolbox can access host systemd user session
 

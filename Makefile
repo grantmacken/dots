@@ -20,7 +20,30 @@ QUADLET := $(CONFIG_HOME)/containers/systemd
 SYSTEMD := $(CONFIG_HOME)/systemd/user
 PROJECTS := $(HOME)/Projects
 
+# Toolbox detection helper (checks /run/.containerenv per Fedora docs)
+define check_toolbox
+	@if [ ! -f /run/.containerenv ]; then \
+		echo "ERROR: Not running in a toolbox container" >&2; \
+		echo "  Please run: toolbox enter tbx-coding" >&2; \
+		exit 1; \
+	fi
+	@if ! grep -q 'name="tbx-coding"' /run/.containerenv 2>/dev/null; then \
+		container=$$(grep 'name=' /run/.containerenv | cut -d'"' -f2 2>/dev/null || echo "unknown"); \
+		echo "ERROR: Running in wrong container: $$container" >&2; \
+		echo "  Expected: tbx-coding" >&2; \
+		exit 1; \
+	fi
+endef
+
+check-toolbox: ## Verify running in tbx-coding toolbox
+	$(check_toolbox)
+	@echo "✓ Running in tbx-coding toolbox"
+
+check-tools: ## Verify required CLI tools and versions
+	@dot-local/bin/check-tools || exit 1
+
 default: ## install dotfiles (runs init, stow)
+	$(check_toolbox)
 	echo '##[ stow dotfiles ]##'
 	chmod +x dot-local/bin/* || true
 	stow --verbose --dotfiles --target ~/ .
@@ -38,6 +61,7 @@ default: ## install dotfiles (runs init, stow)
 # 	echo '✅ completed task'
 
 init:
+	$(check_toolbox)
 	echo '##[ $@ ]##'
 	mkdir -p $(BIN_HOME)
 	mkdir -p $(CACHE_HOME)/nvim
