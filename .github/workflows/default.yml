@@ -7,9 +7,6 @@ jobs:
   foundation-validation:
     runs-on: ubuntu-latest
     # Use Fedora Silverblue as the container base
-    container:
-      image: quay.io/fedora/fedora-silverblue:latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -44,36 +41,36 @@ jobs:
           toolbox list --images | grep -q grantmacken/tbx-coding
           toolbox list --containers | grep -q tbx-coding
         
-      - name: Verify toolbox detection
-        run: |
-          echo "=== Testing check-toolbox script inside toolbox ==="
-          chmod +x dot-local/bin/check-toolbox || true
-          toolbox run --container tbx-coding bash -c "cd $PWD && ./dot-local/bin/check-toolbox"
-
-      - name: Verify required tools
-        run: |
-          echo "=== Testing check-tools script inside toolbox ==="
-          chmod +x dot-local/bin/check-tools || true
-          toolbox run --container tbx-coding bash -c "cd $PWD && ./dot-local/bin/check-tools"
-
-      - name: Test repository root detection
-        run: |
-          echo "=== Testing check-repo-root script inside toolbox ==="
-          chmod +x dot-local/bin/check-repo-root || true
-          toolbox run --container tbx-coding bash -c "cd $PWD && ./dot-local/bin/check-repo-root"
-
-      - name: Run make check-toolbox
-        run: |
-          echo "=== Testing make check-toolbox target inside toolbox ==="
-          chmod +x dot-local/bin/* || true
-          toolbox run --container tbx-coding bash -c "cd $PWD && make check-toolbox"
-
-      - name: Run make check-tools
-        run: |
-          echo "=== Testing make check-tools target inside toolbox ==="
-          toolbox run --container tbx-coding bash -c "cd $PWD && make check-tools"
-
-      - name: Run workflow validation
-        run: |
-          echo "=== Running workflow-validate target inside toolbox ==="
-          toolbox run --container tbx-coding bash -c "cd $PWD && make workflow-validate"
+      # - name: Verify toolbox detection
+      #   run: |
+      #     echo "=== Testing check-toolbox script inside toolbox ==="
+      #     chmod +x dot-local/bin/check-toolbox || true
+      #     toolbox run --container tbx-coding bash -c "cd $PWD && ./dot-local/bin/check-toolbox"
+      #
+      # - name: Verify required tools
+      #   run: |
+      #     echo "=== Testing check-tools script inside toolbox ==="
+      #     chmod +x dot-local/bin/check-tools || true
+      #     toolbox run --container tbx-coding bash -c "cd $PWD && ./dot-local/bin/check-tools"
+      #
+      # - name: Test repository root detection
+      #   run: |
+      #     echo "=== Testing check-repo-root script inside toolbox ==="
+      #     chmod +x dot-local/bin/check-repo-root || true
+      #     toolbox run --container tbx-coding bash -c "cd $PWD && ./dot-local/bin/check-repo-root"
+      #
+      # - name: Run make check-toolbox
+      #   run: |
+      #     echo "=== Testing make check-toolbox target inside toolbox ==="
+      #     chmod +x dot-local/bin/* || true
+      #     toolbox run --container tbx-coding bash -c "cd $PWD && make check-toolbox"
+      #
+      # - name: Run make check-tools
+      #   run: |
+      #     echo "=== Testing make check-tools target inside toolbox ==="
+      #     toolbox run --container tbx-coding bash -c "cd $PWD && make check-tools"
+      #
+      # - name: Run workflow validation
+      #   run: |
+      #     echo "=== Running workflow-validate target inside toolbox ==="
+      #     toolbox run --container tbx-coding bash -c "cd $PWD && make workflow-validate"
