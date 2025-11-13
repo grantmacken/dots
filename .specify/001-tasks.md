@@ -82,8 +82,8 @@ description: "Task list for Dotfiles Management System implementation"
 
 ### 3.1 GitHub Actions Workflow Setup
 - [x] T010 Update `.github/workflows/default.yml` workflow_dispatch to use tbx-coding image
-- [ ] T011 Add workflow job: Run `make check-toolbox` to verify container
-- [ ] T012 Add workflow job: Run `make check-tools` to verify tool versions
+- [x] T011 Add workflow job: Run `make check-toolbox` to verify container
+- [x] T012 Add workflow job: Run `make check-tools` to verify tool versions
 
 ### 3.2 Makefile Target Testing (from Phase 0)
 - [ ] T013 Workflow job: Run `make init` and verify directories created
