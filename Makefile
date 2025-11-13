@@ -20,8 +20,13 @@ QUADLET := $(CONFIG_HOME)/containers/systemd
 SYSTEMD := $(CONFIG_HOME)/systemd/user
 PROJECTS := $(HOME)/Projects
 
-check-toolbox: ## Verify running in tbx-coding toolbox
+default: ## install dotfiles (runs init, stow)
+	dot-local/bin/check-repo-root
 	dot-local/bin/check-toolbox
+	echo '##[ stow dotfiles ]##'
+	chmod +x dot-local/bin/* || true
+	stow --verbose --dotfiles --target ~/ .
+	echo '✅ completed task'
 	echo '✓ Running in tbx-coding toolbox'
 
 check-tools: ## Verify required CLI tools and versions
@@ -60,25 +65,6 @@ verify: ## Verify deployment would succeed (dry-run conflict check)
 	stow --simulate --verbose --dotfiles --target ~/ .
 	echo ''
 	echo '✅ verification passed - deployment should succeed'
-
-default: ## install dotfiles (runs init, stow)
-	dot-local/bin/check-repo-root
-	dot-local/bin/check-toolbox
-	echo '##[ stow dotfiles ]##'
-	chmod +x dot-local/bin/* || true
-	stow --verbose --dotfiles --target ~/ .
-	echo '✅ completed task'
-
-# help: ## show available make targets
-# 	cat $(MAKEFILE_LIST) |
-# 	grep -oP '^[a-zA-Z_-]+:.*?## .*$$' |
-# 	sort |
-# 	awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-10s\033[0m %s\n", $$1, $$2}'
-
-# delete: ## delete stow dotfiles
-# 	echo '##[ $@ ]##'
-# 	stow --verbose --dotfiles --delete --target ~/ .
-# 	echo '✅ completed task'
 
 init:
 	dot-local/bin/check-repo-root
@@ -165,5 +151,11 @@ test: ## run neovim busted tests with nlua
 	busted | faucet && echo
 	popd &>/dev/null
 	echo '✅ busted tests completed'
+
+help: ## show available make targets
+	cat $(MAKEFILE_LIST) |
+	grep -oP '^[a-zA-Z_-]+:.*?## .*$$' |
+	sort |
+	awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-10s\033[0m %s\n", $$1, $$2}'
 
 
