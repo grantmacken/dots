@@ -137,7 +137,7 @@ Validating stow symlinks...
 
 **Complete Workflow Steps**:
 1. Checkout repository
-2. Display environment info (Silverblue)
+2. Cache toolbox image (caching layer)
 3. Setup toolbox (pull, create, verify)
 4. Verify toolbox detection (script)
 5. Verify required tools (script)

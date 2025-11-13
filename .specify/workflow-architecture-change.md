@@ -139,10 +139,10 @@ toolbox run --container tbx-coding bash -c "make"
 ```
 1. Checkout repository
    ↓
-2. Display environment info (Silverblue)
+2. Cache toolbox image (performance)
    ↓
 3. Setup toolbox
-   - Pull image
+   - Pull image (uses cache)
    - Create toolbox
    - Verify creation
    ↓

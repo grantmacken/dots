@@ -32,22 +32,27 @@ Update `.github/workflows/default.yml` workflow_dispatch to use tbx-coding image
    - Uses: `actions/checkout@v4`
    - Branch: `main`
 
-2. **Display environment info**
-   - Shows OS release information
-   - Checks for `/run/.containerenv` file
-   - Validates container environment
+2. **Cache toolbox image**
+   - Uses: `actions/cache@v4`
+   - Performance optimization
+   - Caches podman storage
 
-3. **Verify toolbox detection**
+3. **Setup toolbox**
+   - Pulls tbx-coding image
+   - Creates toolbox container
+   - Verifies setup
+
+4. **Verify toolbox detection**
    - Makes `check-toolbox` script executable
    - Verifies script exists
    - Tests in CI environment
 
-4. **Verify required tools**
+5. **Verify required tools**
    - Makes `check-tools` script executable
    - Runs tool version checks
    - Reports tool availability
 
-5. **Test repository root detection**
+6. **Test repository root detection**
    - Makes `check-repo-root` script executable
    - Verifies repo root detection works in CI
 
