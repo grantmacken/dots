@@ -85,15 +85,11 @@ Makefile                          # Task orchestration
 
 ### 0.1 Toolbox Environment Validation
 - **Goal**: Verify execution within tbx-coding toolbox and document environment
-- **Output**: Document toolbox detection method, environment variables, prerequisites check
+- **Output**: Scripts for toolbox detection and tool version verification
 - **Acceptance**: Can detect toolbox context and verify required tools available: GNU Stow 2.3+, GNU Make 4.0+, Git 2.30+, systemctl (systemd 245+), Neovim 0.9+
+- **Status**: ✅ Complete (R001-R002)
 
-### 0.2 Makefile Verification in Toolbox
-- **Goal**: Confirm existing Makefile targets execute correctly from within tbx-coding toolbox
-- **Output**: Test results for `make init`, `make` (default/stow), systemd targets from toolbox
-- **Acceptance**: All existing Makefile targets run successfully from tbx-coding container (image: ghcr.io/grantmacken/tbx-coding:latest)
-
-**Note**: GitHub Actions compatibility research and validation scripts deferred to Phase 6 when implementing CI/CD workflow.
+**Note**: Makefile target testing (make init, make stow) moved to Phase 6 GitHub Actions. Using workflow_dispatch allows clean environment testing without local disruption.
 
 ## Phase 1: Design & Contracts
 
