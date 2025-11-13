@@ -27,6 +27,24 @@ check-toolbox: ## Verify running in tbx-coding toolbox
 check-tools: ## Verify required CLI tools and versions
 	dot-local/bin/check-tools
 
+workflow-validate: ## Run validation checks (GitHub Actions only)
+ifdef GITHUB_ACTIONS
+	echo '##[ $@ ]##'
+	echo 'Running make init...'
+	$(MAKE) init
+	echo ''
+	echo 'Validating init directories...'
+	dot-local/bin/validate-init
+	echo ''
+	echo 'Running make (stow)...'
+	$(MAKE) default
+	echo ''
+	echo 'Validating stow symlinks...'
+	dot-local/bin/validate-stow
+	echo ''
+	echo '✅ Workflow validation completed'
+endif
+
 verify: ## Verify deployment would succeed (dry-run conflict check)
 	dot-local/bin/check-repo-root
 	dot-local/bin/check-toolbox

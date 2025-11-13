@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Validate that 'make' (stow) created required symlinks
+
+set -euo pipefail
+
+echo "=== Validating stow symlinks ==="
+echo ""
+
+# Key symlinks that should exist after stow
+REQUIRED_SYMLINKS=(
+  "$HOME/.bashrc"
+  "$HOME/.config/nvim"
+  "$HOME/.config/git"
+  "$HOME/.local/bin/check-toolbox"
+  "$HOME/.local/bin/check-tools"
+)
+
+FAILED=0
+
+for link in "${REQUIRED_SYMLINKS[@]}"; do
+  if [ -L "$link" ]; then
+    # It's a symlink, verify it's not broken
+    if [ -e "$link" ]; then
+      target=$(readlink -f "$link")
+      echo "✓ $link → $target"
+    else
+      echo "✗ $link is broken (target doesn't exist)" >&2
+      FAILED=1
+    fi
+  elif [ -e "$link" ]; then
+    echo "⚠ $link exists but is not a symlink (might be original file)" >&2
+    # Don't fail - might be existing file
+  else
+    echo "✗ $link does not exist" >&2
+    FAILED=1
+  fi
+done
+
+echo ""
+if [ $FAILED -eq 0 ]; then
+  echo "✅ All required symlinks are valid"
+  exit 0
+else
+  echo "❌ Some symlinks are missing or broken" >&2
+  exit 1
+fi

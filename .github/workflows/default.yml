@@ -74,3 +74,8 @@ jobs:
         run: |
           echo "=== Testing make check-tools target inside toolbox ==="
           toolbox run --container tbx-coding bash -c "cd $PWD && make check-tools"
+
+      - name: Run workflow validation
+        run: |
+          echo "=== Running workflow-validate target inside toolbox ==="
+          toolbox run --container tbx-coding bash -c "cd $PWD && make workflow-validate"

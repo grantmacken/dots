@@ -12,14 +12,14 @@ echo "=== GitHub Actions Workflow Test ==="
 echo ""
 
 # Check if gh is available
-if ! command -v gh &> /dev/null; then
+if ! command -v gh &>/dev/null; then
   echo "ERROR: gh CLI not found" >&2
   echo "Install: https://cli.github.com/" >&2
   exit 1
 fi
 
 # Check if authenticated
-if ! gh auth status &> /dev/null; then
+if ! gh auth status &>/dev/null; then
   echo "ERROR: Not authenticated with GitHub" >&2
   echo "Run: gh auth login" >&2
   exit 1
@@ -35,12 +35,12 @@ if gh workflow run "$WORKFLOW" --repo "$REPO_OWNER/$REPO_NAME"; then
   echo ""
   echo "Waiting for workflow to start..."
   sleep 5
-  
+
   # Get the latest workflow run
   echo ""
   echo "=== Latest Workflow Run ==="
   gh run list --workflow="$WORKFLOW" --repo "$REPO_OWNER/$REPO_NAME" --limit 1
-  
+
   echo ""
   echo "To watch the workflow run:"
   echo "  gh run watch --repo $REPO_OWNER/$REPO_NAME"

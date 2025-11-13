@@ -79,6 +79,16 @@ backup_status: ## check bu_projects timer and service status
     systemctl --no-pager --user list-timers bu_projects.timer
 ```
 
+### Workflow Target: Run Only On GitHub Actions
+```makefile
+workflow_checks: ## Run checks only in GitHub Actions
+ifdef GITHUB_ACTIONS
+    echo '##[ $@ ]##'
+    check_toolbox
+    check-tools
+endif
+```
+
 ## Scripts in dot-local/bin/
 
 Scripts should be:

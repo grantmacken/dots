@@ -86,10 +86,10 @@ description: "Task list for Dotfiles Management System implementation"
 - [x] T012 Add workflow job: Run `make check-tools` to verify tool versions
 
 ### 3.2 Makefile Target Testing (from Phase 0)
-- [ ] T013 Workflow job: Run `make init` and verify directories created
-- [ ] T014 [P] Create validation script `dot-local/bin/validate-init` (checks directories exist)
-- [ ] T015 Workflow job: Run `make` (stow) and verify symlinks created  
-- [ ] T016 [P] Create validation script `dot-local/bin/validate-stow` (checks symlinks valid)
+- [x] T013 Workflow job: Run `make init` and verify directories created
+- [x] T014 [P] Create validation script `dot-local/bin/validate-init` (checks directories exist)
+- [x] T015 Workflow job: Run `make` (stow) and verify symlinks created  
+- [x] T016 [P] Create validation script `dot-local/bin/validate-stow` (checks symlinks valid)
 - [ ] T017 Workflow job: Test systemd status targets work (backup_status, tbx_status)
 
 ### 3.3 Additional Validation
