@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Broken Symlink Detection
+# Checks for broken symlinks in target directories (FR-009)
+# Aborts if any broken symlinks are found
+
+set -euo pipefail
+
+echo "Checking for broken symlinks..."
+
+# Target directories to check
+DIRS=(
+  "$HOME/.config"
+  "$HOME/.local"
+  "$HOME/.bashrc.d"
+)
+
+broken_links=()
+
+# Find broken symlinks in each directory
+for dir in "${DIRS[@]}"; do
+  if [ ! -d "$dir" ]; then
+    continue
+  fi
+  
+  # Find symlinks that don't resolve to existing files
+  while IFS= read -r link; do
+    broken_links+=("$link")
+  done < <(find "$dir" -maxdepth 3 -type l ! -exec test -e {} \; -print 2>/dev/null || true)
+done
+
+if [ ${#broken_links[@]} -gt 0 ]; then
+  echo "ERROR: Found ${#broken_links[@]} broken symlink(s)" >&2
+  echo "" >&2
+  echo "Broken symlinks:" >&2
+  for link in "${broken_links[@]}"; do
+    target=$(readlink "$link" || echo "<unreadable>")
+    echo "  $link -> $target" >&2
+  done
+  echo "" >&2
+  echo "Please fix or remove broken symlinks before deployment." >&2
+  exit 1
+fi
+
+echo "✓ No broken symlinks found"
+exit 0

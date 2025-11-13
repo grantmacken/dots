@@ -121,10 +121,17 @@ find ~/.config ~/.local ~/.bashrc.d -maxdepth 3 -type l ! -exec test -e {} \; -p
 - Adding explicit wrapper adds complexity
 - Current implementation hasn't shown timeout issues
 
-**Recommendation**: Defer or skip - not critical
+**Decision**: ✅ **SKIP** - Not implementing
 
-**Status**: ❌ Not implemented (by choice)  
-**Functional Requirements**: FR-011
+**Rationale**:
+- Systemd's internal timeout handling is sufficient
+- No timeout problems encountered in practice
+- Adding wrapper would violate Makefile style guide (prefer simple scripts)
+- Current targets (`backup_*`, `tbx_*`) work reliably without wrapper
+- Can revisit if timeout issues arise in future
+
+**Status**: Deferred/Skipped by design choice  
+**Functional Requirements**: FR-011 - Considered but not critical
 
 ---
 

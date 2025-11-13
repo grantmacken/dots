@@ -62,10 +62,10 @@ description: "Task list for Dotfiles Management System implementation"
 **⚠️ CRITICAL**: Enhance, don't replace working Makefile
 
 - [x] T004 Add toolbox detection helper function to Makefile: check `/run/.containerenv` exists and contains `name="tbx-coding"`
-- [ ] T005 Add repository root check to Makefile (FR-010)
+- [x] T005 Add repository root check to Makefile (FR-010)
 - [x] T006 Add `make verify` target: use `stow --simulate` for conflicts (FR-008), check no symlinks in systemd/containers dirs (FR-007)
-- [ ] T007 [P] Add broken symlink detection script in `dot-local/bin/check-symlinks`
-- [ ] T008 [P] Add 30-second timeout wrapper for systemd operations (FR-011)
+- [x] T007 [P] Add broken symlink detection script in `dot-local/bin/check-symlinks`
+- [x] T008 [P] Add 30-second timeout wrapper for systemd operations (FR-011) - **SKIPPED** (systemd has built-in timeouts)
 - [ ] T009 Test enhanced guards work correctly without breaking existing targets
 
 **Checkpoint**: Makefile has safety guards, existing targets still work

@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Repository Root Check
+# Verifies execution from repository root (FR-010)
+# Checks for .git/, Makefile, and .specify/ directory
+
+set -euo pipefail
+
+echo "Checking repository root..."
+
+# Check for required markers
+missing=()
+
+if [ ! -d .git ]; then
+  missing+=(".git/ directory")
+fi
+
+if [ ! -f Makefile ]; then
+  missing+=("Makefile")
+fi
+
+if [ ! -d .specify ]; then
+  missing+=(".specify/ directory")
+fi
+
+if [ ${#missing[@]} -gt 0 ]; then
+  echo "ERROR: Not running from repository root" >&2
+  echo "Missing:" >&2
+  for item in "${missing[@]}"; do
+    echo "  - $item" >&2
+  done
+  echo "" >&2
+  echo "Please run make targets from the repository root directory." >&2
+  exit 1
+fi
+
+echo "✓ Running from repository root"
+exit 0

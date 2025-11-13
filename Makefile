@@ -28,8 +28,12 @@ check-tools: ## Verify required CLI tools and versions
 	dot-local/bin/check-tools
 
 verify: ## Verify deployment would succeed (dry-run conflict check)
+	dot-local/bin/check-repo-root
 	dot-local/bin/check-toolbox
 	echo '##[ $@ ]##'
+	echo 'Checking for broken symlinks...'
+	dot-local/bin/check-symlinks
+	echo ''
 	echo 'Checking for symlinks in systemd/containers directories...'
 	dot-local/bin/check-no-symlinks dot-config/systemd/user
 	dot-local/bin/check-no-symlinks dot-config/containers/systemd
@@ -40,6 +44,7 @@ verify: ## Verify deployment would succeed (dry-run conflict check)
 	echo '✅ verification passed - deployment should succeed'
 
 default: ## install dotfiles (runs init, stow)
+	dot-local/bin/check-repo-root
 	dot-local/bin/check-toolbox
 	echo '##[ stow dotfiles ]##'
 	chmod +x dot-local/bin/* || true
@@ -58,6 +63,7 @@ default: ## install dotfiles (runs init, stow)
 # 	echo '✅ completed task'
 
 init:
+	dot-local/bin/check-repo-root
 	dot-local/bin/check-toolbox
 	echo '##[ $@ ]##'
 	mkdir -p $(BIN_HOME)
