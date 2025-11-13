@@ -6,9 +6,9 @@ on:
 jobs:
   foundation-validation:
     runs-on: ubuntu-latest
-    # Use the tbx-coding toolbox image
+    # Use Fedora Silverblue as the container base
     container:
-      image: ghcr.io/grantmacken/tbx-coding:latest
+      image: quay.io/fedora/fedora-silverblue:latest
 
     steps:
       - name: Checkout repository
@@ -28,41 +28,49 @@ jobs:
             echo "WARNING: Not in a container environment"
           fi
 
+      - name: Setup toolbox
+        run: |
+          echo "=== Setting up toolbox ==="
+          echo "1. Installing toolbox if needed..."
+          command -v toolbox || dnf install -y toolbox
+          
+          echo ""
+          echo "2. Pulling toolbox image..."
+          podman pull ghcr.io/grantmacken/tbx-coding:latest
+          
+          echo ""
+          echo "3. Creating toolbox container..."
+          toolbox create --image ghcr.io/grantmacken/tbx-coding:latest tbx-coding || echo "Toolbox already exists"
+          
+          echo ""
+          echo "4. Verifying toolbox..."
+          toolbox list
+
       - name: Verify toolbox detection
         run: |
-          echo "=== Testing check-toolbox script ==="
+          echo "=== Testing check-toolbox script inside toolbox ==="
           chmod +x dot-local/bin/check-toolbox || true
-          # In CI, we might not have the exact .containerenv setup
-          # Just verify the script exists and is executable
-          if [ -f dot-local/bin/check-toolbox ]; then
-            echo "✓ check-toolbox script found"
-          else
-            echo "✗ check-toolbox script missing"
-            exit 1
-          fi
+          toolbox run --container tbx-coding bash -c "cd $PWD && ./dot-local/bin/check-toolbox"
 
       - name: Verify required tools
         run: |
-          echo "=== Testing check-tools script ==="
+          echo "=== Testing check-tools script inside toolbox ==="
           chmod +x dot-local/bin/check-tools || true
-          # Run the tool version check
-          dot-local/bin/check-tools || echo "Some tools may not meet minimum versions in CI"
+          toolbox run --container tbx-coding bash -c "cd $PWD && ./dot-local/bin/check-tools"
 
       - name: Test repository root detection
         run: |
-          echo "=== Testing check-repo-root script ==="
+          echo "=== Testing check-repo-root script inside toolbox ==="
           chmod +x dot-local/bin/check-repo-root || true
-          dot-local/bin/check-repo-root
+          toolbox run --container tbx-coding bash -c "cd $PWD && ./dot-local/bin/check-repo-root"
 
       - name: Run make check-toolbox
         run: |
-          echo "=== Testing make check-toolbox target ==="
+          echo "=== Testing make check-toolbox target inside toolbox ==="
           chmod +x dot-local/bin/* || true
-          # In CI container, check-toolbox may not detect tbx-coding name
-          # Run and allow soft failure for now
-          make check-toolbox || echo "⚠️  Toolbox check completed with warnings (expected in CI)"
+          toolbox run --container tbx-coding bash -c "cd $PWD && make check-toolbox"
 
       - name: Run make check-tools
         run: |
-          echo "=== Testing make check-tools target ==="
-          make check-tools || echo "⚠️  Tool check completed with warnings (expected in CI)"
+          echo "=== Testing make check-tools target inside toolbox ==="
+          toolbox run --container tbx-coding bash -c "cd $PWD && make check-tools"
