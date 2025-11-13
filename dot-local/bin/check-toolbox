@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Toolbox Detection Utility
+# Verifies execution within tbx-coding toolbox container
+# Based on Fedora Silverblue toolbox documentation
+
+set -euo pipefail
+
+# Check if running inside a toolbox/podman container
+if [ ! -f /run/.containerenv ]; then
+  echo "ERROR: Not running in a toolbox container" >&2
+  echo "  /run/.containerenv file not found" >&2
+  echo "" >&2
+  echo "Please enter the tbx-coding toolbox:" >&2
+  echo "  toolbox enter tbx-coding" >&2
+  exit 1
+fi
+
+# Verify container is specifically tbx-coding
+if ! grep -q 'name="tbx-coding"' /run/.containerenv; then
+  container_name=$(grep 'name=' /run/.containerenv | cut -d'"' -f2 2>/dev/null || echo "unknown")
+  echo "ERROR: Running in wrong container: $container_name" >&2
+  echo "  Expected: tbx-coding" >&2
+  echo "" >&2
+  echo "Please enter the correct toolbox:" >&2
+  echo "  toolbox enter tbx-coding" >&2
+  exit 1
+fi
+
+# Verify image source
+if ! grep -q 'image="ghcr.io/grantmacken/tbx-coding' /run/.containerenv; then
+  image=$(grep 'image=' /run/.containerenv | cut -d'"' -f2 2>/dev/null || echo "unknown")
+  echo "WARNING: Unexpected container image: $image" >&2
+  echo "  Expected: ghcr.io/grantmacken/tbx-coding:*" >&2
+fi
+
+# Success - running in correct toolbox
+exit 0

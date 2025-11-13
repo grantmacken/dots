@@ -16,10 +16,32 @@ Note: These are already installed on Fedora
 
 ## Dot file management
 
-The terminal CLI tools I use are run from a toolbox. 
+The terminal CLI tools I use are run from a toolbox container. 
+The toolbox container I use is created from the container image 
+`ghcr.io/grantmacken/tbx-coding:latest` which is a Fedora based toolbox with additional coding tools installed.
 
-My dot files are managed by stow. I invoke stow with my Makefile default target so
-`make` will symlink the dot files using **Stow**
+```
+toolbox create  --image ghcr.io/grantmacken/tbx-coding:latest tbx-coding
+toolbox enter coding
+```
+From inside the toolbox I clone this repository and run 
+```
+make init # creates some directories
+make      # symlinks my dot files
+```
+
+I use Makefile targets to orchestrate the deployment of my dot files and 
+ management of systemd services and podman quadlets from inside the toolbox container.
+
+My dotfiles are actually managed by Stow. 
+The `make` command is a main target which invokes `stow` the with `--dotfiles` option.
+This to symlinks the dot files from this repository into my home directory.
+Using the `--dotfiles` option requires base directory naming conventions to be followed.
+The directories containing dot directories or files must be named starting with `dot-`
+The .stow-local-ignore files at the root of this repo is used to exclude files or directories from being stowed.
+The main ones being this README.md file and the Makefile itself.
+In addition any `.*` files in the root of the repository are ignored by stow.
+
 
 ## ./dot-local/bin
 
