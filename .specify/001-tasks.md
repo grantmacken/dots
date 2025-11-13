@@ -72,7 +72,37 @@ description: "Task list for Dotfiles Management System implementation"
 
 ---
 
-## Phase 3: User Story 1 - Deploy Neovim Configuration (Priority: P1) 🎯 MVP
+## Phase 3: GitHub Actions & Validation (Priority: HIGH) 🔧 Foundation Testing
+
+**Purpose**: Automate testing and validation using existing workflow_dispatch workflow
+
+**Goal**: Validate Phase 0-2 foundation work in clean CI environment
+
+**Note**: Implements all deferred testing tasks from Phase 0 (Makefile target verification, validation scripts)
+
+### 3.1 GitHub Actions Workflow Setup
+- [ ] T010 Update `.github/workflows/default.yml` workflow_dispatch to use tbx-coding image
+- [ ] T011 Add workflow job: Run `make check-toolbox` to verify container
+- [ ] T012 Add workflow job: Run `make check-tools` to verify tool versions
+
+### 3.2 Makefile Target Testing (from Phase 0)
+- [ ] T013 Workflow job: Run `make init` and verify directories created
+- [ ] T014 [P] Create validation script `dot-local/bin/validate-init` (checks directories exist)
+- [ ] T015 Workflow job: Run `make` (stow) and verify symlinks created  
+- [ ] T016 [P] Create validation script `dot-local/bin/validate-stow` (checks symlinks valid)
+- [ ] T017 Workflow job: Test systemd status targets work (backup_status, tbx_status)
+
+### 3.3 Additional Validation
+- [ ] T018 Workflow job: Run `make verify` to validate all guards work
+- [ ] T019 Workflow job: Verify Neovim launches (basic smoke test)
+- [ ] T020 Test workflow runs successfully via workflow_dispatch manual trigger
+- [ ] T021 Document GitHub Actions usage in README.md or `.github/README.md`
+
+**Checkpoint**: Foundation validated in CI - ready for user story implementation
+
+---
+
+## Phase 4: User Story 1 - Deploy Neovim Configuration (Priority: P1) 🎯 MVP
 
 **Goal**: Verify and document existing Neovim deployment from toolbox
 
@@ -80,20 +110,20 @@ description: "Task list for Dotfiles Management System implementation"
 
 ### Verification for User Story 1
 
-- [ ] T010 [US1] Test existing `make init` creates Neovim directories ($CACHE_HOME/nvim, $STATE_HOME/nvim, etc.)
-- [ ] T011 [US1] Test existing `make` (default) deploys `dot-config/nvim/` correctly via stow
-- [ ] T012 [US1] Verify Neovim plugin structure: files in `dot-config/nvim/plugin/` match pattern `{01-20}_*.lua` (FR-005)
-- [ ] T013 [US1] Count plugins in `dot-config/nvim/plugin/` - enforce max 20 (constitution)
-- [ ] T014 [US1] Test Neovim launches from toolbox with plugins loaded correctly
-- [ ] T015 [US1] Add `make nvim-verify` target to automate plugin count check
-- [ ] T016 [US1] Document Neovim deployment in README.md
-- [ ] T017 [US1] Test idempotency: Run `make` twice and verify second run succeeds without errors (FR-002)
+- [ ] T022 [US4] Test existing `make init` creates Neovim directories ($CACHE_HOME/nvim, $STATE_HOME/nvim, etc.)
+- [ ] T023 [US4] Test existing `make` (default) deploys `dot-config/nvim/` correctly via stow
+- [ ] T024 [US4] Verify Neovim plugin structure: files in `dot-config/nvim/plugin/` match pattern `{01-20}_*.lua` (FR-005)
+- [ ] T025 [US4] Count plugins in `dot-config/nvim/plugin/` - enforce max 20 (constitution)
+- [ ] T026 [US4] Test Neovim launches from toolbox with plugins loaded correctly
+- [ ] T027 [US4] Add `make nvim-verify` target to automate plugin count check
+- [ ] T028 [US4] Document Neovim deployment in README.md
+- [ ] T029 [US4] Test idempotency: Run `make` twice and verify second run succeeds without errors (FR-002)
 
 **Checkpoint**: Neovim deployment verified and documented
 
 ---
 
-## Phase 4: User Story 2 - Orchestrate System Tasks (Priority: P2)
+## Phase 5: User Story 2 - Orchestrate System Tasks (Priority: P2)
 
 **Goal**: Verify and document existing systemd/quadlet Makefile targets work from toolbox
 
@@ -101,19 +131,18 @@ description: "Task list for Dotfiles Management System implementation"
 
 ### Verification for User Story 2
 
-- [ ] T018 [US2] Test existing `backup_enable`, `backup_disable`, `backup_status`, `backup_test` targets
-- [ ] T019 [US2] Test existing `tbx_enable`, `tbx_disable`, `tbx_status`, `tbx_test` targets  
-- [ ] T020 [US2] Verify systemd operations work from toolbox affecting host
-- [ ] T021 [US2] Add timeout wrapper to systemd targets (30s per FR-011) if not present
-- [ ] T022 [US2] Test quadlet operations if quadlets exist in `dot-config/containers/systemd/`
-- [ ] T023 [US2] Document all systemd/quadlet targets in README.md
-- [ ] T024 [US2] Create pattern rule for new systemd units (`%_enable`, `%_disable`, etc.)
+- [ ] T030 [US5] Test existing `backup_enable`, `backup_disable`, `backup_status`, `backup_test` targets
+- [ ] T031 [US5] Test existing `tbx_enable`, `tbx_disable`, `tbx_status`, `tbx_test` targets  
+- [ ] T032 [US5] Verify systemd operations work from toolbox affecting host
+- [ ] T033 [US5] Test quadlet operations if quadlets exist in `dot-config/containers/systemd/`
+- [ ] T034 [US5] Document all systemd/quadlet targets in README.md
+- [ ] T035 [US5] Create pattern rule for new systemd units (`%_enable`, `%_disable`, etc.)
 
 **Checkpoint**: Systemd and quadlet orchestration verified and enhanced
 
 ---
 
-## Phase 5: User Story 3 - Manage Configuration in Git (Priority: P3)
+## Phase 6: User Story 3 - Manage Configuration in Git (Priority: P3)
 
 **Goal**: Verify Git workflow from toolbox (already working, just document)
 
@@ -121,39 +150,13 @@ description: "Task list for Dotfiles Management System implementation"
 
 ### Verification for User Story 3
 
-- [ ] T025 [US3] Verify Git operations work from toolbox (commit, push, pull)
-- [ ] T026 [US3] Review and update `.gitignore` if needed
-- [ ] T027 [US3] Optional: Add `make git-status` convenience target
-- [ ] T028 [US3] Test fresh clone workflow: `git clone` → `make init` → `make` → verify
-- [ ] T029 [US3] Document Git workflow in README.md
+- [ ] T036 [US6] Verify Git operations work from toolbox (commit, push, pull)
+- [ ] T037 [US6] Review and update `.gitignore` if needed
+- [ ] T038 [US6] Optional: Add `make git-status` convenience target
+- [ ] T039 [US6] Test fresh clone workflow: `git clone` → `make init` → `make` → verify
+- [ ] T040 [US6] Document Git workflow in README.md
 
 **Checkpoint**: Git workflow verified and documented
-
----
-
-## Phase 6: GitHub Actions & Validation
-
-**Purpose**: Automate testing and validation using existing workflow_dispatch workflow
-
-**Note**: Implements all deferred testing tasks from Phase 0 (Makefile target verification, validation scripts)
-
-### GitHub Actions Workflow Setup
-- [ ] T030 Update `.github/workflows/default.yml` workflow_dispatch to use tbx-coding image
-- [ ] T031 Add workflow job: Run `make check-toolbox` to verify container
-- [ ] T032 Add workflow job: Run `make check-tools` to verify tool versions
-
-### Makefile Target Testing (from Phase 0)
-- [ ] T033 Workflow job: Run `make init` and verify directories created
-- [ ] T034 [P] Create validation script `dot-local/bin/validate-init` (checks directories exist)
-- [ ] T035 Workflow job: Run `make` (stow) and verify symlinks created  
-- [ ] T036 [P] Create validation script `dot-local/bin/validate-stow` (checks symlinks valid)
-- [ ] T037 Workflow job: Test systemd status targets work (backup_status, tbx_status)
-
-### Additional Validation
-- [ ] T038 Workflow job: Verify Neovim plugin count ≤ 20
-- [ ] T039 Workflow job: Run `make verify` (stow dry-run) to check for conflicts
-- [ ] T040 Test workflow runs successfully via workflow_dispatch manual trigger
-- [ ] T041 Document GitHub Actions usage in README.md or `.github/README.md`
 
 ---
 
@@ -161,12 +164,12 @@ description: "Task list for Dotfiles Management System implementation"
 
 **Purpose**: Final improvements and comprehensive documentation
 
-- [ ] T042 Update main README.md with complete usage guide (init, deploy, systemd, git)
-- [ ] T043 Create `docs/error-handling.md` documenting all error scenarios and fixes
-- [ ] T044 Document toolbox setup in README: `toolbox create --image ghcr.io/grantmacken/tbx-coding:latest tbx-coding` and `toolbox enter tbx-coding`
-- [ ] T045 Add inline comments to Makefile explaining guards and patterns
-- [ ] T046 Validate all success criteria (SC-001 through SC-005)
-- [ ] T047 Final test: Fresh clone → `make init` → `make` → launch Neovim → verify all works
+- [ ] T041 Update main README.md with complete usage guide (init, deploy, systemd, git)
+- [ ] T042 Create `docs/error-handling.md` documenting all error scenarios and fixes
+- [ ] T043 Document toolbox setup in README: `toolbox create --image ghcr.io/grantmacken/tbx-coding:latest tbx-coding` and `toolbox enter tbx-coding`
+- [ ] T044 Add inline comments to Makefile explaining guards and patterns
+- [ ] T045 Validate all success criteria (SC-001 through SC-005)
+- [ ] T046 Final test: Fresh clone → `make init` → `make` → launch Neovim → verify all works
 
 ---
 
@@ -174,20 +177,20 @@ description: "Task list for Dotfiles Management System implementation"
 
 ### Phase Dependencies
 
-- **Research (Phase 0)**: No dependencies - MUST complete first (simplified: toolbox validation + Makefile verification only)
-- **Setup (Phase 1)**: Depends on Research completion
-- **Foundational (Phase 2)**: Depends on Setup - BLOCKS all user stories
-- **User Stories (Phase 3-5)**: All depend on Foundational completion
+- **Research (Phase 0)**: No dependencies - MUST complete first ✅ COMPLETE
+- **Setup (Phase 1)**: Depends on Research completion ✅ COMPLETE
+- **Foundational (Phase 2)**: Depends on Setup ✅ COMPLETE
+- **GitHub Actions (Phase 3)**: Depends on Foundational - validates Phase 0-2 work
+- **User Stories (Phases 4-6)**: All depend on Phase 3 validation
   - User stories can proceed sequentially in priority order (P1 → P2 → P3)
   - Or in parallel if working on different aspects
-- **GitHub Actions (Phase 6)**: Depends on user stories - implements CI testing
-- **Polish (Phase 7)**: Depends on Phase 6 complete
+- **Polish (Phase 7)**: Depends on user stories complete
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Independent of US1
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Independent of US1/US2
+- **User Story 1 (P1)**: Can start after Phase 3 validation - No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Phase 3 validation - Independent of US1
+- **User Story 3 (P3)**: Can start after Phase 3 validation - Independent of US1/US2
 
 ### Within Each Phase
 
@@ -200,8 +203,8 @@ description: "Task list for Dotfiles Management System implementation"
 - Phase 0: Completed (R001-R002)
 - Phase 1: T002 and T003 can run in parallel
 - Phase 2: T006 and T007 can run in parallel
-- Phase 6: T034 and T036 can run in parallel (validation script creation)
-- Phase 7: T042, T043, T044 can run in parallel (documentation)
+- Phase 3: T014 and T016 can run in parallel (validation script creation)
+- Phase 7: T041, T042, T043 can run in parallel (documentation)
 
 ---
 
