@@ -19,19 +19,44 @@ MAKEFLAGS += --silent
 
 ## Key Principles
 
-### 1. `.ONESHELL` - Single Shell Execution
+### 1. Target Ordering
+**Always follow this structure**:
+- **First target**: `default` (runs when `make` is invoked without arguments)
+- **Middle targets**: All other targets in logical grouping order
+- **Last target**: `help` (moved to end to avoid syntax highlighting issues)
+
+```makefile
+# ✅ Correct structure
+default: ## install dotfiles
+    # default behavior...
+
+check-tools: ## verify tools
+    # other targets...
+
+# ... more targets ...
+
+help: ## show available make targets
+    # help implementation (last!)
+```
+
+**Why**:
+- `default` must be first to be the default target
+- `help` uses shell pipes and regex that can confuse syntax highlighters
+- Moving `help` to end keeps editor highlighting clean for main targets
+
+### 2. `.ONESHELL` - Single Shell Execution
 All recipe lines execute in one shell session:
 - Enables multi-line shell scripts without backslashes
 - Variables persist across lines within a recipe
 - Exit codes propagate properly
 
-### 2. `--silent` Flag - No Command Echoing
+### 3. `--silent` Flag - No Command Echoing
 Commands don't print by default:
 - **No `@` prefix needed** on recipe lines
 - Use explicit `echo` statements for visibility
 - Keeps recipes clean and readable
 
-### 3. Explicit Echo Statements
+### 4. Explicit Echo Statements
 Show progress with deliberate output:
 ```makefile
 target:
@@ -40,7 +65,7 @@ target:
     echo '✅ completed task'  # Success
 ```
 
-### 4. Call Scripts Directly
+### 5. Call Scripts Directly
 Prefer scripts in `dot-local/bin/` over inline shell:
 ```makefile
 # ✅ Good (your style)
@@ -54,7 +79,7 @@ define check_function
 endef
 ```
 
-### 5. Toolbox Guards Only Where Needed
+### 6. Toolbox Guards Only Where Needed
 Add `dot-local/bin/check-toolbox` to modification targets:
 - ✅ Targets that modify files (default, init)
 - ✅ Targets that enable/disable services  
