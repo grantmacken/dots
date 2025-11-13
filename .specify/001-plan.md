@@ -12,7 +12,7 @@ Personal dotfiles management system using GNU Stow for symlink deployment, Makef
 **Primary Dependencies**: GNU Stow, systemd, podman, git, neovim  
 **Storage**: Git repository with flat file structure  
 **Testing**: Manual verification (automated tests deferred)  
-**Target Platform**: Fedora Silverblue host + toolbox container  
+**Target Platform**: Fedora Silverblue host + tbx-coding toolbox container (image: ghcr.io/grantmacken/tbx-coding:latest)  
 **Project Type**: Configuration management (dotfiles)  
 **Performance Goals**: Deployment < 5 seconds, Neovim startup < 500ms  
 **Constraints**: Maximum 20 Neovim plugins, 30 second timeout for systemd operations, toolbox-only CLI tools  
@@ -22,7 +22,7 @@ Personal dotfiles management system using GNU Stow for symlink deployment, Makef
 
 ✅ **I. Declarative Configuration**: Stow manages symlinks declaratively, scripts are idempotent  
 ✅ **II. Stow-Based Management**: All deployment via Stow, Makefile orchestrates  
-✅ **III. Toolbox Isolation**: All tools run from grantmacken/tbx-coding container  
+✅ **III. Toolbox Isolation**: All tools run from tbx-coding container (ghcr.io/grantmacken/tbx-coding:latest)  
 ✅ **IV. Systemd-First Automation**: Systemd units for services, Makefile wraps systemctl  
 ✅ **Constraints**: No symlinks in dot-config/systemd/user or dot-config/containers, max 20 plugins enforced
 
@@ -84,14 +84,14 @@ Makefile                          # Task orchestration
 ## Phase 0: Research
 
 ### 0.1 Toolbox Environment Validation
-- **Goal**: Verify execution within grantmacken/tbx-coding toolbox and document environment
+- **Goal**: Verify execution within tbx-coding toolbox and document environment
 - **Output**: Document toolbox detection method, environment variables, prerequisites check
-- **Acceptance**: Can detect toolbox context and verify required tools (stow, make, git, systemctl) are available
+- **Acceptance**: Can detect toolbox context and verify required tools available: GNU Stow 2.3+, GNU Make 4.0+, Git 2.30+, systemctl (systemd 245+), Neovim 0.9+
 
 ### 0.2 Makefile Verification in Toolbox
-- **Goal**: Confirm existing Makefile targets execute correctly from within toolbox
+- **Goal**: Confirm existing Makefile targets execute correctly from within tbx-coding toolbox
 - **Output**: Test results for `make init`, `make` (default/stow), systemd targets from toolbox
-- **Acceptance**: All existing Makefile targets run successfully from grantmacken/tbx-coding container
+- **Acceptance**: All existing Makefile targets run successfully from tbx-coding container (image: ghcr.io/grantmacken/tbx-coding:latest)
 
 ### 0.3 GitHub Actions Compatibility
 - **Goal**: Research GitHub Actions workflow for testing dotfiles deployment
@@ -108,8 +108,9 @@ Makefile                          # Task orchestration
 ### 1.1 Toolbox Detection & Guards
 - **Deliverable**: Toolbox detection function and documentation
 - **Contracts**:
-  - Function to detect if running inside toolbox (check $CONTAINER_ID or similar)
-  - Document required toolbox: grantmacken/tbx-coding
+  - Function to detect if running inside toolbox (check `/run/.containerenv` file per Fedora documentation)
+  - Parse `/run/.containerenv` to verify container name is "tbx-coding" and image matches
+  - Document required toolbox: tbx-coding (ghcr.io/grantmacken/tbx-coding:latest)
   - Optional: Add Makefile guard to warn/fail if not in toolbox
 
 ### 1.2 Directory Validation Scripts
@@ -147,13 +148,14 @@ Makefile                          # Task orchestration
 - Fedora Silverblue (immutable OS)
 - systemd user session
 - podman installed
-- Toolbox container: `grantmacken/tbx-coding` created and accessible
+- Toolbox container: tbx-coding created from ghcr.io/grantmacken/tbx-coding:latest
 
-### Toolbox Container (grantmacken/tbx-coding)
-- GNU Stow
-- GNU Make
-- Git
-- Neovim with Lua support
+### Toolbox Container (tbx-coding)
+- Container image: ghcr.io/grantmacken/tbx-coding:latest
+- GNU Stow 2.3+
+- GNU Make 4.0+
+- Git 2.30+
+- Neovim 0.9+ with Lua support
 - systemctl (for --user operations)
 
 ### Repository
@@ -175,10 +177,10 @@ After implementation, verify:
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| Stow conflicts on existing files | Deployment fails | Implement dry-run verification step (FR-009) |
-| Toolbox can't access host systemd | Automation broken | Test systemctl --user from container in Phase 0 |
+| Stow conflicts on existing files | Deployment fails | Implement dry-run verification step (FR-008) |
+| Toolbox can't access host systemd | Automation broken | Test systemctl --user from tbx-coding in Phase 0 |
 | Neovim plugin count exceeds 20 | Violates constitution | Document count validation in deployment process |
-| Makefile run outside repo | Wrong paths deployed | Add repository root guard to all targets (FR-011) |
+| Makefile run outside repo | Wrong paths deployed | Add repository root guard to all targets (FR-010) |
 
 ## Next Steps
 

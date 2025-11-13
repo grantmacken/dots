@@ -74,15 +74,14 @@ As a user, I want to version control my dotfiles and track changes over time fro
 - **FR-001**: System MUST deploy config files via GNU Stow symlinks from toolbox
 - **FR-002**: System MUST preserve idempotency - running `make` multiple times from toolbox is safe
 - **FR-003**: System MUST provide Makefile targets executable from toolbox for common tasks (enable, disable, status) for systemd units and quadlets
-- **FR-004**: All CLI tools (Stow, Git, Make) MUST run from within toolbox, not host
+- **FR-004**: All CLI tools and development tools (Stow, Git, Make, Neovim, systemctl) MUST run from within tbx-coding toolbox container (image: ghcr.io/grantmacken/tbx-coding:latest), not host
 - **FR-005**: Neovim config MUST use numbered plugin files `{NN}_name.lua` loading sequentially
 - **FR-006**: Neovim Lua modules MUST use LuaCATS annotations
-- **FR-007**: System MUST NOT allow symlinks inside `dot-config/systemd/user/` or `dot-config/containers/`
-- **FR-008**: System MUST isolate development tools in toolbox containers, not host
-- **FR-009**: System MUST abort deployment and display error when non-symlink files exist at target locations
-- **FR-010**: System MUST abort deployment if broken symlinks are detected
-- **FR-011**: Makefile targets MUST verify execution from repository root and exit with error if invoked elsewhere
-- **FR-012**: Systemd operations (enable/disable/status) and quadlet operations MUST timeout after 30 seconds maximum
+- **FR-007**: System MUST NOT allow symlinks inside `dot-config/systemd/user/` or `dot-config/containers/` and MUST verify absence during deployment
+- **FR-008**: System MUST abort deployment and display error when non-symlink files exist at target locations
+- **FR-009**: System MUST abort deployment if broken symlinks are detected
+- **FR-010**: Makefile targets MUST verify execution from repository root (check for `.git/`, `Makefile`, and `.specify/` directory) and exit with error if invoked elsewhere
+- **FR-011**: Systemd operations (enable/disable/status) and quadlet operations MUST timeout after 30 seconds maximum
 
 ### Key Entities
 
@@ -92,6 +91,7 @@ As a user, I want to version control my dotfiles and track changes over time fro
 - **Systemd Unit**: Service/timer definitions in `dot-config/systemd/user/`
 - **Podman Quadlet**: Container/volume/network quadlet definitions in `dot-config/containers/systemd/`
 - **Neovim Config**: Lua files in `dot-config/nvim/` (init.lua, plugin/*.lua, lua/*/init.lua)
+- **Toolbox Container**: tbx-coding container from image ghcr.io/grantmacken/tbx-coding:latest
 
 ## Success Criteria
 

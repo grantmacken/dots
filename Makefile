@@ -20,27 +20,7 @@ QUADLET := $(CONFIG_HOME)/containers/systemd
 SYSTEMD := $(CONFIG_HOME)/systemd/user
 PROJECTS := $(HOME)/Projects
 
-# Toolbox detection helper (checks /run/.containerenv per Fedora docs)
-define check_toolbox
-	@if [ ! -f /run/.containerenv ]; then \
-		echo "ERROR: Not running in a toolbox container" >&2; \
-		echo "  Please run: toolbox enter tbx-coding" >&2; \
-		exit 1; \
-	fi
-	@if ! grep -q 'name="tbx-coding"' /run/.containerenv 2>/dev/null; then \
-		container=$$(grep 'name=' /run/.containerenv | cut -d'"' -f2 2>/dev/null || echo "unknown"); \
-		echo "ERROR: Running in wrong container: $$container" >&2; \
-		echo "  Expected: tbx-coding" >&2; \
-		exit 1; \
-	fi
-endef
-
-check-toolbox: ## Verify running in tbx-coding toolbox
-	$(check_toolbox)
-	@echo "✓ Running in tbx-coding toolbox"
-
 default: ## install dotfiles (runs init, stow)
-	$(check_toolbox)
 	echo '##[ stow dotfiles ]##'
 	chmod +x dot-local/bin/* || true
 	stow --verbose --dotfiles --target ~/ .
@@ -58,7 +38,6 @@ default: ## install dotfiles (runs init, stow)
 # 	echo '✅ completed task'
 
 init:
-	$(check_toolbox)
 	echo '##[ $@ ]##'
 	mkdir -p $(BIN_HOME)
 	mkdir -p $(CACHE_HOME)/nvim
@@ -68,7 +47,6 @@ init:
 	chmod +x dot-local/bin/* &>/dev/null || true
 
 reset_nvim:
-	$(check_toolbox)
 	echo '##[ $@ ]##'
 	echo '- removing stuff not under stow control...'
 	rm -rf $(CACHE_HOME)/nvim
@@ -88,7 +66,6 @@ list-configurables: ## list configurable files in container
 	ls /usr/local/bin/
 
 backup_enable: ## enable and start bu_projects systemd timer
-	$(check_toolbox)
 	echo '##[ $@ ]##'
 	systemctl --no-pager --user daemon-reload
 	systemctl --no-pager --user enable --now bu_projects.timer
@@ -96,13 +73,11 @@ backup_enable: ## enable and start bu_projects systemd timer
 	echo '✅ backup timer enabled and started'
 
 backup_disable: ## disable and stop bu_projects systemd timer
-	$(check_toolbox)
 	echo '##[ $@ ]##'
 	systemctl --no-pager --user disable --now bu_projects.timer
 	echo '✅ backup timer disabled and stopped'
 
 backup_status: ## check bu_projects timer and service status
-	$(check_toolbox)
 	echo '##[ $@ ]##'
 	systemctl --no-pager --user status bu_projects.timer || true
 	systemctl --no-pager --user list-timers bu_projects.timer
@@ -110,13 +85,11 @@ backup_status: ## check bu_projects timer and service status
 	systemctl --no-pager --user status bu_projects.service || true
 
 backup_test: ## manually run bu_projects backup service
-	$(check_toolbox)
 	echo '##[ $@ ]##'
 	systemctl --no-pager --user start bu_projects.service
 	systemctl --no-pager --user status bu_projects.service || true
 
 tbx_enable: ## enable and start tbx systemd timer
-	$(check_toolbox)
 	echo '##[ $@ ]##'
 	systemctl --no-pager --user daemon-reload
 	systemctl --no-pager --user enable --now tbx.timer
@@ -124,13 +97,11 @@ tbx_enable: ## enable and start tbx systemd timer
 	echo '✅ tbx timer enabled and started'
 
 tbx_disable: ## disable and stop tbx systemd timer
-	$(check_toolbox)
 	echo '##[ $@ ]##'
 	systemctl --no-pager --user disable --now tbx.timer
 	echo '✅ tbx timer disabled and stopped'
 
 tbx_status: ## check tbx timer and service status
-	$(check_toolbox)
 	echo '##[ $@ ]##'
 	systemctl --no-pager --user status tbx.timer || true
 	systemctl --no-pager --user list-timers tbx.timer
@@ -138,13 +109,11 @@ tbx_status: ## check tbx timer and service status
 	systemctl --no-pager --user status tbx.service || true
 
 tbx_test: ## manually run tbx service
-	$(check_toolbox)
 	echo '##[ $@ ]##'
 	systemctl --no-pager --user start tbx.service
 	systemctl --no-pager --user status tbx.service || true
 
 test: ## run neovim busted tests with nlua
-	$(check_toolbox)
 	# echo '##[ $@ ]##'
 	pushd dot-config/nvim &>/dev/null
 	busted | faucet && echo
