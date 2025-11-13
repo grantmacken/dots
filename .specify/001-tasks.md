@@ -34,39 +34,21 @@ description: "Task list for Dotfiles Management System implementation"
 
 - [x] R001 [R0] Check if running inside toolbox by testing for `/run/.containerenv` file (official Fedora method)
 - [x] R002 [R0] Verify toolbox is tbx-coding (image: ghcr.io/grantmacken/tbx-coding:latest) by reading `/run/.containerenv` contents
-- [ ] R003 [R0] Document toolbox creation and entry: `toolbox create --image ghcr.io/grantmacken/tbx-coding:latest tbx-coding` then `toolbox enter tbx-coding`
-- [ ] R004 [R0] Test toolbox can access host systemd user session
 
 **Acceptance**: Can detect toolbox and verify all required CLI tools available
 
 ### 0.2 Makefile Verification in Toolbox
 
-- [ ] R005 [R0] Run `make init` from toolbox and verify directories created in $HOME
-- [ ] R006 [R0] Run `make` (default stow) from toolbox and verify symlinks created
-- [ ] R007 [R0] Test systemd targets (backup_status, tbx_status) work from toolbox
-- [ ] R008 [R0] Document any issues or unexpected behavior with existing targets
+- [ ] R003 [R0] Run `make init` from toolbox and verify directories created in $HOME
+- [ ] R004 [R0] Run `make` (default stow) from toolbox and verify symlinks created
+- [ ] R005 [R0] Test systemd targets (backup_status, tbx_status) work from toolbox
+- [ ] R006 [R0] Document any issues or unexpected behavior with existing targets
 
 **Acceptance**: All existing Makefile targets execute successfully from toolbox
 
-### 0.3 GitHub Actions Compatibility Research
+**Checkpoint**: Research complete - Makefile works correctly from toolbox
 
-- [ ] R009 [R0] Research GitHub Actions approach for testing dotfiles (existing examples)
-- [ ] R010 [R0] Identify how to simulate toolbox environment in GitHub Actions
-- [ ] R011 [R0] Draft workflow structure: checkout, setup, run make init, validate directories
-- [ ] R012 [R0] Document validation approach for CI (directory checks, symlink validation)
-
-**Acceptance**: Have a clear plan for GitHub Actions workflow implementation
-
-### 0.4 Directory Structure Validation
-
-- [ ] R013 [R0] Create validation script that checks `make init` created required directories
-- [ ] R014 [R0] Create validation script that verifies stow symlinks are valid (not broken)
-- [ ] R015 [R0] Test validation scripts work both in toolbox and potentially in CI
-- [ ] R016 [R0] Document expected directory structure for automated testing
-
-**Acceptance**: Can programmatically verify deployment succeeded
-
-**Checkpoint**: Research complete - ready to enhance existing Makefile with guards and CI
+**Note**: GitHub Actions testing (R007-R010 from original plan) deferred to Phase 6 when implementing CI/CD workflow.
 
 ---
 
@@ -160,14 +142,19 @@ description: "Task list for Dotfiles Management System implementation"
 
 **Purpose**: Automate testing and validation
 
-- [ ] T030 [P] Create `.github/workflows/test-deployment.yml` workflow
-- [ ] T031 [P] Workflow step: Setup tbx-coding container or use ghcr.io/grantmacken/tbx-coding:latest image
-- [ ] T032 Workflow step: Run `make init` and validate directories created
-- [ ] T033 Workflow step: Run `make verify` (stow dry-run) to check for conflicts
-- [ ] T034 Workflow step: Run validation scripts (directory checks, symlink validation)
-- [ ] T035 Workflow step: Verify Neovim plugin count ≤ 20
-- [ ] T036 Test workflow runs successfully on push/PR
-- [ ] T037 Document CI/CD approach in README.md or `.github/README.md`
+**Note**: Implements deferred research tasks from Phase 0 (GitHub Actions + validation scripts)
+
+- [ ] T030 [P] Research GitHub Actions approach for testing dotfiles
+- [ ] T031 [P] Create validation script that checks `make init` created required directories
+- [ ] T032 [P] Create validation script that verifies stow symlinks are valid (not broken)
+- [ ] T033 Create `.github/workflows/test-deployment.yml` workflow
+- [ ] T034 Workflow step: Setup tbx-coding container or use ghcr.io/grantmacken/tbx-coding:latest image
+- [ ] T035 Workflow step: Run `make init` and validate directories created
+- [ ] T036 Workflow step: Run `make verify` (stow dry-run) to check for conflicts
+- [ ] T037 Workflow step: Run validation scripts (directory checks, symlink validation)
+- [ ] T038 Workflow step: Verify Neovim plugin count ≤ 20
+- [ ] T039 Test workflow runs successfully on push/PR
+- [ ] T040 Document CI/CD approach in README.md or `.github/README.md`
 
 ---
 
@@ -175,12 +162,12 @@ description: "Task list for Dotfiles Management System implementation"
 
 **Purpose**: Final improvements and comprehensive documentation
 
-- [ ] T038 Update main README.md with complete usage guide (init, deploy, systemd, git)
-- [ ] T039 Create `docs/error-handling.md` documenting all error scenarios and fixes
-- [ ] T040 Document toolbox setup: `toolbox create --image ghcr.io/grantmacken/tbx-coding:latest tbx-coding` and `toolbox enter tbx-coding`
-- [ ] T041 Add inline comments to Makefile explaining guards and patterns
-- [ ] T042 Validate all success criteria (SC-001 through SC-005)
-- [ ] T043 Final test: Fresh clone → `make init` → `make` → launch Neovim → verify all works
+- [ ] T041 Update main README.md with complete usage guide (init, deploy, systemd, git)
+- [ ] T042 Create `docs/error-handling.md` documenting all error scenarios and fixes
+- [ ] T043 Document toolbox setup: `toolbox create --image ghcr.io/grantmacken/tbx-coding:latest tbx-coding` and `toolbox enter tbx-coding`
+- [ ] T044 Add inline comments to Makefile explaining guards and patterns
+- [ ] T045 Validate all success criteria (SC-001 through SC-005)
+- [ ] T046 Final test: Fresh clone → `make init` → `make` → launch Neovim → verify all works
 
 ---
 
@@ -188,13 +175,14 @@ description: "Task list for Dotfiles Management System implementation"
 
 ### Phase Dependencies
 
-- **Research (Phase 0)**: No dependencies - MUST complete first
+- **Research (Phase 0)**: No dependencies - MUST complete first (simplified: toolbox validation + Makefile verification only)
 - **Setup (Phase 1)**: Depends on Research completion
 - **Foundational (Phase 2)**: Depends on Setup - BLOCKS all user stories
 - **User Stories (Phase 3-5)**: All depend on Foundational completion
   - User stories can proceed sequentially in priority order (P1 → P2 → P3)
   - Or in parallel if working on different aspects
-- **Polish (Phase 6)**: Depends on all user stories complete
+- **GitHub Actions (Phase 6)**: Depends on user stories - implements CI testing
+- **Polish (Phase 7)**: Depends on Phase 6 complete
 
 ### User Story Dependencies
 
@@ -210,10 +198,11 @@ description: "Task list for Dotfiles Management System implementation"
 
 ### Parallel Opportunities
 
-- Phase 0: R001 can run parallel with R005, R009, R013
+- Phase 0: R003 and R004 can run in parallel
 - Phase 1: T002 and T003 can run in parallel
 - Phase 2: T006 and T007 can run in parallel
-- Phase 6: T031, T032, T033, T034 can run in parallel
+- Phase 6: T030, T031, T032 can run in parallel (research + script creation)
+- Phase 7: T041, T042, T043 can run in parallel (documentation)
 
 ---
 
@@ -234,7 +223,8 @@ description: "Task list for Dotfiles Management System implementation"
 2. Add User Story 1 → Test Neovim deployment → Commit (MVP!)
 3. Add User Story 2 → Test systemd operations → Commit
 4. Add User Story 3 → Test Git workflow → Commit
-5. Add Polish → Full system operational → Final commit
+5. Add GitHub Actions testing → Automated validation → Commit
+6. Add Polish → Full system documented → Final commit
 
 ---
 

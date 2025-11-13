@@ -93,15 +93,7 @@ Makefile                          # Task orchestration
 - **Output**: Test results for `make init`, `make` (default/stow), systemd targets from toolbox
 - **Acceptance**: All existing Makefile targets run successfully from tbx-coding container (image: ghcr.io/grantmacken/tbx-coding:latest)
 
-### 0.3 GitHub Actions Compatibility
-- **Goal**: Research GitHub Actions workflow for testing dotfiles deployment
-- **Output**: Document actions/checkout, toolbox setup strategy, test matrix for validation
-- **Acceptance**: Draft workflow that can run `make init` and verify directory structure
-
-### 0.4 Directory Structure Validation
-- **Goal**: Verify `make init` creates required directories and `make` (stow) deploys correctly
-- **Output**: Validation script/tests checking directories exist post-init, symlinks post-stow
-- **Acceptance**: Can programmatically verify deployment success (directories in $HOME, symlinks valid)
+**Note**: GitHub Actions compatibility research and validation scripts deferred to Phase 6 when implementing CI/CD workflow.
 
 ## Phase 1: Design & Contracts
 
