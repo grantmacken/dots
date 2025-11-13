@@ -2,7 +2,7 @@ name: Dotfiles Management - Foundation Testing
 on:
   push:
     branches:
-      - main: # Trigger on pushes to the main branch
+      - main
   # Allow manual triggering for testing
   workflow_dispatch:
 
@@ -23,7 +23,7 @@ jobs:
           path: /var/lib/containers
           key: toolbox-${{ runner.os }}-${{ hashFiles('.github/workflows/default.yml') }}
           restore-keys: |
-            toolbox-${{ runner.os }}-
+            toolbox-${{ runner.os }}
 
       - name: Setup toolbox
         run: |
