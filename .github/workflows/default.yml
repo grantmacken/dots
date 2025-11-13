@@ -16,18 +16,6 @@ jobs:
         with:
           ref: main
 
-      - name: Display environment info
-        run: |
-          echo "=== Environment Information ==="
-          cat /etc/os-release
-          echo ""
-          echo "=== Container Check ==="
-          if [ -f /run/.containerenv ]; then
-            cat /run/.containerenv
-          else
-            echo "WARNING: Not in a container environment"
-          fi
-
       - name: Cache toolbox image
         id: cache-toolbox
         uses: actions/cache@v4
