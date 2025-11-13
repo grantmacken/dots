@@ -1,0 +1,22 @@
+name: managing dotfiles
+on:
+  # Run weekly on Sunday at 00:00 UTC
+  # Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  container-test-job:
+      runs-on: ubuntu-latest
+      # Use the official Fedora Toolbox image
+      container:
+      image: docker:ghcr.io/grantmacken/tbx-coding:latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Verify Fedora Silverblue Environment
+              run: |
+                # The image will report the base Fedora version
+                cat /etc/os-release

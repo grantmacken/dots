@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Check for symlinks in specified directory
+# Usage: check-no-symlinks <directory>
+# Verifies no symlinks exist (FR-007: systemd/containers dirs must not contain symlinks)
+
+set -euo pipefail
+
+if [ $# -ne 1 ]; then
+  echo "Usage: $0 <directory>" >&2
+  exit 1
+fi
+
+DIR="$1"
+
+if [ ! -d "$DIR" ]; then
+  echo "ERROR: Directory does not exist: $DIR" >&2
+  exit 1
+fi
+
+echo "Checking for symlinks in: $DIR"
+
+# Find any symlinks in the directory, excluding systemd .target.wants directories
+# (these are created by systemctl enable and are expected)
+symlinks=$(find "$DIR" -type l ! -path "*target.wants*" 2>/dev/null || true)
+
+if [ -n "$symlinks" ]; then
+  echo "ERROR: Found symlinks in $DIR (constitution violation)" >&2
+  echo "Symlinks found:" >&2
+  echo "$symlinks" >&2
+  echo "" >&2
+  echo "Constitution principle: No symlinks in systemd/containers dirs" >&2
+  echo "These break systemd and podman workflows." >&2
+  exit 1
+fi
+
+echo "✓ No symlinks found in $DIR (excluding systemd .target.wants dirs)"
+exit 0

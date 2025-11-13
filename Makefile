@@ -27,6 +27,18 @@ check-toolbox: ## Verify running in tbx-coding toolbox
 check-tools: ## Verify required CLI tools and versions
 	dot-local/bin/check-tools
 
+verify: ## Verify deployment would succeed (dry-run conflict check)
+	dot-local/bin/check-toolbox
+	echo '##[ $@ ]##'
+	echo 'Checking for symlinks in systemd/containers directories...'
+	dot-local/bin/check-no-symlinks dot-config/systemd/user
+	dot-local/bin/check-no-symlinks dot-config/containers/systemd
+	echo ''
+	echo 'Running stow dry-run (--simulate)...'
+	stow --simulate --verbose --dotfiles --target ~/ .
+	echo ''
+	echo '✅ verification passed - deployment should succeed'
+
 default: ## install dotfiles (runs init, stow)
 	dot-local/bin/check-toolbox
 	echo '##[ stow dotfiles ]##'

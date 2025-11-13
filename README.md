@@ -53,6 +53,7 @@ management of systemd services and podman quadlets from inside the toolbox conta
 
 - **`make check-toolbox`** - Verify running in tbx-coding toolbox
 - **`make check-tools`** - Verify required CLI tools and versions (stow, make, git, systemctl, nvim)
+- **`make verify`** - Verify deployment would succeed (dry-run conflict check via stow --simulate)
 - **`make test`** - Run Neovim busted tests with nlua
 
 #### Systemd Services - Backup
