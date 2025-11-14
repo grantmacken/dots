@@ -46,7 +46,12 @@ jobs:
             echo "~/.config does not exist"
           fi
       - name: Verify deployment would succeed - dry-run conflict check
-        run: make verify
+        run: |
+          echo "=== Debug stow with high verbosity ==="
+          stow --simulate --verbose=5 --dotfiles --target ~/ . 2>&1 || true
+          echo ""
+          echo "=== Running make verify ==="
+          make verify
       - name: Deploy dotfiles
         run: |
           make default
