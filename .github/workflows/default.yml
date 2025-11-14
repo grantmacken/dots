@@ -23,6 +23,18 @@ jobs:
         run: |
           make init
           dot-local/bin/validate-init
+      - name: Debug - List repo contents
+        run: |
+          echo "=== Root directory ==="
+          ls -la
+          echo "=== Checking for .config ==="
+          if [ -e .config ]; then
+            echo ".config exists:"
+            ls -ld .config
+            file .config
+          else
+            echo ".config does not exist"
+          fi
       - name: Verify deployment would succeed - dry-run conflict check
         run: make verify
       - name: Deploy dotfiles
