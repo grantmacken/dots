@@ -35,6 +35,13 @@ check-tools: ## Verify required CLI tools and versions
 check-root: ## Verify running in repo root
 	dot-local/bin/check-repo-root
 
+check-symlinks: ## Check for broken symlinks...'
+	dot-local/bin/check-no-symlinks dot-config/systemd/user
+	dot-local/bin/check-no-symlinks dot-config/containers/systemd
+
+check-dry-run: ## Verify stow dry-run (conflict check)
+	stow --simulate --verbose --dotfiles --target ~/ .
+
 check-toolbox: ## Verify running in toolbox container
 ifndef GITHUB_ACTIONS
 	dot-local/bin/check-toolbox
@@ -42,6 +49,8 @@ else
 	echo 'Skipping toolbox check in GitHub Actions environment'
 endif
 
+verify: check-symlinks check-dry-run ## Verify deployment would succeed (dry-run conflict check)
+	echo '✅ verification passed - deployment should succeed'
 
 workflow-validate: init  ## Run validation checks (GitHub Actions only)
 	echo '##[ $@ ]##'
@@ -58,22 +67,6 @@ workflow-validate: init  ## Run validation checks (GitHub Actions only)
 	dot-local/bin/validate-stow
 	echo ''
 	echo '✅ Workflow validation completed'
-
-verify: ## Verify deployment would succeed (dry-run conflict check)
-	dot-local/bin/check-repo-root
-	dot-local/bin/check-toolbox
-	echo '##[ $@ ]##'
-	echo 'Checking for broken symlinks...'
-	dot-local/bin/check-symlinks
-	echo ''
-	echo 'Checking for symlinks in systemd/containers directories...'
-	dot-local/bin/check-no-symlinks dot-config/systemd/user
-	dot-local/bin/check-no-symlinks dot-config/containers/systemd
-	echo ''
-	echo 'Running stow dry-run (--simulate)...'
-	stow --simulate --verbose --dotfiles --target ~/ .
-	echo ''
-	echo '✅ verification passed - deployment should succeed'
 
 init:
 	dot-local/bin/check-repo-root

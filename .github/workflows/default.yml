@@ -21,4 +21,6 @@ jobs:
         run: |
           make check-tools
           make check-root
+        - name: Verify deployment would succeed (dry-run conflict check)
+          run: make verify
 
