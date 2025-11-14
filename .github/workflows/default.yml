@@ -10,7 +10,7 @@ jobs:
   foundation-validation:
     runs-on: ubuntu-latest
     container: # fedora silverblue image with toolbox installed
-      image: quay.io/fedora/fedora:latest
+      image: quay.io/fedora/fedora-sliverblue:latest
       options: --privileged
     steps:
       # - name: Setup Podman
