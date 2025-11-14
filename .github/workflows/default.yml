@@ -9,21 +9,14 @@ on:
 jobs:
   foundation-validation:
     runs-on: ubuntu-latest
-    # Use Fedora Silverblue as the container base
+    container: # fedora silverblue image with toolbox installed
+      image: quay.io/fedora/fedora:latest
+      options: --privileged
     steps:
-      #install podman and toolbox
-      - name: Install Podman and Toolbox
-        run: |
-          echo "=== Installing Podman and Toolbox ==="
-          sudo apt-get update
-          sudo apt-get install -y podman toolbox
-          podman --version
-          toolbox --version
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           ref: main
-
       - name: Cache toolbox image
         id: cache-toolbox
         uses: actions/cache@v4
@@ -44,14 +37,11 @@ jobs:
           echo ""
           echo "1. Pulling toolbox image (will use cache if available)..."
           podman pull ghcr.io/grantmacken/tbx-coding:latest
-          echo ""
-          echo "2. Creating toolbox container..."
-          toolbox create --image ghcr.io/grantmacken/tbx-coding:latest tbx-coding || echo "Toolbox already exists"
-          echo ""
-          echo "3. Verifying toolbox..."
-          toolbox list --images | grep -q grantmacken/tbx-coding
-          toolbox list --containers | grep -q tbx-coding
-        
+      - name: Create toolbox container
+        run: |
+          echo "2. Creating toolbox container 'tbx-coding'..."
+          toolbox create --image ghcr.io/grantmacken/tbx-coding:latest tbx-coding
+          echo "✓ Toolbox container 'tbx-coding' is ready."
       # - name: Verify toolbox detection
       #   run: |
       #     echo "=== Testing check-toolbox script inside toolbox ==="
