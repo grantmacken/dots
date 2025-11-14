@@ -25,26 +25,6 @@ version_gte() {
   printf '%s\n%s\n' "$2" "$1" | sort -V -C
 }
 
-echo "=== Toolbox Tool Verification ==="
-echo ""
-
-# Verify in correct toolbox first
-if [ ! -f /run/.containerenv ]; then
-  echo -e "${RED}✗ Not running in a toolbox container${NC}" >&2
-  exit 1
-fi
-
-if ! grep -q 'name="tbx-coding"' /run/.containerenv; then
-  container=$(grep 'name=' /run/.containerenv | cut -d'"' -f2 2>/dev/null || echo "unknown")
-  echo -e "${RED}✗ Wrong container: $container (expected: tbx-coding)${NC}" >&2
-  exit 1
-fi
-
-image=$(grep 'image=' /run/.containerenv | cut -d'"' -f2)
-echo -e "${GREEN}✓ Container: tbx-coding${NC}"
-echo "  Image: $image"
-echo ""
-
 # Check GNU Stow
 if command -v stow &>/dev/null; then
   stow_ver=$(stow --version 2>&1 | head -1 | grep -oP '\d+\.\d+' || echo "0.0")

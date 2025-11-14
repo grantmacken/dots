@@ -32,6 +32,9 @@ default: ## install dotfiles (runs init, stow)
 check-tools: ## Verify required CLI tools and versions
 	dot-local/bin/check-tools
 
+check-root: ## Verify running in repo root
+	dot-local/bin/check-repo-root
+
 check-toolbox: ## Verify running in toolbox container
 ifndef GITHUB_ACTIONS
 	dot-local/bin/check-toolbox
@@ -40,8 +43,7 @@ else
 endif
 
 
-workflow-validate: ## Run validation checks (GitHub Actions only)
-ifdef GITHUB_ACTIONS
+workflow-validate: init  ## Run validation checks (GitHub Actions only)
 	echo '##[ $@ ]##'
 	echo 'Running make init...'
 	$(MAKE) init
@@ -56,7 +58,6 @@ ifdef GITHUB_ACTIONS
 	dot-local/bin/validate-stow
 	echo ''
 	echo '✅ Workflow validation completed'
-endif
 
 verify: ## Verify deployment would succeed (dry-run conflict check)
 	dot-local/bin/check-repo-root
