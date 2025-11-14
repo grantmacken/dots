@@ -42,7 +42,7 @@ jobs:
           echo "1. Pulling toolbox image (will use cache if available)..."
           podman pull ghcr.io/grantmacken/tbx-coding:latest
           podman images | grep tbx-coding
-        echo "✓ Toolbox image is ready."
+          echo "✓ Toolbox image is ready."
       # - name: Create toolbox container
       #   run: |
       #     echo "2. Creating toolbox container 'tbx-coding'..."
