@@ -38,8 +38,7 @@ jobs:
           fi
           echo ""
           echo "1. Pulling toolbox image (will use cache if available)..."
-          sudo mount --make-rshared /
-          podman pull ghcr.io/grantmacken/tbx-coding:latest
+          podman pull docker:ghcr.io/grantmacken/tbx-coding:latest
           podman images | grep tbx-coding
           echo "✓ Toolbox image is ready."
       # - name: Create toolbox container
