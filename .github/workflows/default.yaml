@@ -29,8 +29,8 @@ jobs:
       - name: Install Neovim
         run: |
           SRC='https://github.com/neovim/neovim/releases/download/nightly/nvim-linux-x86_64.tar.gz'
-          wget ${SRC} -O /tmp/nvim.tar.gz
-          sudo tar xzf /tmp/nvim.tar.gz --strip-components=1 -C /usr/local
+          wget ${SRC} -O /tmp/nvim.tar.gz &> /dev/null
+          sudo tar xzf /tmp/nvim.tar.gz --strip-components=1 -C /usr/local &> /dev/null
           ls -al /usr/local/bin/nvim
       # - name: Verify Neovim launches
       #   run: make validate-neovim
