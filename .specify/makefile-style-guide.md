@@ -65,7 +65,33 @@ target:
     echo '✅ completed task'  # Success
 ```
 
-### 5. Call Scripts Directly
+### 5. Explicit Dependency Chains (Not `$(MAKE)` in recipes)
+Use target dependencies instead of calling `$(MAKE)` in recipes:
+
+```makefile
+# ✅ Correct - Explicit dependency chain
+validate: init-validate stow-validate
+    echo '✅ full workflow validation passed'
+
+init-validate: init validate-init
+
+stow-validate: default validate-stow
+
+# ❌ Avoid - Calling $(MAKE) in recipe
+validate:
+    $(MAKE) init
+    $(MAKE) validate-init
+    echo '✅ validation passed'
+```
+
+**Benefits**:
+- Make handles dependency graph properly
+- Parallel execution possible (`make -j`)
+- Cleaner, more declarative
+- Avoids nested make invocations
+- Better error propagation
+
+### 6. Call Scripts Directly
 Prefer scripts in `dot-local/bin/` over inline shell:
 ```makefile
 # ✅ Good (your style)
@@ -79,7 +105,24 @@ define check_function
 endef
 ```
 
-### 6. Toolbox Guards Only Where Needed
+### 7. Conditional Recipe Steps
+Use `ifdef`/`ifndef` for conditional recipe steps (not targets):
+```makefile
+# ✅ Correct - Conditional recipe steps
+default:
+    dot-local/bin/check-repo-root
+ifndef GITHUB_ACTIONS
+    dot-local/bin/check-toolbox
+endif
+    stow --verbose --dotfiles --target ~/ .
+```
+
+Common use cases:
+- Skip toolbox checks in GitHub Actions
+- Skip interactive steps in CI
+- Environment-specific behavior
+
+### 8. Toolbox Guards Only Where Needed
 Add `dot-local/bin/check-toolbox` to modification targets:
 - ✅ Targets that modify files (default, init)
 - ✅ Targets that enable/disable services  

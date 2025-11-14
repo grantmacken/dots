@@ -81,7 +81,7 @@ As a user, I want to track configuration changes in Git and deploy them reliably
 ### Functional Requirements
 
 **Deployment & Orchestration**:
-- **FR-001**: System MUST deploy config files via GNU Stow symlinks
+- **FR-001**: System MUST deploy config files via GNU Stow 2.4.0+ symlinks (version required for proper handling, see https://github.com/aspiers/stow/issues/33)
 - **FR-002**: System MUST preserve idempotency - running `make` multiple times is safe
 - **FR-003**: System MUST provide Makefile targets for common tasks (enable, disable, status)
 - **FR-004**: Development environment is tbx-coding toolbox (ghcr.io/grantmacken/tbx-coding:latest)

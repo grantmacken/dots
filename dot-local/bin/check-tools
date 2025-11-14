@@ -6,7 +6,7 @@
 set -euo pipefail
 
 # Minimum required versions
-MIN_STOW="2.3"
+MIN_STOW="2.4"
 MIN_MAKE="4.0"
 MIN_GIT="2.30"
 MIN_SYSTEMD="245"

@@ -13,12 +13,19 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
-      - name: Install GNU Stow
-        run: sudo apt-get update && sudo apt-get install -y stow
+      - name: Install GNU Stow >= 2.4.0
+        run: |
+          wget https://ftp.gnu.org/gnu/stow/stow-2.4.1.tar.gz
+          tar -xzf stow-2.4.1.tar.gz
+          cd stow-2.4.1
+          ./configure --prefix=/usr/local
+          make
+          sudo make install
+          stow --version
       - name: Foundational Checks
         run: make check-tools && make check-root
       - name: Validate Initial Setup
-        run: make init
+        run: make validate-setup
       # - name: Install Neovim
       #   run: |
       #     sudo apt-get update
