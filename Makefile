@@ -32,6 +32,14 @@ default: ## install dotfiles (runs init, stow)
 check-tools: ## Verify required CLI tools and versions
 	dot-local/bin/check-tools
 
+check-toolbox: ## Verify running in toolbox container
+ifndef GITHUB_ACTIONS
+	dot-local/bin/check-toolbox
+else
+	echo 'Skipping toolbox check in GitHub Actions environment'
+endif
+
+
 workflow-validate: ## Run validation checks (GitHub Actions only)
 ifdef GITHUB_ACTIONS
 	echo '##[ $@ ]##'
