@@ -13,7 +13,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: main
-      - name: Verify required tools
-        run: make check-tools
-      - name: Test repository root detection
-        run: make test-root
+        # install Stow dependency and run foundational checks
+      - name: Install GNU Stow
+        run: sudo apt-get update && sudo apt-get install -y stow
+      # Assumes a Makefile preinstalled
+      - name: Foundational Checks
+        run: |
+          make check-tools
+          make check-root
+
