@@ -35,6 +35,16 @@ jobs:
           else
             echo ".config does not exist"
           fi
+          echo "=== Checking HOME directory ==="
+          ls -la ~/
+          echo "=== Checking ~/.config ==="
+          if [ -e ~/.config ]; then
+            echo "~/.config exists:"
+            ls -ld ~/.config
+            file ~/.config
+          else
+            echo "~/.config does not exist"
+          fi
       - name: Verify deployment would succeed - dry-run conflict check
         run: make verify
       - name: Deploy dotfiles
