@@ -96,7 +96,7 @@ description: "Task list for Dotfiles Management System implementation"
 - [x] T018 Workflow job: Run `verify` target to validate all guards work (dry-run conflict check + symlink validation)
 - [x] T019 [P] Create validation script `dot-local/bin/validate-nvim` (checks Neovim launches and config symlinked)
 - [x] T020 Test workflow runs successfully via workflow_dispatch manual trigger
-- [ ] T021 Document GitHub Actions usage in README.md or `.github/README.md`
+- [x] T021 Document GitHub Actions usage in README.md or `.github/README.md`
 
 **Checkpoint**: ✅ Phase 3 Complete - Foundation validated in CI, ready for user story implementation
 
@@ -112,14 +112,14 @@ description: "Task list for Dotfiles Management System implementation"
 
 - [x] T024 [US4] Test existing `make init` creates Neovim directories ($CACHE_HOME/nvim, $STATE_HOME/nvim, etc.)
 - [x] T025 [US4] Test existing `make` (default) deploys `dot-config/nvim/` correctly via stow
-- [ ] T026 [US4] Verify Neovim plugin structure: files in `dot-config/nvim/plugin/` match pattern `{01-20}_*.lua` (FR-005)
-- [ ] T027 [US4] Count plugins in `dot-config/nvim/plugin/` - enforce max 20 (constitution)
-- [ ] T028 [US4] Test Neovim launches from toolbox with plugins loaded correctly
-- [ ] T029 [US4] Add `make nvim-verify` target to automate plugin count check
-- [ ] T030 [US4] Document Neovim deployment in README.md
-- [ ] T031 [US4] Test idempotency: Run `make` twice and verify second run succeeds without errors (FR-002)
+- [x] T026 [US4] Verify Neovim plugin structure: files in `dot-config/nvim/plugin/` match pattern `{01-20}_*.lua` (FR-005)
+- [x] T027 [US4] Count plugins in `dot-config/nvim/plugin/` - enforce max 20 (constitution)
+- [x] T028 [US4] Test Neovim launches from toolbox with plugins loaded correctly
+- [x] T029 [US4] Add `make nvim-verify` target to automate plugin count check
+- [x] T030 [US4] Document Neovim deployment in README.md
+- [x] T031 [US4] Test idempotency: Run `make` twice and verify second run succeeds without errors (FR-002)
 
-**Checkpoint**: Neovim deployment verified and documented
+**Checkpoint**: ✅ Phase 4 Complete - Neovim deployment verified, tested, and documented
 
 ---
 
