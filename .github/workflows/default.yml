@@ -5,77 +5,15 @@ on:
       - main
   # Allow manual triggering for testing
   workflow_dispatch:
-
 jobs:
   foundation-validation:
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Podman
-        run: |
-          echo "=== Setting up Podman ==="
-          sudo apt-get update
-          sudo apt-get install -y podman
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           ref: main
-      - name: Cache toolbox image
-        id: cache-toolbox
-        uses: actions/cache@v4
-        with:
-          path: /var/lib/containers
-          key: toolbox-${{ runner.os }}-${{ hashFiles('.github/workflows/default.yml') }}
-          restore-keys: |
-            toolbox-${{ runner.os }}
-
-      - name: Setup toolbox
-        run: |
-          echo "=== Setting up toolbox ==="
-          if [ "${{ steps.cache-toolbox.outputs.cache-hit }}" == "true" ]; then
-            echo "✓ Cache hit - toolbox image restored from cache"
-          else
-            echo "Cache miss - pulling toolbox image..."
-          fi
-          echo ""
-          echo "1. Pulling toolbox image (will use cache if available)..."
-          podman pull ghcr.io/grantmacken/tbx-coding:latest
-          podman images | grep tbx-coding
-          echo "✓ Toolbox image is ready."
-      # - name: Create toolbox container
-      #   run: |
-      #     echo "2. Creating toolbox container 'tbx-coding'..."
-      #     toolbox create --image ghcr.io/grantmacken/tbx-coding:latest tbx-coding
-      #     echo "✓ Toolbox container 'tbx-coding' is ready."
-      # - name: Verify toolbox detection
-      #   run: |
-      #     echo "=== Testing check-toolbox script inside toolbox ==="
-      #     chmod +x dot-local/bin/check-toolbox || true
-      #     toolbox run --container tbx-coding bash -c "cd $PWD && ./dot-local/bin/check-toolbox"
-      #
-      # - name: Verify required tools
-      #   run: |
-      #     echo "=== Testing check-tools script inside toolbox ==="
-      #     chmod +x dot-local/bin/check-tools || true
-      #     toolbox run --container tbx-coding bash -c "cd $PWD && ./dot-local/bin/check-tools"
-      #
-      # - name: Test repository root detection
-      #   run: |
-      #     echo "=== Testing check-repo-root script inside toolbox ==="
-      #     chmod +x dot-local/bin/check-repo-root || true
-      #     toolbox run --container tbx-coding bash -c "cd $PWD && ./dot-local/bin/check-repo-root"
-      #
-      # - name: Run make check-toolbox
-      #   run: |
-      #     echo "=== Testing make check-toolbox target inside toolbox ==="
-      #     chmod +x dot-local/bin/* || true
-      #     toolbox run --container tbx-coding bash -c "cd $PWD && make check-toolbox"
-      #
-      # - name: Run make check-tools
-      #   run: |
-      #     echo "=== Testing make check-tools target inside toolbox ==="
-      #     toolbox run --container tbx-coding bash -c "cd $PWD && make check-tools"
-      #
-      # - name: Run workflow validation
-      #   run: |
-      #     echo "=== Running workflow-validate target inside toolbox ==="
-      #     toolbox run --container tbx-coding bash -c "cd $PWD && make workflow-validate"
+      - name: Verify required tools
+        run: make check-tools
+      - name: Test repository root detection
+        run: make test-root
