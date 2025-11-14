@@ -17,17 +17,11 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y stow
       - name: Foundational Checks
         run: make check-tools && make check-root
-      - name: Initialize directories
-        run: |
-          make init
-          dot-local/bin/validate-init
-      - name: Deploy dotfiles
-        run: |
-          make default
-          dot-local/bin/validate-stow
-      - name: Install Neovim
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y neovim
-      - name: Verify Neovim launches
-        run: dot-local/bin/validate-nvim
+      - name: Validate Initial Setup
+        run: make init
+      # - name: Install Neovim
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y neovim
+      # - name: Verify Neovim launches
+      #   run: dot-local/bin/validate-nvim

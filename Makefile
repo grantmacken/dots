@@ -34,21 +34,12 @@ endif
 verify: check-symlinks check-dry-run ## Verify deployment would succeed (dry-run conflict check)
 	echo '✅ verification passed - deployment should succeed'
 
-workflow-validate: init  ## Run validation checks (GitHub Actions only)
-	echo '##[ $@ ]##'
-	echo 'Running make init...'
-	$(MAKE) init
-	echo ''
-	echo 'Validating init directories...'
-	dot-local/bin/validate-init
-	echo ''
-	echo 'Running make (stow)...'
-	$(MAKE) default
-	echo ''
-	echo 'Validating stow symlinks...'
-	dot-local/bin/validate-stow
-	echo ''
-	echo '✅ Workflow validation completed'
+validate: init-validate stow-validate ## Run full workflow validation (init + stow + validations)
+	echo '✅ full workflow validation passed'
+
+init-validate: init validate-init
+
+stow-validate: default validate-stow
 
 init:
 	dot-local/bin/check-repo-root
@@ -169,7 +160,11 @@ else
 	echo 'Skipping toolbox check in GitHub Actions environment'
 endif
 
+validate-stow: ## Validate stow symlinks
+	dot-local/bin/validate-stow
 
+validate-init: ## Validate init directories
+	dot-local/bin/validate-init
 
 
 help: ## show available make targets
