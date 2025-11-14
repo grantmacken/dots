@@ -10,7 +10,7 @@ jobs:
   foundation-validation:
     runs-on: ubuntu-latest
     container: # fedora silverblue image with toolbox installed
-      image: fedora-sliverblue:43
+      image: fedora:43
        #options: --privileged
     steps:
       - name: Setup Podman
