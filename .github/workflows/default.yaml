@@ -22,15 +22,17 @@ jobs:
           make
           sudo make install
           stow --version
-      - name: Foundational Checks
-        run: make check-tools && make check-root
-      - name: Validate Initial Setup
-        run: make validate-setup
       - name: Install Neovim
         run: |
           SRC='https://github.com/neovim/neovim/releases/download/nightly/nvim-linux-x86_64.tar.gz'
           wget ${SRC} -O /tmp/nvim.tar.gz &> /dev/null
           sudo tar xzf /tmp/nvim.tar.gz --strip-components=1 -C /usr/local &> /dev/null
           ls -al /usr/local/bin/nvim
+          nvim --version
+      - name: Foundational Checks
+        run: make check-tools && make check-root
+      - name: Validate Initial Setup
+        run: make validate-setup
+
       # - name: Verify Neovim launches
       #   run: make validate-neovim
