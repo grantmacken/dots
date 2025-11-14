@@ -10,12 +10,12 @@ jobs:
   foundation-validation:
     runs-on: ubuntu-latest
     container: # fedora silverblue image with toolbox installed
-    image: fedora-sliverblue:43
-      options: --privileged
+      image: fedora-sliverblue:43
+       #options: --privileged
     steps:
       - name: Setup Podman
         run: |
-          sudo dnf install -y podman 
+          sudo dnf install -y podman
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
