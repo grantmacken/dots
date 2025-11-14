@@ -27,14 +27,14 @@ ifndef GITHUB_ACTIONS
 endif
 	echo '##[ stow dotfiles ]##'
 	chmod +x dot-local/bin/* || true
-	stow --verbose --dotfiles --target ~/ .
+	stow --verbose --dotfiles --target $${HOME} .
 	echo '✅ completed task'
 	echo '✓ Running in tbx-coding toolbox'
 
 verify: check-symlinks check-dry-run ## Verify deployment would succeed (dry-run conflict check)
 	echo '✅ verification passed - deployment should succeed'
 
-validate: init-validate stow-validate ## Run full workflow validation (init + stow + validations)
+validate-setup: init-validate stow-validate ## Run full workflow validation (init + stow + validations)
 	echo '✅ full workflow validation passed'
 
 init-validate: init validate-init
