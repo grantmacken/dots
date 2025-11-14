@@ -22,7 +22,9 @@ PROJECTS := $(HOME)/Projects
 
 default: ## install dotfiles (runs init, stow)
 	dot-local/bin/check-repo-root
+ifndef GITHUB_ACTIONS
 	dot-local/bin/check-toolbox
+endif
 	echo '##[ stow dotfiles ]##'
 	chmod +x dot-local/bin/* || true
 	stow --verbose --dotfiles --target ~/ .
@@ -70,7 +72,9 @@ workflow-validate: init  ## Run validation checks (GitHub Actions only)
 
 init:
 	dot-local/bin/check-repo-root
+ifndef GITHUB_ACTIONS
 	dot-local/bin/check-toolbox
+endif
 	echo '##[ $@ ]##'
 	mkdir -p $(BIN_HOME)
 	mkdir -p $(CACHE_HOME)/nvim
