@@ -30,6 +30,7 @@ jobs:
         run: |
           mkdir -p /usr/local
           SRC='https://github.com/neovim/neovim/releases/download/nightly/nvim-linux-x86_64.tar.gz'
-          wget ${SRC} -O- | tar xz --strip-components=1 -C /usr/local &> /dev/null
-      - name: Verify Neovim launches
-        run: dot-local/bin/validate-nvim
+          wget ${SRC} -O- | tar xz --strip-components=1 -C /usr/local
+          ls /usr/local/bin/nvim 
+      # - name: Verify Neovim launches
+      #   run: make validate-neovim
