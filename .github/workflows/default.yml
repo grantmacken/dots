@@ -13,6 +13,10 @@ jobs:
       image: quay.io/fedora/fedora:latest
       options: --privileged
     steps:
+      - name: Setup Podman
+        run: |
+          sudo apt update
+          sudo apt-get -y install podman
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -37,11 +41,13 @@ jobs:
           echo ""
           echo "1. Pulling toolbox image (will use cache if available)..."
           podman pull ghcr.io/grantmacken/tbx-coding:latest
-      - name: Create toolbox container
-        run: |
-          echo "2. Creating toolbox container 'tbx-coding'..."
-          toolbox create --image ghcr.io/grantmacken/tbx-coding:latest tbx-coding
-          echo "✓ Toolbox container 'tbx-coding' is ready."
+          podman images | grep tbx-coding
+        echo "✓ Toolbox image is ready."
+      # - name: Create toolbox container
+      #   run: |
+      #     echo "2. Creating toolbox container 'tbx-coding'..."
+      #     toolbox create --image ghcr.io/grantmacken/tbx-coding:latest tbx-coding
+      #     echo "✓ Toolbox container 'tbx-coding' is ready."
       # - name: Verify toolbox detection
       #   run: |
       #     echo "=== Testing check-toolbox script inside toolbox ==="
