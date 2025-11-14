@@ -82,18 +82,18 @@ else
 fi
 
 # Check Neovim
-if command -v nvim &>/dev/null; then
-  nvim_ver=$(nvim --version 2>&1 | head -1 | grep -oP '\d+\.\d+' || echo "0.0")
-  if version_gte "$nvim_ver" "$MIN_NVIM"; then
-    echo -e "${GREEN}✓ Neovim: $nvim_ver (>= $MIN_NVIM)${NC}"
-  else
-    echo -e "${YELLOW}⚠ Neovim: $nvim_ver (minimum: $MIN_NVIM)${NC}"
-    ((error_count++))
-  fi
-else
-  echo -e "${RED}✗ Neovim: NOT FOUND${NC}" >&2
-  ((error_count++))
-fi
+# if command -v nvim &>/dev/null; then
+#   nvim_ver=$(nvim --version 2>&1 | head -1 | grep -oP '\d+\.\d+' || echo "0.0")
+#   if version_gte "$nvim_ver" "$MIN_NVIM"; then
+#     echo -e "${GREEN}✓ Neovim: $nvim_ver (>= $MIN_NVIM)${NC}"
+#   else
+#     echo -e "${YELLOW}⚠ Neovim: $nvim_ver (minimum: $MIN_NVIM)${NC}"
+#     ((error_count++))
+#   fi
+# else
+#   echo -e "${RED}✗ Neovim: NOT FOUND${NC}" >&2
+#   ((error_count++))
+# fi
 
 echo ""
 
