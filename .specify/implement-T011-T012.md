@@ -145,14 +145,14 @@ gh run view --web --repo grantmacken/dots
 
 ## Files Modified
 
-- `.github/workflows/default.yml` - Added T011, T012 jobs
+- `.github/workflows/default.yaml` - Added T011, T012 jobs
 - `.specify/001-tasks.md` - Marked T011, T012 complete
 - `.specify/implement-T011-T012.md` - This document
 
 ## References
 
 - Previous: `.specify/implement-T010.md`
-- Workflow: `.github/workflows/default.yml`
+- Workflow: `.github/workflows/default.yaml`
 - Scripts: `dot-local/bin/check-toolbox`, `dot-local/bin/check-tools`
 - Makefile: `Makefile` (targets: check-toolbox, check-tools)
 

@@ -52,7 +52,7 @@ not about the toolbox container itself.
 
 I use GitHub actions to test the verify a stow deployment
  of my dot files into a fresh Linux environment. I use the `ubuntu-latest` runner.
- The workflow is defined in `.github/workflows/default.yml`.
+ The workflow is defined in `.github/workflows/default.yaml`.
 The workflow runs checks to verify:
 - `make init` creates required directories
 - `make` (stow) deploys without errors

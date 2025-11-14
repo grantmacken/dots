@@ -125,7 +125,7 @@ Validating stow symlinks...
 
 ## Workflow Integration
 
-### Updated: `.github/workflows/default.yml`
+### Updated: `.github/workflows/default.yaml`
 
 **Added Step** (after Run make check-tools):
 ```yaml
@@ -328,7 +328,7 @@ validate-stow → ✗ ~/.bashrc is broken
 - `dot-local/bin/validate-init` - Created
 - `dot-local/bin/validate-stow` - Created
 - `Makefile` - Added workflow-validate target
-- `.github/workflows/default.yml` - Added workflow validation step
+- `.github/workflows/default.yaml` - Added workflow validation step
 - `.specify/001-tasks.md` - Marked T013-T016 complete
 
 ## Next Steps

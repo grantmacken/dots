@@ -10,6 +10,8 @@ REQUIRED_DIRS=(
   "$HOME/.local/bin"
   "$HOME/.cache/nvim"
   "$HOME/.local/state/nvim"
+  "$HOME/.local/share/nvim/luals/logs"
+  "$HOME/.local/share/nvim/luals/meta"
 )
 
 FAILED=0

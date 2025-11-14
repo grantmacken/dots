@@ -6,11 +6,11 @@
 
 ## Task Description
 
-Update `.github/workflows/default.yml` workflow_dispatch to use tbx-coding image and set up foundation testing.
+Update `.github/workflows/default.yaml` workflow_dispatch to use tbx-coding image and set up foundation testing.
 
 ## Implementation
 
-### Workflow File: `.github/workflows/default.yml`
+### Workflow File: `.github/workflows/default.yaml`
 
 **Changes Made**:
 1. Renamed workflow: `Dotfiles Management - Foundation Testing`
@@ -132,7 +132,7 @@ dot-local/bin/gh-test-workflow
 
 ## Files Modified
 
-- `.github/workflows/default.yml` - Updated workflow
+- `.github/workflows/default.yaml` - Updated workflow
 - `dot-local/bin/gh-test-workflow` - Created trigger script
 - `.specify/001-tasks.md` - Marked T010 complete, added T022-gh
 

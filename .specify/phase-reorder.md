@@ -156,7 +156,7 @@ User Stories (validated foundation)
 
 - Original discussion: User requested CI testing before features
 - Test framework: Deferred (no Busted framework in plan)
-- GitHub Actions: `.github/workflows/default.yml` (exists, needs update)
+- GitHub Actions: `.github/workflows/default.yaml` (exists, needs update)
 - Foundation work: Phases 0-2 complete
 
 ---

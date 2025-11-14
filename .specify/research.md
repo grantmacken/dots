@@ -139,7 +139,7 @@ The following research tasks were intentionally moved to Phase 6:
 - **Directory validation scripts** (validate-init, validate-stow)
 - **GitHub Actions workflow implementation**
 
-**Rationale**: Testing deployment requires clean environment. Using existing `.github/workflows/default.yml` workflow_dispatch allows manual triggering without disrupting local system.
+**Rationale**: Testing deployment requires clean environment. Using existing `.github/workflows/default.yaml` workflow_dispatch allows manual triggering without disrupting local system.
 
 ## Phase 0 Acceptance Criteria
 
