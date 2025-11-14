@@ -166,6 +166,9 @@ validate-stow: ## Validate stow symlinks
 validate-init: ## Validate init directories
 	dot-local/bin/validate-init
 
+valiate-nvim: ## Validate neovim setup
+	dot-local/bin/validate-nvim
+
 
 help: ## show available make targets
 	cat $(MAKEFILE_LIST) |

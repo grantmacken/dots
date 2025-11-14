@@ -26,9 +26,10 @@ jobs:
         run: make check-tools && make check-root
       - name: Validate Initial Setup
         run: make validate-setup
-      # - name: Install Neovim
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y neovim
-      # - name: Verify Neovim launches
-      #   run: dot-local/bin/validate-nvim
+      - name: Install Neovim
+        run: |
+          mkdir -p /usr/local
+          SRC='https://github.com/neovim/neovim/releases/download/nightly/nvim-linux-x86_64.tar.gz'
+          wget ${SRC} -O- | tar xz --strip-components=1 -C /usr/local &> /dev/null
+      - name: Verify Neovim launches
+        run: dot-local/bin/validate-nvim
