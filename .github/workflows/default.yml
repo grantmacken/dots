@@ -16,42 +16,11 @@ jobs:
       - name: Install GNU Stow
         run: sudo apt-get update && sudo apt-get install -y stow
       - name: Foundational Checks
-        run: |
-          make check-tools
-          make check-root
+        run: make check-tools && make check-root
       - name: Initialize directories
         run: |
           make init
           dot-local/bin/validate-init
-      - name: Debug - List repo contents
-        run: |
-          echo "=== Root directory ==="
-          ls -la
-          echo "=== Checking for .config ==="
-          if [ -e .config ]; then
-            echo ".config exists:"
-            ls -ld .config
-            file .config
-          else
-            echo ".config does not exist"
-          fi
-          echo "=== Checking HOME directory ==="
-          ls -la ~/
-          echo "=== Checking ~/.config ==="
-          if [ -e ~/.config ]; then
-            echo "~/.config exists:"
-            ls -ld ~/.config
-            file ~/.config
-          else
-            echo "~/.config does not exist"
-          fi
-      - name: Verify deployment would succeed - dry-run conflict check
-        run: |
-          echo "=== Debug stow with high verbosity ==="
-          stow --simulate --verbose=5 --dotfiles --target ~/ . 2>&1 || true
-          echo ""
-          echo "=== Running make verify ==="
-          make verify
       - name: Deploy dotfiles
         run: |
           make default

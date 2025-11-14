@@ -31,26 +31,6 @@ endif
 	echo '✅ completed task'
 	echo '✓ Running in tbx-coding toolbox'
 
-check-tools: ## Verify required CLI tools and versions
-	dot-local/bin/check-tools
-
-check-root: ## Verify running in repo root
-	dot-local/bin/check-repo-root
-
-check-symlinks: ## Check for broken symlinks...'
-	dot-local/bin/check-no-symlinks dot-config/systemd/user
-	dot-local/bin/check-no-symlinks dot-config/containers/systemd
-
-check-dry-run: ## Verify stow dry-run (conflict check)
-	stow --simulate --verbose --dotfiles --target ~/ .
-
-check-toolbox: ## Verify running in toolbox container
-ifndef GITHUB_ACTIONS
-	dot-local/bin/check-toolbox
-else
-	echo 'Skipping toolbox check in GitHub Actions environment'
-endif
-
 verify: check-symlinks check-dry-run ## Verify deployment would succeed (dry-run conflict check)
 	echo '✅ verification passed - deployment should succeed'
 
@@ -162,6 +142,35 @@ test-workflow: ## trigger GitHub Actions workflow and monitor run
 	echo '##[ $@ ]##'
 	dot-local/bin/gh-test-workflow
 	echo '✅ workflow triggered'
+
+
+#### Verification tasks
+
+check-tools: ## Verify required CLI tools and versions
+	dot-local/bin/check-tools
+
+check-root: ## Verify running in repo root
+	dot-local/bin/check-repo-root
+
+check-symlinks: ## Check for broken symlinks...'
+	dot-local/bin/check-no-symlinks dot-config/systemd/user
+	dot-local/bin/check-no-symlinks dot-config/containers/systemd
+
+# NOTE: Skipping stow dry-run in GitHub Actions environment
+check-dry-run: ## Verify stow dry-run (conflict check)
+ifndef GITHUB_ACTIONS
+	stow --simulate --verbose --dotfiles --target ~/ .
+endif
+
+check-toolbox: ## Verify running in toolbox container
+ifndef GITHUB_ACTIONS
+	dot-local/bin/check-toolbox
+else
+	echo 'Skipping toolbox check in GitHub Actions environment'
+endif
+
+
+
 
 help: ## show available make targets
 	cat $(MAKEFILE_LIST) |
