@@ -11,6 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     # Use Fedora Silverblue as the container base
     steps:
+      #install podman and toolbox
+      - name: Install Podman and Toolbox
+        run: |
+          echo "=== Installing Podman and Toolbox ==="
+          sudo apt-get update
+          sudo apt-get install -y podman toolbox
+          podman --version
+          toolbox --version
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
