@@ -16,31 +16,69 @@ Note: These are already installed on Fedora
 
 ## Dot file management
 
-The terminal CLI tools I use are run from a toolbox container. 
-The toolbox container I use is created from the container image 
+
+The terminal CLI tools I use are run from a toolbox container.
+The toolbox container I use is created from the container image
 `ghcr.io/grantmacken/tbx-coding:latest` which is a Fedora based toolbox with additional coding tools installed.
 
-### Toolbox Setup
+Although the toolbox container has many of the CLI tools I need,
+my dot files are managed in a git repository outside of the container.
+This allows me to manage my dot files with git and deploy them into the toolbox container
+using GNU Stow.
 
-```bash
-# Create the toolbox container
-toolbox create --image ghcr.io/grantmacken/tbx-coding:latest tbx-coding
 
-# Enter the toolbox
-toolbox enter tbx-coding
+### How Stow Works With My Dotfiles
 
-# Clone this repository
+My dotfiles are managed by GNU Stow. 
+The `make` command invokes `stow` with the `--dotfiles` option.
+This symlinks the dot files from this repository into my home directory.
+
+Using the `--dotfiles` option requires base directory naming conventions:
+ - Directories containing dot directories or files must be named starting with `dot-`
+ - Example: `dot-config/` → `~/.config/`, `dot-local/` → `~/.local/`
+
+The `.stow-local-ignore` file at the root excludes files from being stowed:
+ - README.md and Makefile are not stowed as they are in the .stow-local-ignore file.
+
+ Also any `.*` files in the root directory are also excluded from being stowed by default.
+
+### Note on Toolbox Container
+
+The deployment of the toolbox container is outside the scope of this repository.
+This repository is about the management of my dot files and the automation of their deployment and 
+not about the toolbox container itself.
+
+### GitHub Actions Testing
+
+I use GitHub actions to test the verify a stow deployment
+ of my dot files into a fresh Linux environment. I use the `ubuntu-latest` runner.
+ The workflow is defined in `.github/workflows/default.yml`.
+The workflow runs checks to verify:
+- `make init` creates required directories
+- `make` (stow) deploys without errors
+
+It doesn't test every aspect of my dot files, but it does provide a basic verification
+that the stow deployment works in a clean environment.
+
+I would like to do more with GitHub actions but the difficulty of running a toolbox container
+inside the GitHub actions runner has limited what I can do so far.
+
+### Deployment Instructions
+
+I don't recommend using my dot files as-is. They are tailored to my personal preferences and workflow.
+However, if you would like to use them as a starting point or reference, you can deploy them into your home directory.
+To deploy my dot files into your home directory, run the following commands
+
+```sh
 git clone https://github.com/grantmacken/dots.git
 cd dots
-
-# Deploy dotfiles
 make init  # creates directories
 make       # symlinks dot files
 ```
 
 ### Makefile Targets
 
-I use Makefile targets to orchestrate the deployment of my dot files and 
+I use Makefile targets to orchestrate the deployment of my dot files and
 management of systemd services and podman quadlets from inside the toolbox container.
 
 #### Setup & Deployment
@@ -54,7 +92,7 @@ management of systemd services and podman quadlets from inside the toolbox conta
 - **`make check-toolbox`** - Verify running in tbx-coding toolbox
 - **`make check-tools`** - Verify required CLI tools and versions (stow, make, git, systemctl, nvim)
 - **`make verify`** - Verify deployment would succeed (dry-run conflict check via stow --simulate)
-- **`make test`** - Run Neovim busted tests with nlua
+- **`make test`** - TODO! Run Neovim busted tests with nlua
 
 #### Systemd Services - Backup
 
@@ -72,23 +110,9 @@ management of systemd services and podman quadlets from inside the toolbox conta
 
 #### Utilities
 
-- **`make list-configurables`** - List configurable files in container
+- **`make list-configurables`** - TODO! List configurable files in container
 
-### How Stow Works
-
-My dotfiles are managed by GNU Stow. 
-The `make` command invokes `stow` with the `--dotfiles` option.
-This symlinks the dot files from this repository into my home directory.
-
-Using the `--dotfiles` option requires base directory naming conventions:
-- Directories containing dot directories or files must be named starting with `dot-`
-- Example: `dot-config/` → `~/.config/`, `dot-local/` → `~/.local/`
-
-The `.stow-local-ignore` file at the root excludes files from being stowed:
-- README.md and Makefile
-- Any `.*` files in the root directory
-- Specification and documentation files
-
+<!-- TODO
 
 ## ./dot-local/bin
 
@@ -120,29 +144,6 @@ Files a read during boot and when `systemctl daemon-reload` is run
 
 `.volume, .network, .build, and .image files` run as a `oneshoot` service
 
-
-
-
-
-## Neovim notes
-
-
-
-<!--
-
-## First Things First
-Clone this repo and cd into it.
-The bin dir contains a bash script: 'neovim-toolbox-setup'
-Read the script before you run it!!!
-
-```sh
-# read the setup script
-cat bin/neovim-toolbox-setup
-# make sure it is executable
-chmod +x bin/neovim-toolbox-setup
-# run the script
-./bin/neovim-toolbox-setup
-```
 
 -->
 

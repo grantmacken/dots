@@ -154,6 +154,11 @@ test: ## run neovim busted tests with nlua
 	popd &>/dev/null
 	echo '✅ busted tests completed'
 
+test-workflow: ## trigger GitHub Actions workflow and monitor run
+	echo '##[ $@ ]##'
+	dot-local/bin/gh-test-workflow
+	echo '✅ workflow triggered'
+
 help: ## show available make targets
 	cat $(MAKEFILE_LIST) |
 	grep -oP '^[a-zA-Z_-]+:.*?## .*$$' |

@@ -93,8 +93,8 @@ description: "Task list for Dotfiles Management System implementation"
 - [ ] T017 Workflow job: Test systemd status targets work (backup_status, tbx_status)
 
 ### 3.3 Additional Validation
-- [ ] T018 Workflow job: Run `make verify` to validate all guards work
-- [ ] T019 Workflow job: Verify Neovim launches (basic smoke test)
+- [x] T018 Workflow job: Run `make verify` to validate all guards work
+- [x] T019 Workflow job: Verify Neovim launches (basic smoke test)
 - [ ] T020 Test workflow runs successfully via workflow_dispatch manual trigger
 - [ ] T021 Document GitHub Actions usage in README.md or `.github/README.md`
 

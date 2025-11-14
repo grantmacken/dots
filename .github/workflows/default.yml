@@ -19,11 +19,19 @@ jobs:
         run: |
           make check-tools
           make check-root
-      - name: Verify deployment would succeed - dry-run conflict check
-        run: make verify
-      - name: valdate dotfile deployment and initialization
+      - name: Initialize directories
         run: |
           make init
           dot-local/bin/validate-init
+      - name: Verify deployment would succeed - dry-run conflict check
+        run: make verify
+      - name: Deploy dotfiles
+        run: |
           make default
           dot-local/bin/validate-stow
+      - name: Install Neovim
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y neovim
+      - name: Verify Neovim launches
+        run: dot-local/bin/validate-nvim

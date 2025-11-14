@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# Validate Neovim launches successfully (smoke test)
+# Part of Task T019: Workflow job - Verify Neovim launches
+
+set -euo pipefail
+
+echo "==> Validating Neovim smoke test..."
+
+if ! command -v nvim &>/dev/null; then
+  echo "❌ FAIL: nvim command not found"
+  exit 1
+fi
+
+echo "✓ nvim command found"
+
+if ! nvim --version &>/dev/null; then
+  echo "❌ FAIL: nvim --version failed"
+  exit 1
+fi
+
+echo "✓ nvim --version succeeds"
+
+if ! nvim --headless -c 'quit' 2>/dev/null; then
+  echo "❌ FAIL: nvim --headless failed to launch"
+  exit 1
+fi
+
+echo "✓ nvim --headless launches successfully"
+
+config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
+if [[ ! -L "$config_dir" ]]; then
+  echo "❌ FAIL: $config_dir is not a symlink"
+  exit 1
+fi
+
+echo "✓ $config_dir is symlinked"
+
+if [[ ! -f "$config_dir/init.lua" ]]; then
+  echo "❌ FAIL: $config_dir/init.lua not found"
+  exit 1
+fi
+
+echo "✓ $config_dir/init.lua exists"
+
+echo "✅ SUCCESS: Neovim validation passed"
