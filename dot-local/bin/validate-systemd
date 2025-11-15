@@ -1,0 +1,80 @@
+#!/usr/bin/bash
+# validate-systemd - Verify systemd operations work from toolbox affecting host
+# Exit codes: 0=success, 1=validation failed
+
+set -euo pipefail
+
+echo "## Validating systemd operations from toolbox ##"
+
+# Check if running in toolbox
+if [[ ! -f /run/.containerenv ]]; then
+    echo "❌ Not running in toolbox container"
+    exit 1
+fi
+
+if ! grep -q 'name="tbx-coding"' /run/.containerenv 2>/dev/null; then
+    echo "❌ Not running in tbx-coding toolbox"
+    exit 1
+fi
+
+echo "✓ Running in tbx-coding toolbox"
+
+# Check systemctl is available
+if ! command -v systemctl &>/dev/null; then
+    echo "❌ systemctl not available"
+    exit 1
+fi
+
+echo "✓ systemctl available"
+
+# Test systemd user operations (these affect the host)
+# Check bu_projects.timer
+if ! systemctl --user status bu_projects.timer --no-pager &>/dev/null; then
+    echo "❌ Cannot query bu_projects.timer status"
+    exit 1
+fi
+
+echo "✓ Can query bu_projects.timer status"
+
+# Verify timer is loaded
+if ! systemctl --user list-timers bu_projects.timer --no-pager | grep -q bu_projects.timer; then
+    echo "❌ bu_projects.timer not in timer list"
+    exit 1
+fi
+
+echo "✓ bu_projects.timer in timer list"
+
+# Check if we can query service status (may be inactive, that's fine)
+if ! systemctl --user status bu_projects.service --no-pager &>/dev/null; then
+    # Service not found
+    if ! systemctl --user list-unit-files bu_projects.service --no-pager | grep -q bu_projects.service; then
+        echo "❌ bu_projects.service not found"
+        exit 1
+    fi
+fi
+
+echo "✓ bu_projects.service accessible"
+
+# Verify we can read systemd configuration from host
+config_file="$HOME/.config/systemd/user/bu_projects.timer"
+if [[ ! -f "$config_file" ]]; then
+    echo "❌ Cannot access $config_file from toolbox"
+    exit 1
+fi
+
+echo "✓ Can access systemd config files from toolbox"
+
+# Verify the symlink points to stowed location
+if [[ -L "$config_file" ]]; then
+    target=$(readlink -f "$config_file")
+    if [[ "$target" =~ Projects/dots/dot-config/systemd/user ]]; then
+        echo "✓ systemd config is stowed correctly"
+    else
+        echo "⚠ systemd config exists but not from stow location"
+    fi
+else
+    echo "⚠ systemd config is not a symlink (may be direct file)"
+fi
+
+echo "✅ systemd operations work from toolbox affecting host"
+exit 0

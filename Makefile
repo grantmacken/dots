@@ -134,7 +134,6 @@ test-workflow: ## trigger GitHub Actions workflow and monitor run
 	dot-local/bin/gh-test-workflow
 	echo '✅ workflow triggered'
 
-
 #### Verification tasks
 
 check-tools: ## Verify required CLI tools and versions
@@ -166,8 +165,18 @@ validate-stow: ## Validate stow symlinks
 validate-init: ## Validate init directories
 	dot-local/bin/validate-init
 
-valiate-nvim: ## Validate neovim setup
+validate-nvim: ## Validate neovim setup
 	dot-local/bin/validate-nvim
+
+validate-systemd: ## Validate systemd operations from toolbox
+	dot-local/bin/validate-systemd
+
+nvim-verify: ## Verify Neovim deployment (structure, count, launch)
+	echo '##[ $@ ]##'
+	dot-local/bin/validate-nvim-plugins
+	dot-local/bin/check-plugin-count
+	dot-local/bin/validate-nvim-launch
+	echo '✅ Neovim verification passed'
 
 
 help: ## show available make targets
