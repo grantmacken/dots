@@ -1,3 +1,18 @@
 files
 tmp
 latest
+
+# Neovim test outputs
+dot-config/nvim/*.log
+dot-config/nvim/tests/*.log
+
+# Vim swap/backup files
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+
+# Backup files
+*.bak

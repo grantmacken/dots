@@ -204,6 +204,13 @@ nvim-verify: ## Verify Neovim deployment (structure, count, launch)
 	dot-local/bin/validate-nvim-launch
 	echo '✅ Neovim verification passed'
 
+git-status: ## Show git status and recent commits
+	echo '##[ $@ ]##'
+	git --no-pager status
+	echo ''
+	echo '##[ Recent commits ]##'
+	git --no-pager log --oneline -5
+
 
 help: ## show available make targets
 	cat $(MAKEFILE_LIST) |

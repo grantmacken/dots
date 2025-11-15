@@ -157,7 +157,83 @@ Currently, no quadlets are configured. To add quadlets, place `.container`, `.vo
 
 #### Utilities
 
+- **`make git-status`** - Show git status and recent commits
 - **`make list-configurables`** - TODO! List configurable files in container
+
+### Git Workflow
+
+This repository uses Git for version control of all dotfile configurations.
+All Git operations work from within the toolbox container.
+
+#### Fresh Clone Workflow
+
+To set up dotfiles on a new system:
+
+```sh
+# Clone the repository
+git clone git@github.com:grantmacken/dots.git ~/Projects/dots
+cd ~/Projects/dots
+
+# Enter toolbox (or create if not exists)
+toolbox enter tbx-coding
+
+# Inside toolbox: Initialize and deploy
+make init  # Creates required directories in ~
+make       # Deploys dotfiles via Stow (symlinks to ~)
+
+# Verify deployment
+make verify
+
+# Start using Neovim
+nvim
+```
+
+#### Making Configuration Changes
+
+When modifying configurations, always edit files in `dot-*` directories, not the symlinked files in `~`:
+
+```sh
+# Edit source files in dot-config/
+vim dot-config/nvim/init.lua
+
+# Test changes
+make        # Re-stow (safe to run multiple times)
+nvim        # Verify changes work
+
+# Check status and commit
+make git-status
+git add dot-config/nvim/init.lua
+git commit -m "nvim: adjust init.lua settings"
+git push upstream main
+```
+
+#### Important Git Guidelines
+
+1. **Never edit files in `~` directly** - They are symlinks managed by Stow
+2. **Edit in `dot-*` directories** - These are the source of truth
+3. **No symlinks in dot-config/systemd/user/** - Only actual unit files
+4. **No symlinks in dot-config/containers/** - Only actual quadlet files
+5. **Test before committing** - Run `make verify` to catch conflicts
+
+#### Common Git Commands
+
+All standard Git operations work from the toolbox:
+
+```sh
+git status              # Check working tree status
+git log --oneline -10   # View recent commits
+git diff               # See unstaged changes
+git add <file>         # Stage changes
+git commit -m "msg"    # Commit changes
+git push upstream main # Push to remote
+git pull upstream main # Pull from remote
+```
+
+Or use the convenience target:
+
+```sh
+make git-status        # Show status + recent commits
+```
 
 <!-- TODO
 

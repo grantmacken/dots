@@ -151,13 +151,13 @@ description: "Task list for Dotfiles Management System implementation"
 
 ### Verification for User Story 3
 
-- [ ] T038 [US6] Verify Git operations work from toolbox (commit, push, pull)
-- [ ] T039 [US6] Review and update `.gitignore` if needed
-- [ ] T040 [US6] Optional: Add `make git-status` convenience target
-- [ ] T041 [US6] Test fresh clone workflow: `git clone` → `make init` → `make` → verify
-- [ ] T042 [US6] Document Git workflow in README.md
+- [x] T038 [US6] Verify Git operations work from toolbox (commit, push, pull)
+- [x] T039 [US6] Review and update `.gitignore` if needed
+- [x] T040 [US6] Optional: Add `make git-status` convenience target
+- [x] T041 [US6] Test fresh clone workflow: `git clone` → `make init` → `make` → verify
+- [x] T042 [US6] Document Git workflow in README.md
 
-**Checkpoint**: Git workflow verified and documented
+**Checkpoint**: ✅ Git workflow verified and documented
 
 ---
 
