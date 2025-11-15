@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Testing Neovim launch with config..."
+
+if ! command -v nvim &>/dev/null; then
+  echo "ERROR: nvim not found in PATH"
+  exit 1
+fi
+
+nvim --version | head -1
+
+if [ ! -L "$HOME/.config/nvim" ]; then
+  echo "ERROR: ~/.config/nvim is not a symlink (stow not run?)"
+  exit 1
+fi
+
+echo "✓ Neovim config symlink exists"
+
+if ! nvim --headless -c 'lua print("Neovim loaded successfully")' -c 'qall' 2>&1 | grep -q "Neovim loaded successfully"; then
+  echo "ERROR: Neovim failed to load config"
+  exit 1
+fi
+
+echo "✓ Neovim launches with config loaded"
+exit 0

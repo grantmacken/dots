@@ -89,7 +89,7 @@ Makefile                          # Task orchestration
 - **Acceptance**: Can detect toolbox context and verify required tools available: GNU Stow 2.4.0+, GNU Make 4.0+, Git 2.30+, systemctl (systemd 245+), Neovim 0.9+
 - **Status**: ✅ Complete (R001-R002)
 
-**Note**: Makefile target testing (make init, make stow) moved to Phase 6 GitHub Actions. Using workflow_dispatch allows clean environment testing without local disruption.
+**Note**: Deployment mechanics testing (make init, make) moved to Phase 3 GitHub Actions. This tests deployment in clean environment via **workflow checkpoints** (runs in GitHub Actions CI). Functional verification is done via **local task checkpoints** (runs on localhost in toolbox).
 
 ## Phase 1: Design & Contracts
 

@@ -26,3 +26,16 @@ Manage personal configuration files for CLI tools to ensure they are fit for pur
 - Systemd units activate correctly
 - Makefile targets execute successfully
 - Changes are reversible and traceable via git
+
+## Testing Approach
+
+### Local Task Checkpoints
+- Verify implementation correctness on localhost (Fedora Silverblue + toolbox)
+- Run from toolbox container to test functionality
+- Check if configs work as intended in actual usage
+
+### GitHub Actions Workflow Checkpoints  
+- Validate deployment in clean Ubuntu environment
+- Test basic config deployment mechanics only
+- Cannot replicate full Fedora Silverblue environment
+- Focused on deployment/installation success, not runtime functionality

@@ -7,12 +7,43 @@ aim is to provide a CLI customized toolbox work environment orientated around Ne
 
 ## Requirements
 
-A modern Linux OS with the following install CLI apps
-1. podman
-2. toolbox
-3. dconf
+**Host System**:
+1. Modern Linux OS (Fedora Silverblue recommended)
+2. podman
+3. toolbox
+4. dconf
 
-Note: These are already installed on Fedora
+Note: These are already installed on Fedora Silverblue
+
+**Toolbox Container**:
+- Container name: `tbx-coding`
+- Container image: `ghcr.io/grantmacken/tbx-coding:latest`
+- Required tools (included in image):
+  - GNU Stow 2.4.0+ (required for proper symlink handling, see https://github.com/aspiers/stow/issues/33)
+  - GNU Make 4.0+
+  - Git 2.30+
+  - Neovim 0.9+ with Lua support
+  - systemctl (systemd 245+)
+
+## Toolbox Setup
+
+Before using these dotfiles, you need to create and enter the tbx-coding toolbox container:
+
+```sh
+# Pull the toolbox image
+toolbox create --image ghcr.io/grantmacken/tbx-coding:latest tbx-coding
+
+# Enter the toolbox
+toolbox enter tbx-coding
+
+# Verify you're in the correct toolbox
+cat /run/.containerenv | grep "tbx-coding"
+
+# Check that required tools are available
+make check-tools
+```
+
+All subsequent commands in this README assume you're running inside the tbx-coding toolbox unless otherwise stated.
 
 ## Dot file management
 
@@ -71,15 +102,80 @@ that mimics my toolbox container without actually running a toolbox container.
 
 ### Deployment Instructions
 
-I don't recommend using my dot files as-is. They are tailored to my personal preferences and workflow.
+⚠️ **Warning**: I don't recommend using my dot files as-is. They are tailored to my personal preferences and workflow.
 However, if you would like to use them as a starting point or reference, you can deploy them into your home directory.
-To deploy my dot files into your home directory, run the following commands
+
+**Prerequisites**:
+1. Create tbx-coding toolbox (see [Toolbox Setup](#toolbox-setup))
+2. Enter the toolbox: `toolbox enter tbx-coding`
+3. Ensure no conflicting configs exist in `~/.config/`, `~/.local/`, etc.
+
+**Fresh Deployment**:
 
 ```sh
-git clone https://github.com/grantmacken/dots.git
-cd dots
-make init  # creates directories
-make       # symlinks dot files
+# Clone the repository
+git clone https://github.com/grantmacken/dots.git ~/Projects/dots
+cd ~/Projects/dots
+
+# Enter toolbox (must be in tbx-coding)
+toolbox enter tbx-coding
+
+# Verify environment
+make check-toolbox
+make check-tools
+
+# Verify deployment will work (dry-run)
+make verify
+
+# Create directories and deploy
+make init  # creates required directories
+make       # symlinks dot files via stow
+
+# Verify deployment succeeded
+make validate-setup
+
+# Verify Neovim configuration
+make nvim-verify
+```
+
+**What gets deployed**:
+- `dot-config/` → `~/.config/` (Neovim, systemd, containers configs)
+- `dot-local/bin/` → `~/.local/bin/` (executable scripts)
+- `dot-bashrc.d/` → `~/.bashrc.d/` (bash configuration snippets)
+
+**What to verify after deployment**:
+```sh
+# Check symlinks created correctly
+ls -la ~/.config/nvim  # should point to ~/Projects/dots/dot-config/nvim
+
+# Test Neovim launches
+nvim --headless +q  # should exit without errors
+
+# Check systemd units deployed
+ls -la ~/.config/systemd/user/
+```
+
+### Updating Deployed Configurations
+
+When you modify configurations, always edit files in `dot-*` directories, not in `~`:
+
+```sh
+# Example: Modifying Neovim config
+cd ~/Projects/dots
+toolbox enter tbx-coding
+
+# Edit source files in dot-config/
+nvim dot-config/nvim/init.lua
+
+# Redeploy (safe to run multiple times - idempotent)
+make
+
+# Test changes
+nvim
+
+# If issues occur, check verification
+make verify
+make nvim-verify
 ```
 
 ### Makefile Targets
@@ -234,6 +330,86 @@ Or use the convenience target:
 ```sh
 make git-status        # Show status + recent commits
 ```
+
+## Success Validation
+
+After deployment, verify the system meets all success criteria:
+
+### SC-001: Clean Deployment
+From toolbox, `make` deploys all configs successfully on fresh system.
+
+**Verification**:
+```sh
+# On fresh system (or in GitHub Actions)
+cd ~/Projects/dots
+toolbox enter tbx-coding
+make init && make
+# Should complete without errors
+```
+
+### SC-002: Neovim Functions Correctly
+Neovim launches from toolbox with all plugins (≤20) and LSP working.
+
+**Verification**:
+```sh
+make nvim-verify
+nvim --headless +"echo 'OK'" +q
+# Should show plugin count ≤20, no errors
+```
+
+### SC-003: Makefile Targets Work
+All Makefile targets execute without errors from toolbox.
+
+**Verification**:
+```sh
+make verify          # Should pass
+make backup_status   # Should show unit status
+make git-status      # Should show git info
+```
+
+### SC-004: No Manual Symlinks
+No manual symlink creation needed - Stow handles everything.
+
+**Verification**:
+```sh
+# After `make`, symlinks should exist:
+ls -la ~/.config/nvim  # → ~/Projects/dots/dot-config/nvim
+ls -la ~/.local/bin    # → ~/Projects/dots/dot-local/bin
+# No manual `ln -s` commands required
+```
+
+### SC-005: No Host CLI Tools
+No CLI tools required on host - all in toolbox.
+
+**Verification**:
+```sh
+# On host (outside toolbox):
+# Only podman, toolbox, dconf needed
+
+# In toolbox:
+make check-tools
+# Should verify: stow, make, git, systemctl, nvim all present
+```
+
+### Quick Validation Script
+
+Run all validations at once:
+```sh
+make verify && \
+make nvim-verify && \
+make validate-setup && \
+echo "✅ All success criteria validated"
+```
+
+## Troubleshooting
+
+For error scenarios and solutions, see [docs/error-handling.md](docs/error-handling.md).
+
+Common issues:
+- **Stow conflicts**: Run `make verify` first to detect
+- **Toolbox not detected**: Ensure running `toolbox enter tbx-coding`
+- **Broken symlinks**: Remove and redeploy with `make`
+- **Plugin count exceeded**: Max 20 plugins (constitution limit)
 
 <!-- TODO
 

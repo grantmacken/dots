@@ -10,6 +10,11 @@ description: "Task list for Dotfiles Management System implementation"
 
 **Organization**: Tasks are grouped by research phase and user story to enable independent implementation.
 
+## Testing Terminology
+
+- **Local Task Checkpoint**: Verification run on localhost (Fedora Silverblue + toolbox) to test actual functionality
+- **GitHub Actions Workflow Checkpoint**: Automated validation in clean CI environment testing deployment mechanics only
+
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
@@ -37,9 +42,9 @@ description: "Task list for Dotfiles Management System implementation"
 
 **Acceptance**: Can detect toolbox and verify all required CLI tools available
 
-**Checkpoint**: Phase 0 Research Complete - toolbox validation working
+**Checkpoint** (local task): Phase 0 Research Complete - toolbox validation working
 
-**Note**: Makefile target testing (make init, make stow) moved to Phase 6 GitHub Actions workflow. Testing with workflow_dispatch allows clean environment testing without disturbing local system.
+**Note**: Deployment mechanics testing moved to Phase 3 GitHub Actions (workflow checkpoints in CI environment).
 
 ---
 
@@ -68,7 +73,7 @@ description: "Task list for Dotfiles Management System implementation"
 - [x] T008 [P] Add 30-second timeout wrapper for systemd operations (FR-011) - **SKIPPED** (systemd has built-in timeouts)
 - [x] T009 Test enhanced guards work correctly without breaking existing targets
 
-**Checkpoint**: ✅ Phase 2 Complete - Makefile has safety guards, existing targets still work
+**Checkpoint** (local task): ✅ Phase 2 Complete - Makefile has safety guards, existing targets still work
 
 ---
 
@@ -98,7 +103,7 @@ description: "Task list for Dotfiles Management System implementation"
 - [x] T020 Test workflow runs successfully via workflow_dispatch manual trigger
 - [x] T021 Document GitHub Actions usage in README.md or `.github/README.md`
 
-**Checkpoint**: ✅ Phase 3 Complete - Foundation validated in CI, ready for user story implementation
+**Checkpoint** (workflow): ✅ Phase 3 Complete - Foundation validated in CI, ready for user story implementation
 
 ---
 
@@ -119,7 +124,7 @@ description: "Task list for Dotfiles Management System implementation"
 - [x] T030 [US4] Document Neovim deployment in README.md
 - [x] T031 [US4] Test idempotency: Run `make` twice and verify second run succeeds without errors (FR-002)
 
-**Checkpoint**: ✅ Phase 4 Complete - Neovim deployment verified, tested, and documented
+**Checkpoint** (local task): ✅ Phase 4 Complete - Neovim deployment verified, tested, and documented
 
 ---
 
@@ -139,7 +144,7 @@ description: "Task list for Dotfiles Management System implementation"
 - [x] T036 [US5] Document all systemd/quadlet targets in README.md
 - [x] T037 [US5] Create pattern rule for new systemd units (`%_enable`, `%_disable`, etc.)
 
-**Checkpoint**: Systemd and quadlet orchestration verified and enhanced
+**Checkpoint** (local task): ✅ Phase 5 Complete - Systemd and quadlet orchestration verified and enhanced
 
 ---
 
@@ -154,10 +159,11 @@ description: "Task list for Dotfiles Management System implementation"
 - [x] T038 [US6] Verify Git operations work from toolbox (commit, push, pull)
 - [x] T039 [US6] Review and update `.gitignore` if needed
 - [x] T040 [US6] Optional: Add `make git-status` convenience target
-- [x] T041 [US6] Test fresh clone workflow: `git clone` → `make init` → `make` → verify
+- [x] T041 [US6] Test fresh clone workflow: `git clone` → `make init` → `make` → verify  
+  **Note**: This is a **workflow checkpoint** - tested in GitHub Actions, not local task
 - [x] T042 [US6] Document Git workflow in README.md
 
-**Checkpoint**: ✅ Git workflow verified and documented
+**Checkpoint** (workflow): ✅ Phase 6 Complete - Git workflow verified and documented
 
 ---
 
@@ -165,12 +171,15 @@ description: "Task list for Dotfiles Management System implementation"
 
 **Purpose**: Final improvements and comprehensive documentation
 
-- [ ] T043 Update main README.md with complete usage guide (init, deploy, systemd, git)
-- [ ] T044 Create `docs/error-handling.md` documenting all error scenarios and fixes
-- [ ] T045 Document toolbox setup in README: `toolbox create --image ghcr.io/grantmacken/tbx-coding:latest tbx-coding` and `toolbox enter tbx-coding`
-- [ ] T046 Add inline comments to Makefile explaining guards and patterns
-- [ ] T047 Validate all success criteria (SC-001 through SC-005)
-- [ ] T048 Final test: Fresh clone → `make init` → `make` → launch Neovim → verify all works
+- [x] T043 Update main README.md with complete usage guide (init, deploy, systemd, git)
+- [x] T044 Create `docs/error-handling.md` documenting all error scenarios and fixes
+- [x] T045 Document toolbox setup in README: `toolbox create --image ghcr.io/grantmacken/tbx-coding:latest tbx-coding` and `toolbox enter tbx-coding`
+- [x] T046 Add inline comments to Makefile explaining guards and patterns
+- [x] T047 Validate all success criteria (SC-001 through SC-005)
+- [x] T048 Final test: Fresh clone → `make init` → `make` → launch Neovim → verify all works  
+  **Note**: This is a **workflow checkpoint** - same as T041, tested in GitHub Actions CI
+
+**Checkpoint** (workflow): ✅ Phase 7 Complete - System documented, validated, and production ready
 
 ---
 

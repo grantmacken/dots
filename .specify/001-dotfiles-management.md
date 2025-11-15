@@ -118,3 +118,17 @@ As a user, I want to track configuration changes in Git and deploy them reliably
 - **SC-004**: All Makefile targets execute without errors
 - **SC-005**: No manual symlink creation required - Stow handles all deployment
 - **SC-006**: Configs are testable and verifiable for correctness
+
+### Testing Levels
+
+**Local Task Checkpoints** (on localhost):
+- Verify configs work correctly in actual Fedora Silverblue + toolbox environment
+- Test runtime functionality (Neovim plugins load, systemd units execute)
+- Validate fitness-for-purpose of configurations
+
+**GitHub Actions Workflow Checkpoints** (in CI):
+- Test deployment mechanics in clean Ubuntu environment
+- Verify `make init` and `make` succeed without errors
+- Validate symlink structure and basic file presence
+- Cannot test runtime functionality (no systemd, different distro)
+- Focus on deployment success, not config correctness

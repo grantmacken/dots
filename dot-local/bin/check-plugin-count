@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Enforce maximum plugin count (constitution constraint)
+# Part of Task T027: Count plugins - enforce max 20
+
+set -euo pipefail
+
+MAX_PLUGINS=20
+plugin_dir="dot-config/nvim/plugin"
+
+if [ ! -d "$plugin_dir" ]; then
+  echo "ERROR: Plugin directory not found: $plugin_dir"
+  exit 1
+fi
+
+plugin_count=$(find "$plugin_dir" -maxdepth 1 -name "[0-9][0-9]*.lua" -type f | wc -l)
+
+echo "Plugin count: $plugin_count (max: $MAX_PLUGINS)"
+
+if [ "$plugin_count" -gt "$MAX_PLUGINS" ]; then
+  echo "ERROR: Too many plugins! Found $plugin_count, maximum allowed is $MAX_PLUGINS"
+  exit 1
+fi
+
+echo "✓ Plugin count within constitutional limit"
+exit 0

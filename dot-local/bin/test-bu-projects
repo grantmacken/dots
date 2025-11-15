@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# Test bu_projects script functionality
+# Validates script syntax, logic, and exit code handling
+# Does NOT require actual external drive
+
+set -euo pipefail
+
+SCRIPT_PATH="$(dirname "$0")/bu_projects"
+
+echo "Testing bu_projects script..."
+
+# Test 1: Check script exists and is executable
+echo "  ✓ Checking script exists..."
+if [ ! -f "$SCRIPT_PATH" ]; then
+  echo "ERROR: bu_projects script not found at $SCRIPT_PATH" >&2
+  exit 1
+fi
+
+if [ ! -x "$SCRIPT_PATH" ]; then
+  echo "ERROR: bu_projects script is not executable" >&2
+  exit 1
+fi
+
+# Test 2: Validate script syntax
+echo "  ✓ Validating bash syntax..."
+if ! bash -n "$SCRIPT_PATH"; then
+  echo "ERROR: Script has syntax errors" >&2
+  exit 1
+fi
+
+# Test 3: Check core required commands exist
+echo "  ✓ Checking core required commands..."
+for cmd in rsync tar date find grep; do
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo "ERROR: Required command '$cmd' not found" >&2
+    exit 1
+  fi
+done
+
+# Note: findmnt, blkid, udisksctl are host-specific and checked at runtime
+
+# Test 4: Verify exit code definitions in script
+echo "  ✓ Verifying exit code documentation..."
+# Check for error exit codes (1-5) - success (0) is implicit
+required_codes=(1 2 3 4 5)
+for code in "${required_codes[@]}"; do
+  if ! grep -q "exit $code" "$SCRIPT_PATH"; then
+    echo "ERROR: Exit code $code not found in script" >&2
+    exit 1
+  fi
+done
+# Verify exit codes are documented in comments
+if ! grep -q "# Exit codes:" "$SCRIPT_PATH"; then
+  echo "ERROR: Exit code documentation not found" >&2
+  exit 1
+fi
+
+# Test 5: Check for gzipped tar in weekly backup
+echo "  ✓ Verifying weekly gzipped tar backup..."
+if ! grep -q "tar -czf.*WEEKLY_BACKUP" "$SCRIPT_PATH"; then
+  echo "ERROR: Weekly gzipped tar backup not implemented" >&2
+  exit 1
+fi
+if ! grep -q 'WEEKLY_BACKUP.*\.tar\.gz"' "$SCRIPT_PATH"; then
+  echo "ERROR: Weekly backup doesn't use .tar.gz extension" >&2
+  exit 1
+fi
+
+# Test 6: Verify configuration variables
+echo "  ✓ Checking configuration variables..."
+required_vars=(SOURCE_DIR DRIVE_UUID MOUNT_POINT BACKUP_BASE)
+for var in "${required_vars[@]}"; do
+  if ! grep -q "^${var}=" "$SCRIPT_PATH"; then
+    echo "ERROR: Required variable $var not defined" >&2
+    exit 1
+  fi
+done
+
+# Test 7: Check for proper error handling
+echo "  ✓ Verifying error handling..."
+if ! grep -q "set -euo pipefail" "$SCRIPT_PATH"; then
+  echo "ERROR: Script missing 'set -euo pipefail' for error handling" >&2
+  exit 1
+fi
+
+echo ""
+echo "✅ bu_projects script validation passed"
+echo "   Note: Functional test requires external drive (run via 'make backup_test')"
+exit 0

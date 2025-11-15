@@ -1,3 +1,7 @@
+# Dotfiles Management Makefile
+# Orchestrates deployment via GNU Stow and systemd unit management
+# Must run from repository root inside tbx-coding toolbox (except in GitHub Actions)
+
 SHELL=/usr/bin/bash
 .SHELLFLAGS := -euo pipefail -c
 # -e Exit immediately if a pipeline fails
@@ -11,6 +15,7 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 MAKEFLAGS += --silent
 
+# XDG Base Directory paths
 CONFIG_HOME := $(HOME)/.config
 CACHE_HOME  := $(HOME)/.cache
 DATA_HOME   := $(HOME)/.local/share
@@ -21,12 +26,15 @@ SYSTEMD := $(CONFIG_HOME)/systemd/user
 PROJECTS := $(HOME)/Projects
 
 default: ## install dotfiles (runs init, stow)
+	# Verify running from correct location and environment
 	dot-local/bin/check-repo-root
 ifndef GITHUB_ACTIONS
 	dot-local/bin/check-toolbox
 endif
 	echo '##[ stow dotfiles ]##'
+	# Ensure all scripts are executable before deployment
 	chmod +x dot-local/bin/* || true
+	# Deploy using stow --dotfiles (dot-config/ → ~/.config/, etc.)
 	stow --verbose --dotfiles --target $${HOME} .
 	echo '✅ completed task'
 	echo '✓ Running in tbx-coding toolbox'
@@ -41,16 +49,20 @@ init-validate: init validate-init
 
 stow-validate: default validate-stow
 
-init:
+init: ## create required directories in home
+	# Verify running from correct location and environment
 	dot-local/bin/check-repo-root
 ifndef GITHUB_ACTIONS
 	dot-local/bin/check-toolbox
 endif
 	echo '##[ $@ ]##'
+	# Create XDG Base Directory structure
 	mkdir -p $(BIN_HOME)
 	mkdir -p $(CACHE_HOME)/nvim
 	mkdir -p $(STATE_HOME)/nvim
+	# Neovim LSP (lua_ls) directories
 	mkdir -p -v $(DATA_HOME)/nvim/luals/{logs,meta}
+	# Ensure repository structure exists
 	mkdir -p files latest dot-local/bin dot-config dot-bashrc.d
 	chmod +x dot-local/bin/* &>/dev/null || true
 
@@ -123,28 +135,37 @@ tbx_test: ## manually run tbx service
 	systemctl --no-pager --user status tbx.service || true
 
 #### Pattern rules for systemd units
+# These allow managing any unit: make myunit_enable, make myunit_disable, etc.
+# Requires unit files deployed to ~/.config/systemd/user/ via stow
 
 %_enable: ## enable and start systemd timer (e.g., make myunit_enable)
 	echo '##[ $@ ]##'
+	# Reload systemd to pick up unit file changes
 	systemctl --no-pager --user daemon-reload
+	# Enable and start timer immediately
 	systemctl --no-pager --user enable --now $*.timer
 	systemctl --no-pager --user status $*.timer
 	echo '✅ $* timer enabled and started'
 
 %_disable: ## disable and stop systemd timer (e.g., make myunit_disable)
 	echo '##[ $@ ]##'
+	# Disable and stop timer immediately
 	systemctl --no-pager --user disable --now $*.timer
 	echo '✅ $* timer disabled and stopped'
 
 %_status: ## check systemd timer and service status (e.g., make myunit_status)
 	echo '##[ $@ ]##'
+	# Show timer status (may not exist, don't fail)
 	systemctl --no-pager --user status $*.timer || true
+	# Show when timer will next trigger
 	systemctl --no-pager --user list-timers $*.timer
 	echo ''
+	# Show service status (may not have run yet)
 	systemctl --no-pager --user status $*.service || true
 
 %_test: ## manually run systemd service (e.g., make myunit_test)
 	echo '##[ $@ ]##'
+	# Trigger service immediately (bypasses timer)
 	systemctl --no-pager --user start $*.service
 	systemctl --no-pager --user status $*.service || true
 
@@ -168,12 +189,14 @@ check-tools: ## Verify required CLI tools and versions
 check-root: ## Verify running in repo root
 	dot-local/bin/check-repo-root
 
-check-symlinks: ## Check for broken symlinks...'
+check-symlinks: ## Check for broken symlinks
+	# Verify systemd/containers dirs have no symlinks (FR-007)
 	dot-local/bin/check-no-symlinks dot-config/systemd/user
 	dot-local/bin/check-no-symlinks dot-config/containers/systemd
 
-# NOTE: Skipping stow dry-run in GitHub Actions environment
 check-dry-run: ## Verify stow dry-run (conflict check)
+	# Run stow in simulation mode to detect conflicts before actual deployment
+	# Skipped in GitHub Actions to avoid false positives
 ifndef GITHUB_ACTIONS
 	stow --simulate --verbose --dotfiles --target ~/ .
 endif

@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# Validate Neovim plugin structure and naming convention
+# Part of Task T026: Verify plugin files match pattern {01-20}_*.lua
+
+set -euo pipefail
+
+echo "==> Validating Neovim plugin structure..."
+
+config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
+plugin_dir="$config_dir/plugin"
+
+if [[ ! -d "$plugin_dir" ]]; then
+  echo "❌ FAIL: $plugin_dir directory not found"
+  exit 1
+fi
+
+echo "✓ $plugin_dir exists"
+
+# Check all plugin files match pattern {NN}_*.lua
+# Pattern: two digits (01-99) followed by optional dot-digit(s), underscore, name, .lua
+invalid_plugins=()
+while IFS= read -r -d '' file; do
+  basename=$(basename "$file")
+  if [[ ! "$basename" =~ ^[0-9]{2}(\.[0-9]+)?_[^_].+\.lua$ ]]; then
+    invalid_plugins+=("$basename")
+  fi
+done < <(find "$plugin_dir" -maxdepth 1 -type f -name "*.lua" -print0)
+
+if [[ ${#invalid_plugins[@]} -gt 0 ]]; then
+  echo "❌ FAIL: ${#invalid_plugins[@]} plugin(s) do not match pattern {NN}_*.lua or {NN.N}_*.lua:"
+  printf '  - %s\n' "${invalid_plugins[@]}"
+  exit 1
+fi
+
+echo "✓ All plugin files match naming pattern"
+
+# Count total plugins (any two-digit prefix)
+plugin_count=$(find "$plugin_dir" -maxdepth 1 -type f -name "[0-9][0-9]*.lua" | wc -l)
+echo "✓ Found $plugin_count plugin files"
+
+echo "✅ SUCCESS: Neovim plugin structure validated"
