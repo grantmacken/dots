@@ -60,8 +60,14 @@ The workflow runs checks to verify:
 It doesn't test every aspect of my dot files, but it does provide a basic verification
 that the stow deployment works in a clean environment.
 
-I would like to do more with GitHub actions but the difficulty of running a toolbox container
-inside the GitHub actions runner has limited what I can do so far.
+There is difficulty of running a toolbox container inside the GitHub actions runner.
+So what I try to do with GitHub is mimic the toolbox environment in GitHub actions by adding the CLI tools,
+I use in my toolbox container. Each tool I use may have a configuration file.
+For example, Neovim requires a configuration file at `~/.config/nvim/init.vim`.
+These configuration files are provided in the `dot-config/` directory.
+This allows me to test the stow deployment of my dot files in an environment
+that mimics my toolbox container without actually running a toolbox container.
+
 
 ### Deployment Instructions
 
@@ -94,19 +100,60 @@ management of systemd services and podman quadlets from inside the toolbox conta
 - **`make verify`** - Verify deployment would succeed (dry-run conflict check via stow --simulate)
 - **`make test`** - TODO! Run Neovim busted tests with nlua
 
-#### Systemd Services - Backup
+#### Systemd Services
+
+The Makefile provides targets for managing systemd user units from within the toolbox.
+These operations affect the host system's systemd user session.
+
+**Backup Service** (`bu_projects`):
+- Runs `~/.local/bin/bu_projects` script to backup Projects directory
+- Timer: Weekly backups on Mondays at 10:00 AM
+
+**Toolbox Service** (`tbx`):
+- Runs toolbox reset and Ptyxis terminal configuration
+- Timer: Configurable schedule for toolbox maintenance
+
+**Available Targets**:
 
 - **`make backup_enable`** - Enable and start bu_projects systemd timer
 - **`make backup_disable`** - Disable and stop bu_projects systemd timer
 - **`make backup_status`** - Check bu_projects timer and service status
 - **`make backup_test`** - Manually run bu_projects backup service
-
-#### Systemd Services - Toolbox
-
 - **`make tbx_enable`** - Enable and start tbx systemd timer
 - **`make tbx_disable`** - Disable and stop tbx systemd timer
 - **`make tbx_status`** - Check tbx timer and service status
 - **`make tbx_test`** - Manually run tbx service
+
+**Pattern Rules for New Units**:
+
+The Makefile includes pattern rules for managing any systemd unit. To add a new unit:
+
+1. Create unit files in `dot-config/systemd/user/`:
+   - `myunit.service` - The service definition
+   - `myunit.timer` - The timer definition (optional)
+
+2. Deploy with `make` (Stow will symlink them to `~/.config/systemd/user/`)
+
+3. Use the pattern rules:
+   - **`make myunit_enable`** - Enable and start the timer
+   - **`make myunit_disable`** - Disable and stop the timer
+   - **`make myunit_status`** - Check timer and service status
+   - **`make myunit_test`** - Manually run the service once
+
+#### Podman Quadlets
+
+Quadlet files in `dot-config/containers/systemd/` are deployed to `~/.config/containers/systemd/`.
+Systemd reads these during boot and when `systemctl daemon-reload` is run.
+
+**Supported Quadlet Types**:
+- `.container` - Container definitions
+- `.volume` - Volume definitions
+- `.network` - Network definitions
+- `.build` - Build instructions
+- `.image` - Image pull definitions
+
+Currently, no quadlets are configured. To add quadlets, place `.container`, `.volume`, 
+`.network`, `.build`, or `.image` files in `dot-config/containers/systemd/`, then run `make` to deploy.
 
 #### Utilities
 

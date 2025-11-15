@@ -122,6 +122,32 @@ tbx_test: ## manually run tbx service
 	systemctl --no-pager --user start tbx.service
 	systemctl --no-pager --user status tbx.service || true
 
+#### Pattern rules for systemd units
+
+%_enable: ## enable and start systemd timer (e.g., make myunit_enable)
+	echo '##[ $@ ]##'
+	systemctl --no-pager --user daemon-reload
+	systemctl --no-pager --user enable --now $*.timer
+	systemctl --no-pager --user status $*.timer
+	echo '✅ $* timer enabled and started'
+
+%_disable: ## disable and stop systemd timer (e.g., make myunit_disable)
+	echo '##[ $@ ]##'
+	systemctl --no-pager --user disable --now $*.timer
+	echo '✅ $* timer disabled and stopped'
+
+%_status: ## check systemd timer and service status (e.g., make myunit_status)
+	echo '##[ $@ ]##'
+	systemctl --no-pager --user status $*.timer || true
+	systemctl --no-pager --user list-timers $*.timer
+	echo ''
+	systemctl --no-pager --user status $*.service || true
+
+%_test: ## manually run systemd service (e.g., make myunit_test)
+	echo '##[ $@ ]##'
+	systemctl --no-pager --user start $*.service
+	systemctl --no-pager --user status $*.service || true
+
 test: ## run neovim busted tests with nlua
 	# echo '##[ $@ ]##'
 	pushd dot-config/nvim &>/dev/null

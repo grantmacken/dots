@@ -135,9 +135,9 @@ description: "Task list for Dotfiles Management System implementation"
 - [x] T032 [US5] Test existing `backup_enable`, `backup_disable`, `backup_status`, `backup_test` targets
 - [x] T033 [US5] Test existing `tbx_enable`, `tbx_disable`, `tbx_status`, `tbx_test` targets  
 - [x] T034 [US5] Verify systemd operations work from toolbox affecting host
-- [ ] T035 [US5] Test quadlet operations if quadlets exist in `dot-config/containers/systemd/`
-- [ ] T036 [US5] Document all systemd/quadlet targets in README.md
-- [ ] T037 [US5] Create pattern rule for new systemd units (`%_enable`, `%_disable`, etc.)
+- [x] T035 [US5] Test quadlet operations if quadlets exist in `dot-config/containers/systemd/` - N/A (no quadlets yet, documented in README)
+- [x] T036 [US5] Document all systemd/quadlet targets in README.md
+- [x] T037 [US5] Create pattern rule for new systemd units (`%_enable`, `%_disable`, etc.)
 
 **Checkpoint**: Systemd and quadlet orchestration verified and enhanced
 
