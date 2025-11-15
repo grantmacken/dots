@@ -131,8 +131,9 @@ description: "Task list for Dotfiles Management System implementation"
 
 ### Verification for User Story 2
 
-- [ ] T032 [US5] Test existing `backup_enable`, `backup_disable`, `backup_status`, `backup_test` targets
-- [ ] T033 [US5] Test existing `tbx_enable`, `tbx_disable`, `tbx_status`, `tbx_test` targets  
+- [x] T032a [US5] Test `dot-local/bin/bu_projects` script runs successfully (script used by bu_projects.service)
+- [x] T032 [US5] Test existing `backup_enable`, `backup_disable`, `backup_status`, `backup_test` targets
+- [x] T033 [US5] Test existing `tbx_enable`, `tbx_disable`, `tbx_status`, `tbx_test` targets  
 - [ ] T034 [US5] Verify systemd operations work from toolbox affecting host
 - [ ] T035 [US5] Test quadlet operations if quadlets exist in `dot-config/containers/systemd/`
 - [ ] T036 [US5] Document all systemd/quadlet targets in README.md
