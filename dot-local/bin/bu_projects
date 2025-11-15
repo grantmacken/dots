@@ -1,38 +1,36 @@
 #!/usr/bin/env bash
 ## use rsync to back ~/Projects folder to /run/media/gmack/seagate
 ## sync occurs daily with the file names as iso date stamp $(date --iso )
-## At the last day of the week the last daily backup becomes a 'week of the year' date stamped back up file
+## At the last day of the week the last daily backup becomes a 'week of the year' date stamped gzipped tar backup file
 ## and the previous day backups are removed
 ## At the end of the month the last weekly backup becomes the 'month of the year' backup file and the previous weekly
 # backups are removed
 # a systemd timer is used to trigger the backup on the daily basis
+#
+# Exit codes:
+#   0 - Success
+#   1 - Drive not available
+#   2 - Backup base directory creation failed
+#   3 - Daily backup failed
+#   4 - Weekly backup failed
+#   5 - Monthly backup failed
 
 set -euo pipefail
 
 # Configuration
 SOURCE_DIR="$HOME/Projects"
-DRIVE_UUID="b7f321ff-49c5-4a0c-aee5-0cffac603506"
-MOUNT_POINT="/run/media/gmack/seagate"
+# NOTE: Modern Linux desktop environments often use a system daemon called UDisks
+# A fedora system will auto-mount drives when detected via UDisks
+MOUNT_POINT="/run/media/$USER/seagate"
+# Unbuntu will mount at /media/$USER/
 BACKUP_BASE="$MOUNT_POINT/backups/Projects"
 
 # Check if drive is available and mount if needed
-DRIVE_MOUNTED=false
-if findmnt -rno SOURCE,TARGET | grep -q "UUID=$DRIVE_UUID"; then
-  echo "Drive already mounted"
-  DRIVE_MOUNTED=true
-elif blkid -U "$DRIVE_UUID" >/dev/null 2>&1; then
-  echo "Drive detected, attempting to mount..."
-  if udisksctl mount -b "/dev/disk/by-uuid/$DRIVE_UUID" >/dev/null 2>&1; then
-    echo "Drive mounted successfully at $MOUNT_POINT"
-    DRIVE_MOUNTED=true
-  else
-    echo "Failed to mount drive" >&2
-    exit 1
-  fi
-else
-  echo "Drive with UUID $DRIVE_UUID not available" >&2
+if ! [ -d "${MOUNT_POINT}" ]; then
+  echo "ERROR: Backup drive not mounted at $MOUNT_POINT" >&2
   exit 1
 fi
+
 DATE_ISO=$(date --iso-8601)
 WEEK_NUM=$(date +%Y-W%V)
 MONTH_NUM=$(date +%Y-%m)
@@ -40,20 +38,29 @@ DAY_OF_WEEK=$(date +%u) # 1-7 (Monday-Sunday)
 # DAY_OF_MONTH=$(date +%d)
 
 # Create backup base directory if it doesn't exist
-mkdir -p "$BACKUP_BASE"
+if ! mkdir -p "$BACKUP_BASE"; then
+  echo "ERROR: Failed to create backup directory: $BACKUP_BASE" >&2
+  exit 2
+fi
 
 # Daily backup
 DAILY_BACKUP="$BACKUP_BASE/daily-$DATE_ISO"
 echo "Creating daily backup: $DAILY_BACKUP"
-rsync -av --delete --exclude='.git' --exclude='node_modules' --exclude='target' \
-  "$SOURCE_DIR/" "$DAILY_BACKUP/"
+if ! rsync -av --delete --exclude='.git' --exclude='node_modules' --exclude='target' \
+  "$SOURCE_DIR/" "$DAILY_BACKUP/"; then
+  echo "ERROR: Daily backup failed" >&2
+  exit 3
+fi
 
 # End of week processing (Sunday = 7)
 if [ "$DAY_OF_WEEK" -eq 7 ]; then
-  WEEKLY_BACKUP="$BACKUP_BASE/weekly-$WEEK_NUM"
-  echo "End of week detected. Creating weekly backup: $WEEKLY_BACKUP"
-  # Copy the daily backup to weekly backup
-  rsync -av --delete "$DAILY_BACKUP/" "$WEEKLY_BACKUP/"
+  WEEKLY_BACKUP="$BACKUP_BASE/weekly-$WEEK_NUM.tar.gz"
+  echo "End of week detected. Creating weekly gzipped tar backup: $WEEKLY_BACKUP"
+  # Create gzipped tar archive from daily backup
+  if ! tar -czf "$WEEKLY_BACKUP" -C "$BACKUP_BASE" "daily-$DATE_ISO"; then
+    echo "ERROR: Weekly backup failed" >&2
+    exit 4
+  fi
   # Remove previous daily backups (keep only today's)
   find "$BACKUP_BASE" -maxdepth 1 -type d -name "daily-*" ! -name "daily-$DATE_ISO" -exec rm -rf {} +
   echo "Removed old daily backups"
@@ -62,14 +69,17 @@ fi
 # End of month processing (last day of month)
 TOMORROW=$(date -d "tomorrow" +%d)
 if [ "$TOMORROW" = "01" ]; then
-  MONTHLY_BACKUP="$BACKUP_BASE/monthly-$MONTH_NUM"
+  MONTHLY_BACKUP="$BACKUP_BASE/monthly-$MONTH_NUM.tar.gz"
   echo "End of month detected. Creating monthly backup: $MONTHLY_BACKUP"
   # Find the most recent weekly backup and copy it to monthly
-  LATEST_WEEKLY=$(find "$BACKUP_BASE" -maxdepth 1 -type d -name "weekly-*" | sort -r | head -n1)
+  LATEST_WEEKLY=$(find "$BACKUP_BASE" -maxdepth 1 -type f -name "weekly-*.tar.gz" | sort -r | head -n1)
   if [ -n "$LATEST_WEEKLY" ]; then
-    rsync -av --delete "$LATEST_WEEKLY/" "$MONTHLY_BACKUP/"
+    if ! cp "$LATEST_WEEKLY" "$MONTHLY_BACKUP"; then
+      echo "ERROR: Monthly backup failed" >&2
+      exit 5
+    fi
     # Remove previous weekly backups (keep only the current week's)
-    find "$BACKUP_BASE" -maxdepth 1 -type d -name "weekly-*" ! -name "weekly-$WEEK_NUM" -exec rm -rf {} +
+    find "$BACKUP_BASE" -maxdepth 1 -type f -name "weekly-*.tar.gz" ! -name "weekly-$WEEK_NUM.tar.gz" -exec rm -f {} +
     echo "Removed old weekly backups"
   fi
 fi
