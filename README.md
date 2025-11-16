@@ -22,7 +22,7 @@ Note: These are already installed on Fedora Silverblue
   - GNU Stow 2.4.0+ (required for proper symlink handling, see https://github.com/aspiers/stow/issues/33)
   - GNU Make 4.0+
   - Git 2.30+
-  - Neovim 0.9+ with Lua support
+  - Neovim 11+
   - systemctl (systemd 245+)
 
 ## Toolbox Setup

@@ -20,10 +20,34 @@ error() {
   exit 1
 }
 
+capture_health_check() {
+  TEMP_FILE=$(mktemp /tmp/nvim-health.XXXXXX)
+  
+  echo "Capturing Neovim health check..."
+  
+  # Run nvim headless with checkhealth command and write output to temp file
+  if ! nvim --headless -c "checkhealth" -c "write! $TEMP_FILE" -c "quit" &>/dev/null; then
+    error "Failed to run nvim --headless checkhealth"
+  fi
+  
+  if [[ ! -s "$TEMP_FILE" ]]; then
+    error "Health check output is empty"
+  fi
+  
+  echo "✓ Health check captured to: $TEMP_FILE"
+  echo "✓ Output size: $(wc -l < "$TEMP_FILE") lines"
+}
+
 main() {
   echo "Neovim Health Check to GitHub Issue"
-  echo "Branch: nvim-health-issues"
-  echo "Task: T-H001 - Script skeleton created"
+  echo ""
+  
+  # T-H002: Capture health check output
+  capture_health_check
+  
+  echo ""
+  echo "Preview first 20 lines:"
+  head -20 "$TEMP_FILE"
 }
 
 main "$@"
