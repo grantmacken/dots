@@ -27,12 +27,18 @@ description: "Task list for Neovim Health Check Issue Tracker"
 
 **Purpose**: Capture Neovim health check output in parseable format
 
-### 1.1 Script Skeleton
+### 1.1 Script Skeleton & Output Capture
 
-- [x] T-H001 Create `dot-local/bin/nvim-health-to-issue` with bash shebang, error handling (`set -euo pipefail`), cleanup trap
-- [x] T-H002 Implement headless health check capture to temp file: `nvim --headless "+checkhealth" "+redir! > <tempfile>" "+silent checkhealth" "+redir END" +qa`
-- [ ] T-H003 Parse health check output: extract WARNING (⚠️) and ERROR (❌) items grouped by plugin/module
-- [ ] T-H004 Handle edge cases: no warnings/errors, health check failure, malformed output
+- [x] T-H001 Update `dot-local/bin/nvim-health-to-issue`: Use `tmp/` directory (relative to repo root) for temporary health check output file
+- [x] T-H002 Implement headless health check capture: `nvim --headless "+checkhealth" "+qa"` with output redirected to `tmp/nvim-health-raw.txt`
+- [x] T-H003 Add cleanup trap: ensure `tmp/nvim-health-raw.txt` removed on script exit (success or failure)
+
+**Checkpoint** (local task): Health check output captured to `tmp/nvim-health-raw.txt`
+
+### 1.2 Output Parsing
+
+- [ ] T-H004 Parse health check output: extract WARNING (⚠️) and ERROR (❌) items grouped by plugin/module from `tmp/nvim-health-raw.txt`
+- [ ] T-H005 Handle edge cases: no warnings/errors, health check failure, malformed output
 
 **Checkpoint** (local task): Health check output parsed successfully with all warnings/errors extracted
 
@@ -44,9 +50,9 @@ description: "Task list for Neovim Health Check Issue Tracker"
 
 ### 2.1 Issue Body Template
 
-- [ ] T-H005 Generate markdown checkbox list: `- [ ] <actionable item>` for each warning/error grouped by plugin
-- [ ] T-H006 Add metadata footer: generation timestamp, source (`:checkhealth`), label (`neovim-health`)
-- [ ] T-H007 Handle "all checks passed" scenario: generate success message when no warnings/errors
+- [ ] T-H006 Generate markdown checkbox list: `- [ ] <actionable item>` for each warning/error grouped by plugin
+- [ ] T-H007 Add metadata footer: generation timestamp, source (`:checkhealth`), label (`neovim-health`)
+- [ ] T-H008 Handle "all checks passed" scenario: generate success message when no warnings/errors
 
 **Checkpoint** (local task): Markdown document generated with proper GitHub checkbox format
 
@@ -58,11 +64,11 @@ description: "Task list for Neovim Health Check Issue Tracker"
 
 ### 3.1 Issue Management
 
-- [ ] T-H008 Implement issue lookup: `gh issue list --label neovim-health --state all --json number,state` (return issue number or empty)
-- [ ] T-H009 Implement issue create: `gh issue create --title "Neovim Health Check TODO" --body "$MARKDOWN" --label neovim-health`
-- [ ] T-H010 Implement issue update: `gh issue edit <number> --body "$MARKDOWN"` (reopen if closed)
-- [ ] T-H011 Main execution flow: capture → parse → generate → lookup → create/update → print issue URL
-- [ ] T-H012 Error handling: validate nvim exists, gh CLI authenticated, network failures, non-zero exit codes
+- [ ] T-H009 Implement issue lookup: `gh issue list --label neovim-health --state all --json number,state` (return issue number or empty)
+- [ ] T-H010 Implement issue create: `gh issue create --title "Neovim Health Check TODO" --body "$MARKDOWN" --label neovim-health`
+- [ ] T-H011 Implement issue update: `gh issue edit <number> --body "$MARKDOWN"` (reopen if closed)
+- [ ] T-H012 Main execution flow: capture → parse → generate → lookup → create/update → print issue URL
+- [ ] T-H013 Error handling: validate nvim exists, gh CLI authenticated, network failures, non-zero exit codes
 
 **Checkpoint** (local task): Single GitHub issue created/updated successfully with fresh health check data
 
@@ -74,8 +80,8 @@ description: "Task list for Neovim Health Check Issue Tracker"
 
 ### 4.1 Make Target
 
-- [ ] T-H013 Add `nvim-health-issues` target to Makefile: calls `$(HOME)/.local/bin/nvim-health-to-issue`
-- [ ] T-H014 Update `make help` documentation: `nvim-health-issues ## Convert Neovim health check to GitHub issue`
+- [x] T-H014 Add `nvim-health-issues` target to Makefile: calls `$(HOME)/.local/bin/nvim-health-to-issue`
+- [x] T-H015 Update `make help` documentation: `nvim-health-issues ## Convert Neovim health check to GitHub issue`
 
 **Checkpoint** (local task): `make nvim-health-issues` executes successfully and displays issue URL
 
@@ -87,11 +93,11 @@ description: "Task list for Neovim Health Check Issue Tracker"
 
 ### 5.1 Testing & Documentation
 
-- [ ] T-H015 Test with real Neovim config: verify issue created, checkboxes render, manually check box persists
-- [ ] T-H016 Test update workflow: verify existing issue updated (not duplicated), timestamp refreshed
-- [ ] T-H017 Test edge cases: no warnings, health check failure, no gh auth, outside git repo
-- [ ] T-H018 Verify success criteria SC-H001 through SC-H007 all pass
-- [ ] T-H019 Update documentation: README.md usage example, note manual execution only
+- [ ] T-H016 Test with real Neovim config: verify issue created, checkboxes render, manually check box persists
+- [ ] T-H017 Test update workflow: verify existing issue updated (not duplicated), timestamp refreshed
+- [ ] T-H018 Test edge cases: no warnings, health check failure, no gh auth, outside git repo
+- [ ] T-H019 Verify success criteria SC-H001 through SC-H007 all pass
+- [ ] T-H020 Update documentation: README.md usage example, note manual execution only
 
 **Checkpoint** (local task): All success criteria verified, documentation complete
 
@@ -103,7 +109,7 @@ description: "Task list for Neovim Health Check Issue Tracker"
 
 ### 6.1 Pre-merge & Merge
 
-- [ ] T-H020 Create PR `feature/nvim-checkhealth-issues` → `main`, review, merge, verify on main
+- [ ] T-H021 Create PR `feature/nvim-checkhealth-issues` → `main`, review, merge, verify on main
 
 **Checkpoint** (local task): Feature integrated into main branch, works as expected
 
@@ -123,11 +129,11 @@ description: "Task list for Neovim Health Check Issue Tracker"
 
 ## Task Summary
 
-**Total Tasks**: 20 (T-H001 through T-H020)  
-**Completed**: 2  
-**Remaining**: 18
+**Total Tasks**: 21 (T-H001 through T-H021)  
+**Completed**: 5 (T-H001, T-H002, T-H003, T-H014, T-H015)  
+**Remaining**: 16
 
-**Next Action**: Start with T-H003 (parse health check output for warnings/errors)
+**Next Action**: Start with T-H004 (parse health check output for warnings/errors)
 
 ---
 

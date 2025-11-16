@@ -5,11 +5,20 @@
 
 set -euo pipefail
 
-TEMP_FILE=""
+# Get repo root directory
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)" || {
+  echo "Error: Not in a git repository" >&2
+  exit 1
+}
 
+# T-H001: Use tmp/ directory relative to repo root
+TMP_DIR="${REPO_ROOT}/tmp"
+HEALTH_OUTPUT="${TMP_DIR}/nvim-health-raw.txt"
+
+# T-H003: Add cleanup trap
 cleanup() {
-  if [[ -n "$TEMP_FILE" && -f "$TEMP_FILE" ]]; then
-    rm -f "$TEMP_FILE"
+  if [[ -f "$HEALTH_OUTPUT" ]]; then
+    rm -f "$HEALTH_OUTPUT"
   fi
 }
 
@@ -20,34 +29,27 @@ error() {
   exit 1
 }
 
-capture_health_check() {
-  TEMP_FILE=$(mktemp /tmp/nvim-health.XXXXXX)
-  
-  echo "Capturing Neovim health check..."
-  
-  # Run nvim headless with checkhealth command and write output to temp file
-  if ! nvim --headless -c "checkhealth" -c "write! $TEMP_FILE" -c "quit" &>/dev/null; then
-    error "Failed to run nvim --headless checkhealth"
-  fi
-  
-  if [[ ! -s "$TEMP_FILE" ]]; then
-    error "Health check output is empty"
-  fi
-  
-  echo "✓ Health check captured to: $TEMP_FILE"
-  echo "✓ Output size: $(wc -l < "$TEMP_FILE") lines"
-}
-
 main() {
   echo "Neovim Health Check to GitHub Issue"
-  echo ""
+  echo "Repo Root: $REPO_ROOT"
+  echo "Output File: $HEALTH_OUTPUT"
   
-  # T-H002: Capture health check output
-  capture_health_check
+  # Ensure tmp directory exists
+  mkdir -p "$TMP_DIR"
   
+  # T-H002: Implement headless health check capture
+  echo "Running :checkhealth..."
+  if ! nvim --headless "+checkhealth" "+qa" &> "$HEALTH_OUTPUT"; then
+    error "Failed to run :checkhealth"
+  fi
+  
+  echo "✓ Health check output captured to: $HEALTH_OUTPUT"
+  echo "✓ File will be cleaned up on script exit"
+  
+  # Display first 10 lines as confirmation
   echo ""
-  echo "Preview first 20 lines:"
-  head -20 "$TEMP_FILE"
+  echo "Preview (first 10 lines):"
+  head -n 10 "$HEALTH_OUTPUT"
 }
 
 main "$@"
