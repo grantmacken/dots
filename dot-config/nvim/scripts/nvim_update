@@ -1,0 +1,79 @@
+#!/usr/bin/env -S nvim -l
+local path_package = vim.fn.stdpath('data') .. '/site'
+local mini_path = path_package .. '/pack/core/start/mini.nvim'
+local uv = vim.uv
+local stdout = uv.new_tty(1, false)
+
+-- local function terminal_echo(text)
+--   -- 2. Write to the terminal
+--   -- The \n is added because uv.write doesn't add it automatically
+--   uv.write(stdout, text .. "\n", function(err)
+--     if err then
+--       io.stderr:write("Error writing to stdout: " .. err .. "\n")
+--     end
+--   end)
+-- end
+
+
+-- local obj = vim.system({ 'echo', 'hello' }, { text = true }):wait()
+-- Example Usage
+-- print(obj.stdout)
+
+
+local is_created = vim.fn.isdirectory(mini_path)
+if (is_created == 1) then
+  print('Updating mini.nvim...')
+  vim.cmd('cd ' .. mini_path)
+  vim.print(vim.system({ 'pwd' }, { text = true }):wait().stdout)
+  vim.print(vim.system({ 'git', 'status' }, { text = true }):wait().stdout)
+  local obj = vim.system({ 'git', 'pull' }, { text = true }):wait()
+  print(obj.stdout)
+end
+
+local treesitters = {
+  'awk',
+  'bash',
+  'comment',
+  'css',
+  'csv',
+  'diff',
+  'djot',
+  'dtd',
+  'ebnf',
+  'elixir',
+  'erlang',
+  'git_config',
+  'gitignore',
+  'gleam',
+  'gnuplot',
+  'html',
+  'http',
+  'javascript',
+  'jq',
+  'json',
+  'just',
+  'latex',
+  'ledger',
+  'make',
+  'markdown_inline',
+  'mermaid',
+  'nginx',
+  'printf',
+  'readline',
+  'regex',
+  'ssh_config',
+  'toml',
+  'xml',
+  'yaml'
+}
+
+vim.pack.add({
+  {
+    src = 'https://github.com/nvim-treesitter/nvim-treesitter',
+    version = 'main'
+  } })
+
+local ok_ts, ts = pcall(require, 'nvim-treesitter')
+if ok_ts then
+  ts.install(treesitters):wait(300000)
+end

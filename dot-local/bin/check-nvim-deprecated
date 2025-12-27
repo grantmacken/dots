@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# Check Neovim Lua files for deprecated API usage
+# Usage: check-nvim-deprecated [directory]
+#
+# Scans Lua files for deprecated Neovim API calls and reports locations
+
+# Default to nvim config directory
+SEARCH_DIR="${1:-${XDG_CONFIG_HOME:-$HOME/.config}/nvim}"
+
+# Colors for output
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}Checking for deprecated Neovim API usage in: ${SEARCH_DIR}${NC}\n"
+
+# Track if we found any issues
+found_issues=0
+
+# Check for vim.loop (should be vim.uv)
+echo -e "${YELLOW}Checking for vim.loop.* (use vim.uv.* instead)...${NC}"
+if grep -rn "vim\.loop\." "$SEARCH_DIR" --include="*.lua" 2>/dev/null; then
+  echo -e "  ${RED}→ vim.loop is deprecated, use vim.uv instead${NC}\n"
+  found_issues=1
+fi
+
+# Check for nvim_buf_get_option
+echo -e "${YELLOW}Checking for nvim_buf_get_option (use nvim_get_option_value instead)...${NC}"
+if grep -rn "nvim_buf_get_option\(" "$SEARCH_DIR" --include="*.lua" 2>/dev/null; then
+  echo -e "  ${RED}→ use nvim_get_option_value(opt, {buf=bufnr}) instead${NC}\n"
+  found_issues=1
+fi
+
+# Check for nvim_buf_set_option
+echo -e "${YELLOW}Checking for nvim_buf_set_option (use nvim_set_option_value instead)...${NC}"
+if grep -rn "nvim_buf_set_option\(" "$SEARCH_DIR" --include="*.lua" 2>/dev/null; then
+  echo -e "  ${RED}→ use nvim_set_option_value(opt, val, {buf=bufnr}) instead${NC}\n"
+  found_issues=1
+fi
+
+# Check for nvim_win_get_option
+echo -e "${YELLOW}Checking for nvim_win_get_option (use nvim_get_option_value instead)...${NC}"
+if grep -rn "nvim_win_get_option\(" "$SEARCH_DIR" --include="*.lua" 2>/dev/null; then
+  echo -e "  ${RED}→ use nvim_get_option_value(opt, {win=winid}) instead${NC}\n"
+  found_issues=1
+fi
+
+# Check for nvim_win_set_option
+echo -e "${YELLOW}Checking for nvim_win_set_option (use nvim_set_option_value instead)...${NC}"
+if grep -rn "nvim_win_set_option\(" "$SEARCH_DIR" --include="*.lua" 2>/dev/null; then
+  echo -e "  ${RED}→ use nvim_set_option_value(opt, val, {win=winid}) instead${NC}\n"
+  found_issues=1
+fi
+
+# Summary
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+if [ $found_issues -eq 0 ]; then
+  echo -e "${GREEN}✓ No deprecated API usage found!${NC}"
+  exit 0
+else
+  echo -e "${RED}✗ Found deprecated API usage. Please update to current APIs.${NC}"
+  echo -e "${YELLOW}See .github/instructions/nvim-lua-modules.md for details.${NC}"
+  exit 1
+fi
+

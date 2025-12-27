@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# convert-issue-to-pr
+set -euo pipefail
+if [ -z "$1" ]; then
+  echo "Usage: gh-issue-to-pr <issue-number>"
+  return 1
+fi
+NUMBER=$1
+# Fetch data from GitHub
+TITLE=$(gh issue view "$NUMBER" --json title --template '{{.title}}')
+ISSUE_BODY=$(gh issue view "$NUMBER" --json body --template '{{.body}}')
+# Append the closing keyword
+FULL_BODY="${ISSUE_BODY}"$'\n\n'"Closes #$NUMBER"
+echo "Creating PR for Issue #$NUMBER..."
+gh pr create --title "$TITLE" --body "$FULL_BODY"
