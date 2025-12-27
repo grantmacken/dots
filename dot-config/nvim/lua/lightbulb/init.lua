@@ -4,10 +4,9 @@
 --- Implementation inspired from https://github.com/nvimdev/lspsaga.nvim/blob/a751b92b5d765a99fe3a42b9e51c046f81385e15/lua/lspsaga/codeaction/lightbulb.lua
 
 local M = {}
-
 local lb_name = 'lightbulb'
 local lb_namespace = vim.api.nvim_create_namespace(lb_name)
-local lb_icon = require('icons').diagnostics.HINT
+local lb_icon = ''
 local lb_group = vim.api.nvim_create_augroup(lb_name, {})
 local code_action_method = vim.lsp.protocol.Methods.textDocument_codeAction
 
@@ -89,14 +88,8 @@ end
 
 --- Configures autocommands to update the code action lightbulb.
 ---@param bufnr integer
----@param client_id integer
-M.attach_lightbulb = function(bufnr, client_id)
-  local client = vim.lsp.get_client_by_id(client_id)
-
-  if not client or not client:supports_method(code_action_method) then
-    return
-  end
-
+---@param client vim.lsp.Client
+M.attach_lightbulb = function(bufnr, client)
   local buf_group_name = lb_name .. tostring(bufnr)
   if pcall(vim.api.nvim_get_autocmds, { group = buf_group_name, buffer = bufnr }) then
     return

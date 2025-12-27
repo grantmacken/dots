@@ -1,26 +1,25 @@
 ---@see h: vim.diagnostic.config
 ---@see h: vim.diagnostic.handlers
----
-local ok, tid = pcall(require, 'tiny-inline-diagnostic')
-if ok then
-  tid.setup()
-end
-vim.diagnostic.config()
----
+local setup = require('setup')
+setup.tinyInlineDiagnostic()
+
+--[[
 -- Override the virtual text diagnostic handler so that the most severe diagnostic is shown first.
--- local show_handler = vim.diagnostic.handlers.virtual_text.show
--- assert(show_handler)
--- local hide_handler = vim.diagnostic.handlers.virtual_text.hide
--- vim.diagnostic.handlers.virtual_text = {
---   show = function(ns, bufnr, diagnostics, opts)
---     table.sort(diagnostics, function(diag1, diag2)
---       return diag1.severity > diag2.severity
---     end)
---     return show_handler(ns, bufnr, diagnostics, opts)
---   end,
---   hide = hide_handler,
--- }
----
+local show_handler = vim.diagnostic.handlers.virtual_text.show
+assert(show_handler)
+local hide_handler = vim.diagnostic.handlers.virtual_text.hide
+vim.diagnostic.handlers.virtual_text = {
+  show = function(ns, bufnr, diagnostics, opts)
+    table.sort(diagnostics, function(diag1, diag2)
+      return diag1.severity > diag2.severity
+    end)
+    return show_handler(ns, bufnr, diagnostics, opts)
+  end,
+  hide = hide_handler,
+}
+-
+-
+
 
 vim.diagnostic.config({
   signs = {
@@ -91,3 +90,4 @@ end
 -- Set up key binding to toggle virtual lines
 local keymap = require('util').keymap
 keymap('<Leader>dv', toggle_diagnostic_virtual_lines, 'Toggle [d]iagnostic [v]irtual lines')
+]]--

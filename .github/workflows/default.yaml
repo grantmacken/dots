@@ -1,4 +1,4 @@
-name: Dotfiles Management - Foundation Testing
+name: Dotfiles Management
 on:
   push:
     branches:
@@ -6,7 +6,7 @@ on:
   # Allow manual triggering for testing
   workflow_dispatch:
 jobs:
-  foundation-validation:
+  setup-and-validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -15,12 +15,10 @@ jobs:
           ref: main
       - name: Install GNU Stow >= 2.4.0
         run: |
-          wget https://ftp.gnu.org/gnu/stow/stow-2.4.1.tar.gz
-          tar -xzf stow-2.4.1.tar.gz
-          cd stow-2.4.1
-          ./configure --prefix=/usr/local
-          make
-          sudo make install
+          SRC='https://ftp.gnu.org/gnu/stow/stow-2.4.1.tar.gz'
+          wget -O ${SRC} /tmp/stow-2.4.1.tar.gz &> /dev/null
+          cd /tmp && tar -xzf stow-2.4.1.tar.gz
+          cd stow-2.4.1 && ./configure --prefix=/usr/local && sudo make &> /dev/null
           stow --version
       - name: Install Neovim
         run: |

@@ -14,38 +14,6 @@ M.au = function(event, pattern, callback, desc)
   vim.api.nvim_create_autocmd(event, { group = group, pattern = pattern, callback = callback, desc = desc })
 end
 
----@param lhs string
----@param rhs string|function
----@param desc string
----@param mode? string|string[]
-M.keymap = function(lhs, rhs, desc, mode)
-  mode = mode or 'n'
-  local opt = { desc = desc }
-  vim.keymap.set(mode, lhs, rhs, opt)
-end
----@param lhs string
----@param rhs string|function
----@param desc string
----@param bufnr? number
----@param mode? string|string[]
-M.keymap_buf = function(lhs, rhs, desc, bufnr, mode)
-  bufnr = bufnr or 0
-  mode = mode or 'n'
-  local opt = { buffer = 0, desc = desc }
-  vim.keymap.set(mode, lhs, rhs, opt)
-end
-
----@param lhs string
----@param rhs string|function
----@param desc string
----@param bufnr? number
----@param mode? string|string[]
-M.keymap_dynamic = function(lhs, rhs, desc, bufnr, mode)
-  bufnr = bufnr or 0
-  mode = mode or 'n'
-  local opt = { buffer = bufnr, desc = desc, expr = true, replace_keycodes = true }
-  vim.keymap.set(mode, lhs, rhs, opt)
-end
 
 --- UTF-8 aware word splitting. See |keyword|
 ---@see https://github.com/folke/sidekick.nvim/blob/main/lua/sidekick/util.lua
@@ -121,6 +89,37 @@ M.write_file = function(path, data)
   end
   return true
 end
+
+--- Check if an optional plugin has been loaded with packadd
+---@param module_name string The name of the plugin module
+---@return boolean true if plugin is loaded, false otherwise
+M.is_plugin_loaded = function(module_name)
+  return package.loaded[module_name] ~= nil
+end
+
+M.redirect_vim_command_output = function(vim_command, output_file, append)
+    -- Determine the redirection mode (overwrite or append)
+    local redir_mode = append and ">>" or ">"
+
+    -- Construct the full command sequence
+    local command_sequence = string.format(
+        "redir %s %s | silent %s | redir END",
+        redir_mode,
+        output_file,
+        vim_command
+    )
+
+    -- Execute the sequence
+    vim.cmd(command_sequence)
+    
+    -- Optional: Notify the user
+    vim.notify(
+        string.format("Output of ':%s' written to '%s'", vim_command, output_file),
+        vim.log.levels.INFO,
+        { title = "Neovim Redirect" }
+    )
+end
+
 
 
 return M

@@ -1,84 +1,61 @@
 {
   "plugins": {
+    "aerial.nvim": {
+      "rev": "535f643b0c3e642465d3cf37b96fc54ddd3b2c1e",
+      "src": "https://github.com/stevearc/aerial.nvim"
+    },
     "everforest-nvim": {
-      "rev": "d293618",
+      "rev": "557bce922401e247a596583679bc181d4d688554",
       "src": "https://github.com/neanias/everforest-nvim"
     },
-    "flash.nvim": {
-      "rev": "3be9bf7",
-      "src": "https://github.com/folke/flash.nvim"
-    },
-    "fzf-lua": {
-      "rev": "3ec1ffb",
-      "src": "https://github.com/ibhagwan/fzf-lua"
-    },
     "gitsigns.nvim": {
-      "rev": "20ad441",
+      "rev": "5813e4878748805f1518cee7abb50fd7205a3a48",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
     },
-    "grug-far.nvim": {
-      "rev": "3e72397",
-      "src": "https://github.com/MagicDuck/grug-far.nvim"
-    },
     "kanagawa.nvim": {
-      "rev": "aef7f5c",
+      "rev": "aef7f5cec0a40dbe7f3304214850c472e2264b10",
       "src": "https://github.com/rebelot/kanagawa.nvim"
     },
-    "kulala.nvim": {
-      "rev": "183bf44",
-      "src": "https://github.com/mistweaverco/kulala.nvim"
-    },
     "lsp_signature.nvim": {
-      "rev": "62cadce",
+      "rev": "7d3bb0a641f516f1c7fd2e47852580dadbd7a430",
       "src": "https://github.com/ray-x/lsp_signature.nvim"
     },
-    "mini.nvim": {
-      "rev": "d1a9158",
-      "src": "https://github.com/nvim-mini/mini.nvim"
-    },
     "nvim-treesitter": {
-      "rev": "4a9f5797",
-      "src": "https://github.com/nvim-treesitter/nvim-treesitter"
+      "rev": "6e42d823ce0a5a76180c473c119c7677738a09d1",
+      "src": "https://github.com/nvim-treesitter/nvim-treesitter",
+      "version": "'main'"
     },
     "oil.nvim": {
-      "rev": "7e1cd77",
+      "rev": "cbcb3f997f6f261c577b943ec94e4ef55108dd95",
       "src": "https://github.com/stevearc/oil.nvim"
     },
     "plenary.nvim": {
-      "rev": "b9fd522",
+      "rev": "b9fd5226c2f76c951fc8ed5923d85e4de065e509",
       "src": "https://github.com/nvim-lua/plenary.nvim"
     },
+    "quicker.nvim": {
+      "rev": "9983d4b28881e1df626e3682167b45c284d4da8c",
+      "src": "https://github.com/stevearc/quicker.nvim"
+    },
     "rainbow-delimiters.nvim": {
-      "rev": "3277ad5",
+      "rev": "8aafe2cbd89cd4090f573a98cab6b20366576fde",
       "src": "https://github.com/hiphish/rainbow-delimiters.nvim"
     },
     "render-markdown.nvim": {
-      "rev": "bfd67f1",
+      "rev": "6e0e8902dac70fecbdd8ce557d142062a621ec38",
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim"
     },
-    "resession.nvim": {
-      "rev": "84c81e5",
-      "src": "https://github.com/stevearc/resession.nvim"
-    },
     "tiny-code-action.nvim": {
-      "rev": "0c24efc",
+      "rev": "188122ee2ea278eb74f55c6d39b5f6b5f8eefe8c",
       "src": "https://github.com/rachartier/tiny-code-action.nvim"
     },
     "tiny-inline-diagnostic.nvim": {
-      "rev": "523c4f4",
+      "rev": "38b06435305c30966b7ceb0a43e460dc43acaada",
       "src": "https://github.com/rachartier/tiny-inline-diagnostic.nvim"
     },
-    "vague.nvim": {
-      "rev": "5689afd",
-      "src": "https://github.com/vague2k/vague.nvim"
-    },
     "vim-suda": {
-      "rev": "9adda7d",
+      "rev": "c492741b4679b3cdd4d9e34138209784e061d916",
       "src": "https://github.com/lambdalisue/vim-suda"
-    },
-    "yanky.nvim": {
-      "rev": "04775cc",
-      "src": "https://github.com/gbprod/yanky.nvim"
     }
   }
 }

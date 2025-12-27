@@ -5,57 +5,30 @@ pcall(function()
 end)
 -- disable built-in providers
 
-local providers = { "node", "perl", "ruby", "python", "python3" }
+local providers = {
+  "node",
+  "perl",
+  "ruby",
+  "python",
+  "python3",
+}
+
 for _, provider in ipairs(providers) do
   vim.g["loaded_" .. provider .. "_provider"] = 0
 end
 
 -- disable built-in plugins
-local plugins = { 'gzip', 'netrwPlugin', 'rplugin', 'tarPlugin', 'tohtml', 'tutor', 'zipPlugin', }
+local plugins = {
+  'gzip',
+  'netrwPlugin',
+  'rplugin',
+  'tarPlugin',
+  'tohtml',
+  'tutor',
+  'zipPlugin',
+}
 for _, plugin in ipairs(plugins) do
   vim.g["loaded_" .. plugin] = 1
-end
-
--- Load opt plugins automatically
-local uv = vim.uv or vim.loop
--- Get the XDG data directory for Neovim
-local data_dir = vim.fn.stdpath("data")
-local pack_glob = data_dir .. "/site/pack/*/opt"
--- Expand all opt plugin directories
-for _, opt_dir in ipairs(vim.fn.glob(pack_glob, true, true)) do
-  local fd = uv.fs_scandir(opt_dir)
-  if fd then
-    while true do
-      local plug_name, plug_type = uv.fs_scandir_next(fd)
-      if not plug_name then break end
-      if plug_type == "directory" then
-        vim.pack.add({ plug_name }, { confirm = false })
-      end
-    end
-  end
-end
-
-
--- Globals -- Set leader key
-vim.g.mapleader = vim.keycode("<space>")      -- Set leader key to space
-vim.g.maplocalleader = vim.keycode("<space>") -- Set local leader key to space\
-vim.g.projects_dir = vim.fn.expand("~") .. "/Projects"
-
-vim.cmd.colorscheme('kanagawa-wave')
-
--- Enable all LSP servers in the 'lsp' config directory
-
-local uv = vim.uv or vim.loop
-local lsp_dir = vim.fn.stdpath("config") .. "/lsp"
-local fd = uv.fs_scandir(lsp_dir)
-if fd then
-  while true do
-    local server_name, server_type = uv.fs_scandir_next(fd)
-    if not server_name then break end
-    local name = server_name:match("(.+)%..+$")
-    -- vim.notify( 'enabled LSP server:'  .. name)
-    vim.lsp.enable(name)
-  end
 end
 
 

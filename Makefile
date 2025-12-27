@@ -28,9 +28,6 @@ PROJECTS := $(HOME)/Projects
 default: ## install dotfiles (runs init, stow)
 	# Verify running from correct location and environment
 	dot-local/bin/check-repo-root
-ifndef GITHUB_ACTIONS
-	dot-local/bin/check-toolbox
-endif
 	echo '##[ stow dotfiles ]##'
 	# Ensure all scripts are executable before deployment
 	chmod +x dot-local/bin/* || true
@@ -77,10 +74,6 @@ reset_nvim:
 	stow --verbose --dotfiles --delete --target ~/ .
 	echo 'bring everything back...'
 	$(MAKE)
-	##  use nlua script to install plugins
-	nvim_plugins
-	##  use nlua script to install treesitter parsers and queries
-	nvim_treesitter
 	echo '✅ completed task'
 
 list-configurables: ## list configurable files in container
@@ -169,12 +162,83 @@ tbx_test: ## manually run tbx service
 	systemctl --no-pager --user start $*.service
 	systemctl --no-pager --user status $*.service || true
 
-test: ## run neovim busted tests with nlua
-	# echo '##[ $@ ]##'
+check:
+	echo '##[ $@ ]##'
 	pushd dot-config/nvim &>/dev/null
-	busted | faucet && echo
+	nvim --headless -u ./scripts/minimal_init.lua -c "lua MiniTest.run()" -c "qa!"
 	popd &>/dev/null
-	echo '✅ busted tests completed'
+
+
+test-mini: ## run mini.test unit tests for neovim modules
+	echo '##[ $@ ]##'
+	pushd dot-config/nvim &>/dev/null
+	nvim --headless -u tests/assert_init.lua \
+		-c "lua MiniTest.run()" -c "qa!"
+	popd &>/dev/null
+	echo '✅ mini.test completed'
+
+snapshot-show: ## run snapshot tests for show module
+	echo '##[ $@ ]##'
+	pushd dot-config/nvim &>/dev/null
+	TEST_FILE=tests/snapshot_show.lua nvim --headless -u tests/snapshot_init.lua \
+		-c "lua MiniTest.run()" -c "qa!"
+	popd &>/dev/null
+	echo '✅ snapshot tests completed'
+
+snapshot-show-update: ## update snapshots for show module (delete and regenerate)
+	echo '##[ $@ ]##'
+	pushd dot-config/nvim &>/dev/null
+	rm -rf tests/screenshots/tests-snapshot_show.lua*
+	nvim --headless -u tests/snapshot_init.lua \
+		-c "lua MiniTest.run_file('tests/snapshot_show.lua')" -c "qa!"
+	popd &>/dev/null
+	echo '✅ snapshots updated'
+
+snapshot-all: ## run all snapshot tests
+	echo '##[ $@ ]##'
+	pushd dot-config/nvim &>/dev/null
+	for file in tests/snapshot_*.lua; do \
+		test_name=$$(basename $$file .lua); \
+		echo "Running $$test_name..."; \
+		TEST_FILE=$$file nvim --headless -u tests/snaps_init.lua \
+			-c "lua MiniTest.run()" -c "qa!"; \
+	done
+	popd &>/dev/null
+	echo '✅ all snapshot tests completed'
+
+snapshot-all-update: ## update all snapshots (delete and regenerate)
+	echo '##[ $@ ]##'
+	pushd dot-config/nvim &>/dev/null
+	rm -rf tests/screenshots/
+	for file in tests/snapshot_*.lua; do \
+		test_name=$$(basename $$file .lua); \
+		echo "Updating snapshots for $$test_name..."; \
+		TEST_FILE=$$file nvim --headless -u tests/snapshot_init.lua \
+			-c "lua MiniTest.run()" -c "qa!"; \
+	done
+	popd &>/dev/null
+	echo '✅ all snapshots updated'
+
+snapshot-help: ## show snapshot testing help
+	@echo 'Snapshot Testing Targets:'
+	@echo '  snapshot-show          - Run snapshot tests for show module'
+	@echo '  snapshot-show-update   - Update snapshots for show module'
+	@echo '  snapshot-all           - Run all snapshot tests'
+	@echo '  snapshot-all-update    - Update all snapshots'
+	@echo '  snapshot-help          - Show this help'
+	@echo ''
+	@echo 'How Snapshot Tests Work:'
+	@echo '  1. First run: Creates screenshot files (WILL FAIL - this is expected!)'
+	@echo '  2. Review screenshots in tests/screenshots/'
+	@echo '  3. Subsequent runs: Compares output to screenshots (should pass)'
+	@echo '  4. When output changes: Use *-update targets to regenerate'
+	@echo ''
+	@echo 'Screenshot Format:'
+	@echo '  - Text representation of UI (like mini.nvim)'
+	@echo '  - Shows actual screen content + highlight group IDs'
+	@echo '  - Stored in tests/screenshots/ with long descriptive names'
+	@echo ''
+	@echo 'See: .github/instructions/nvim-snapshots.md'
 
 test-workflow: ## trigger GitHub Actions workflow and monitor run
 	echo '##[ $@ ]##'

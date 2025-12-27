@@ -18,8 +18,8 @@ if [ ! -f Makefile ]; then
   missing+=("Makefile")
 fi
 
-if [ ! -d .specify ]; then
-  missing+=(".specify/ directory")
+if [ ! -d .github ]; then
+  missing+=(".github/ directory")
 fi
 
 if [ ${#missing[@]} -gt 0 ]; then

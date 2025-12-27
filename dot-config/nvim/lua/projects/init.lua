@@ -1,18 +1,18 @@
-M = {}
+local M = {}
 M.version = "0.1.0"
---[[ Module description ]]
---- @see https://github.com/ibhagwan/fzf-lua/wiki/Advanced
---[[markdown
- # projects
- A Neovim plugin to manage my git controlled projects
+M.description = [[
+ A nvim lua module to manage my git controlled projects
  - Each project has its own named tabage
  - The named tabpage is the project name
  - The name is derived from the project root directory
  - The project root directory is determined by the presence of a `.git` directory
- ]] --
+ - Projects are stored in `~/Projects` directory
+ - The plugin provides a FZF based project picker to select and open projects in new tabpages
+]]
 
+--- @see url https://github.com/echasnovski/mini.pick
 
----@return string, table directories  list of project names
+---@return string, table project directory and list of names
 local function get_project_directories()
   local projects_dir = vim.g.projects_dir or (vim.fn.expand('~') .. '/Projects')
   local handle = vim.uv.fs_scandir(projects_dir)
@@ -36,13 +36,13 @@ M.picker = function()
   --   vim.notify('No projects found in ~/Projects', vim.log.levels.WARN)
   --   return
   -- end
-  local fzf_lua = require("fzf-lua")
-  fzf_lua.fzf_exec(projects, {
-    prompt = "Projects> ",
-    actions = {
-      ["default"] = function(selected)
-        if not selected or #selected == 0 then return end
-        local selected_project = selected[1]
+  local MiniPick = require("mini.pick")
+  MiniPick.start({
+    source = {
+      items = projects,
+      name = "Projects",
+      choose = function(selected_project)
+        if not selected_project then return end
         local project_path = projects_dir .. '/' .. selected_project
         -- check if tabpage variable vim.t.project exists
         local project = vim.t.project
@@ -55,27 +55,29 @@ M.picker = function()
         end
       end,
     },
-    winopts = { --
-      fullscreen = true,
-      height = 1,
-      width = 1,
-      row = 0,
-      col = 0,
-      border = 'none',
-      preview = {
-        hidden = 'hidden',
-      },
+    options = {
+      content_from_bottom = false,
+      use_cache = false,
     },
-    fzf_opts = {
-      ['--layout'] = 'reverse',
-      ['--query'] = 'dots',
+    window = {
+      config = function()
+        local height = vim.o.lines
+        local width = vim.o.columns
+        return {
+          anchor = 'NW',
+          height = height,
+          width = width,
+          row = 0,
+          col = 0,
+          border = 'none',
+        }
+      end,
     },
   })
+  -- Set initial query to 'dots' after picker starts
+  vim.schedule(function()
+    vim.fn.feedkeys('dots', 'n')
+  end)
 end
 
-M.data = {
-  name = "projects",
-  version = M.version,
-  description = "A Neovim plugin to manage my tab b ased git controlled projects",
-}
 return M

@@ -1,8 +1,8 @@
 # GitHub Copilot CLI Instructions for Dotfiles Project
 
 This project contains personal dotfiles managed through a structured workflow combining 
- - Stow-based deployment, 
- - systemd automation, and 
+ - Stow-based deployment,
+ - systemd automation, and
  - toolbox isolation for Fedora Silverblue.
 
 ## Project Overview
@@ -53,10 +53,11 @@ Important principles to follow when working with this codebase:
 
 - Neovim setup is in `dot-config/nvim/`
   - Lua Modules are in `dot-config/nvim/lua/{name}.lua`. Use LuaCATS annotations for lua code modules @see https://luals.github.io/wiki/annotation
-  - Plugin configs are in `dot-config/nvim/plugin/{integer_name}.lua` these load in sequential numbered order after `init.lua`
+  - Plugin configs are in `dot-config/nvim/plugin/{integer}_{name}.lua` these load in sequential numbered order after `init.lua`
   - Busted specs are nlua files in `dot-config/nvim/tests/`
 - Systemd units are in `dot-config/systemd/user/`
-- Bash scripts are in `dot-local/bin/`
+- Quadlets for Podman containers are in `dot-config/containers/`
+- Bash and nlua scripts are in `dot-local/bin/`
 
 
 ## Common Tasks
@@ -83,39 +84,37 @@ Important principles to follow when working with this codebase:
 ### Configurations
 
 1. Where possible a configurable executable should have its own directory inside `dot-config/`
-2. Configuration files should be seen in the context running the executable inside neovim terminal inside the toolbox
+2. Configuration files should be seen in the context running the executable inside Neovim terminal inside the toolbox
 
 ### Modifying Configuration
 1. Edit files in `dot-*` directories (not in `~` directly)
 2. Never run `make delete` as these will reset my configs and delete local changes and I will cry
-4. Never test changes with  `make delete && make` to verify functionality
+4. Never test changes with `make delete && make` to verify functionality
 3. Do not edit files in `~` directly; they are symlinked from `dot-*` directories and managed by Stow
 4. Do not add symlinks manually; always use Stow via Makefile
-5. Do not add symlinks inside `dot-*` directories; they should only contain source files for Stow. 
-   This is important, the dot-config/systend/user/ and dot-config/containers directories should not contain any symlinks. 
-   They should only contain the actual unit files and container quadlet definitions.
-   Adding symlinks here will break the systemd and podman workflows.
+5. Do not add symlinks inside `dot-*` directories; they should only contain source files for Stow.
+   This is important, the dot-config/systemd/user/ and dot-config/containers directories should not contain any symlinks.
+   They should only contain the actual unit files and container Quadlet definitions.
+   Adding symlinks here will break the Systemd and Podman workflows.
 5. Commit changes with descriptive messages
 
 ### Modifying Neovim Configuration
 
 1. Edit files in `dot-config/nvim/` and subdirectories
 2. Use LuaCATS annotations for Lua modules
-3. follow this naming convention `dot-config/nvim/plugin/{number_name}.lua` for plugin configurations:
-  1. number is two digits (e.g. 01, 02, ..., 10, 11, ..., 99)
-  2. name uses underscores instead of hyphens(e.g. `01_my_plugin.lua`)
-  3. files load in sequential order after `init.lua`
+3. Follow this naming convention `dot-config/nvim/plugin/{number}_{name}.lua` for plugin configurations:
+  - number is two digits (e.g. 01, 02, ..., 10, 11, ..., 99)
+  - name uses underscores instead of hyphens(e.g. `01_my_plugin.lua`)
+  Files loaded in sequential order after `init.lua` so select numbering accordingly 
 4. Modules follow this naming convention `dot-config/nvim/lua/{name}/init.lua`:
    - single word name as the directory name 
    - init.lua as the main entry point
+   This allows `require("{name}")` to work correctly
 5. TODO! Test changes in Neovim terminal inside toolbox
-
 
 ## Tips for Copilot CLI
 
-- Keep host system minimal; use toolbox for dev tools
+- Keep host system minimal; use toolbox for development tools
 - Make scripts idempotent with proper state checking
 - Prefer declarative configs over complex bash scripts
 
----
-*These instructions guide Copilot CLI to work effectively with both the dotfiles structure and the Spec Kit feature development workflow.*

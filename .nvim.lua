@@ -9,8 +9,8 @@ In my universe, git contolled projects
 - each project tabpage can define its own autocommands
 - each project tabpage can define its own fileviews for the project files
 - each project tabpage can define its own makeprg and errformat for building the project
-- each project tabpage can define its own arglist for the project files
-- each project tabpage can define alternarive files for the project files
+- each project tabpage can define its own arglist for the project files:
+- each project tabpage can define alternarive files for the project fil:es
 --]]
 --
 local cwd = vim.fn.getcwd()
@@ -46,19 +46,20 @@ local setup_window_layout = function()
     local int = vim.fn.argc()
     return string.format("%d", int)
   end
-  local show     = require('show')
-  show.window(show.buffer('scratch')) -- open show window with scratch buffer
-  -- sets vim.t['winID'] and vim.t['scratch'] for the tabpage
-  local tbl = {
-    "Project specific settings loaded.",
-    "Project name:      " .. vim.t['project_name'],
-    "Working diriectory: " .. vim.t['working_dir'],
-    "Tabpage ID:         " .. tabID,
-    "Show window:        " .. vim.t['winID'],
-    "Scratch buffer:     " .. vim.t['scratch'],
-    "Arglist Count:      " .. argCount(),
-  }
-  show.append_lines(tbl)
+  -- local bufName  = 'buf_scratch'
+  -- local show     = require('show')
+  -- show.window(show.buffer(bufName)) -- open show window with scratch buffer
+  -- -- sets vim.t['winID'] and vim.t['scratch'] for the tabpage
+  -- local tbl = {
+  --   "Project specific settings loaded.",
+  --   "Project name:      " .. vim.t['project_name'],
+  --   "Working diriectory: " .. vim.t['working_dir'],
+  --   "Tabpage ID:         " .. tabID,
+  --   "Show window:        " .. vim.t['winID'],
+  --   "Scratch buffer:     " .. vim.t[bufName],
+  --   "Arglist Count:      " .. argCount(),
+  -- }
+  -- show.append_lines(tbl)
 end
 
 

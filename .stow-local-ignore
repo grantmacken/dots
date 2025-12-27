@@ -4,7 +4,6 @@
 /Makefile
 /files
 /latest
+/docs
 /tmp
-/.git
-/.github
-/.specify
+/.*
