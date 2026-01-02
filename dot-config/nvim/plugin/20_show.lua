@@ -36,9 +36,19 @@ vim.api.nvim_create_user_command(
       vim.notify(chan_msg, vim.log.levels.ERROR)
       return
     end
-    show.send(bufName, "Hello from ShowScratchExample")
+    show.send(bufName, "clear && echo 'Hello from ShowShellExample'")
   end,
   { desc = 'An example action that shows output in a scratch buffer' }
+)
+
+vim.api.nvim_create_user_command(
+  'ShowShell',
+  function()
+    local bufName = 'bufShellExample'
+    local show    = require('show')
+    show.shell(bufName, "clear" .. " && echo 'Hello from ShowShell'")
+  end,
+  { desc = 'An example action sends a cmd to terminal buffer' }
 )
 
 vim.api.nvim_create_user_command(

@@ -489,7 +489,6 @@ local channel_create_new_shell = function(bufnr)
   local call_ok, call_err = pcall(vim.api.nvim_buf_call, bufnr, function()
     local env = vim.tbl_extend("force", {}, vim.uv.os_environ(), {
       NVIM = vim.v.servername,
-      NVIM_LISTEN_ADDRESS = false,
       NVIM_LOG_FILE = false,
       VIM = false,
       VIMRUNTIME = false,
@@ -727,16 +726,7 @@ local is_focused = function(winID)
   return is_open(winID) and vim.api.nvim_get_current_win() == winID
 end
 
---[[
-Buffer Utilities
- - clear_buffer(bufnr)            -- clear buffer content
- - get_current_buf_in_show_win()  -- get current buffer in show window
- - local kill_buffer()            --  kill current buffer in show window and remove vim.t.{} variable
--- ]]
 
-M.clear_buffer = clear_buffer
-M.get_buf_in_win = get_buf_in_win
-M.kill_buffer = kill_buffer
 
 --[[ consolidation of 3 types of Send
  - show.task
@@ -776,5 +766,67 @@ M.task = function(name, data)
     end)
   end)
 end
+
+M.shell = function(name, command)
+  local bufName        = 'bufShell' .. name
+  local show           = require('show')
+  -- create or reuse named buffer
+  local bufnr, buf_msg = M.buffer(bufName)
+  if bufnr == 0 then
+    vim.notify(buf_msg, vim.log.levels.ERROR)
+    return
+  end
+  --
+  vim.notify(buf_msg, vim.log.levels.INFO)
+  -- create or reuse show window
+  local winID, win_msg = show.window(bufName)
+  if winID == 0 then
+    vim.notify(win_msg, vim.log.levels.ERROR)
+    return
+  end
+  vim.notify(win_msg, vim.log.levels.INFO)
+  -- create or reuse channel allocated to buffer
+  local chanID, chan_msg = show.channel(bufName)
+  if chanID == 0 then
+    vim.notify(chan_msg, vim.log.levels.ERROR)
+    return
+  end
+  show.send(bufName, command)
+end
+
+M.scratch = function(name, data)
+  local bufName        = 'bufScratch' .. name
+  -- get or create named buffer
+  local bufnr, buf_msg = M.buffer(bufName)
+  if bufnr == 0 then
+    vim.notify(buf_msg, vim.log.levels.ERROR)
+    return
+  end
+  -- create or reuse show window
+  local winID, win_msg = M.window(bufName)
+  if winID == 0 then
+    vim.notify(win_msg, vim.log.levels.ERROR)
+    return
+  end
+  -- send data to scratch buffer
+  local send_ok, send_err = M.send(bufName, data)
+  if not send_ok then
+    vim.notify(send_err, vim.log.levels.ERROR)
+    return
+  end
+end
+
+--[[
+Buffer Utilities
+ - clear_buffer(bufnr)            -- clear buffer content
+ - get_current_buf_in_show_win()  -- get current buffer in show window
+ - local kill_buffer()            --  kill current buffer in show window and remove vim.t.{} variable
+-- ]]
+
+M.get_bufnr_by_name = get_bufnr_by_name
+M.clear_buffer = clear_buffer
+M.get_buf_in_win = get_buf_in_win
+M.kill_buffer = kill_buffer
+
 
 return M
