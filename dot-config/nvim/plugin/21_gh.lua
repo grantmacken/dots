@@ -89,17 +89,17 @@ vim.api.nvim_create_user_command(
 )
 
 vim.api.nvim_create_user_command(
-  'Gpush',
+  'GitPush',
   function()
     local show = require('show')
-    show.shell('GitPush', 'git push')
+    show.task('GitPush', { 'git', 'push' })
   end,
   { desc = 'git push' }
 )
 
 
 vim.api.nvim_create_user_command(
-  'GitHubForcePush',
+  'GitForcePush',
   function()
     local show = require('show')
     show.task('GitForcePush', { 'git', 'push', '--force' })
