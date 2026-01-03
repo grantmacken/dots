@@ -92,7 +92,7 @@ vim.api.nvim_create_user_command(
   'GitPush',
   function()
     local show = require('show')
-    show.task('GitPush', { 'git', 'push' })
+    show.shell('GitPush', 'git push')
   end,
   { desc = 'git push' }
 )
@@ -102,7 +102,7 @@ vim.api.nvim_create_user_command(
   'GitForcePush',
   function()
     local show = require('show')
-    show.task('GitForcePush', { 'git', 'push', '--force' })
+    show.shell('GitForcePush', 'git push --force')
   end,
   { desc = 'git forced push' }
 )
