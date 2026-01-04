@@ -240,7 +240,6 @@ vim.api.nvim_create_user_command(
 -- Get issue body for a given issue number
 -- show in scratch buffer
 
-
 vim.api.nvim_create_user_command(
   'GitHubIssueViewBody',
   function(opts)
@@ -264,14 +263,14 @@ vim.api.nvim_create_user_command(
         vim.schedule(function()
           -- Create a new scratch buffer to display the issue body
           vim.notify('Issue Body:\n' .. body, vim.log.levels.INFO)
-          local show    = require('show')
-          local bufName = 'bufScratch' .. name
+          local show = require('show')
+          --local bufName = 'bufScratch' .. name
           show.scratch('GitHubIssueBody', body)
-          local bufnr = show.get_bufnr_by_name(bufName)
-          vim.notify('Buffer: ' .. bufName, vim.log.levels.INFO)
-          vim.notify('Bufnr: ' .. bufnr, vim.log.levels.INFO)
-          -- make the buffer modifiable true
-          vim.bo[bufnr].modifiable = true
+          -- local bufnr = show.get_bufnr_by_name(bufName)
+          -- vim.notify('Buffer: ' .. bufName, vim.log.levels.INFO)
+          -- vim.notify('Bufnr: ' .. bufnr, vim.log.levels.INFO)
+          -- -- make the buffer modifiable true
+          -- vim.bo[bufnr].modifiable = true
           -- local buf = vim.api.nvim_get_current_buf()
         end)
       end

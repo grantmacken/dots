@@ -116,9 +116,6 @@ local get_winID = function()
   return windID, ''
 end
 
-
-
-
 --[[ Buffer Utilities
 -- ]]
 --
@@ -228,30 +225,23 @@ end
 
 --- @param bufnr integer buffer number
 local clear_buffer = function(bufnr)
-  -- only clear if modified
-  if not is_buf_modified(bufnr) then
+  local count_ok, line_count = pcall(vim.api.nvim_buf_line_count, bufnr)
+  if not count_ok then
+    vim.notify('Failed to get line count: ' .. tostring(line_count), vim.log.levels.ERROR)
     return
   end
-  vim.schedule(function()
-    if vim.bo[bufnr].modifiable == false then
-      vim.bo[bufnr].modifiable = true
+  vim.bo[bufnr].modifiable = true
+  vim.notify('Buffer is modified, clearing ' .. tostring(line_count) .. ' lines from buffer: ' .. tostring(bufnr),
+    vim.log.levels.INFO)
+  if line_count > 1 then
+    local strict = false
+    local start_line = 0
+    local end_line = -1 -- -1 means end of buffer
+    local set_ok, set_err = pcall(vim.api.nvim_buf_set_lines, bufnr, start_line, end_line, strict, {})
+    if not set_ok then
+      vim.notify('Failed to clear buffer: ' .. tostring(set_err), vim.log.levels.ERROR)
     end
-    local count_ok, line_count = pcall(vim.api.nvim_buf_line_count, bufnr)
-    if not count_ok then
-      vim.notify('Failed to get line count: ' .. tostring(line_count), vim.log.levels.ERROR)
-      return
-    end
-    if line_count > 1 then
-      local strict = false
-      local start_line = 0
-      local end_line = line_count - 1 -- -1 because end_line is exclusive
-      local set_ok, set_err = pcall(vim.api.nvim_buf_set_lines, bufnr, start_line, end_line, strict, {})
-      if not set_ok then
-        vim.notify('Failed to clear buffer: ' .. tostring(set_err), vim.log.levels.ERROR)
-      end
-    end
-    vim.bo[bufnr].modifiable = false
-  end)
+  end
 end
 
 -- append new lines
@@ -551,6 +541,7 @@ M.channel = function(bufName)
   if bufnr == 0 then return 0, err1 end
   local buf_type, err2 = get_buffer_type(bufName)
   if buf_type == '' then return 0, err2 end
+  -- vim.notify(string.format('CHANNEL:%s - buffer type: %s', bufName, buf_type), vim.log.levels.INFO)
   if buf_type == 'bufScratch' then
     -- scratch buffer does not have a channel clear buffer content instead
     M.clear_buffer(bufnr)
@@ -808,7 +799,13 @@ M.scratch = function(name, data)
     vim.notify(win_msg, vim.log.levels.ERROR)
     return
   end
-  -- send data to scratch buffer
+  -- clear scratch buffer before sending new data
+  local chanID, chan_msg = M.channel(bufName)
+  if chanID == 0 then
+    vim.notify(chan_msg, vim.log.levels.ERROR)
+    return
+  end
+  -- send new data to scratch buffer
   local send_ok, send_err = M.send(bufName, data)
   if not send_ok then
     vim.notify(send_err, vim.log.levels.ERROR)
