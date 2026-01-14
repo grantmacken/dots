@@ -367,10 +367,17 @@ vim.api.nvim_create_user_command(
 vim.api.nvim_create_user_command(
   'PRCreate',
   function()
+    -- commit and push all changes first
     local cmd = { 'git', 'commit', '-am', 'Auto commit before creating PR' }
     local obj = vim.system(cmd):wait()
     if obj.code ~= 0 then
       vim.notify('Error committing changes: ' .. obj.stderr, vim.log.levels.ERROR)
+      return
+    end
+    cmd = { 'git', 'push' }
+    obj = vim.system(cmd):wait()
+    if obj.code ~= 0 then
+      vim.notify('Error pushing changes: ' .. obj.stderr, vim.log.levels.ERROR)
       return
     end
     -- get the latest issue number
