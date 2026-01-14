@@ -10,6 +10,10 @@ M.map = function(lhs, rhs, desc, mode)
   vim.keymap.set(mode, lhs, rhs, opt)
 end
 
+---@param lhs string
+---@param rhs string|function
+---@param desc string
+---@param mode? string|string[]
 M.leader = function(lhs, rhs, desc, mode)
   mode = mode or 'n'
   local opt = { desc = desc }

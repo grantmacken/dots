@@ -116,7 +116,7 @@ vim.api.nvim_create_user_command(
 
 
 vim.api.nvim_create_user_command(
-  'GitHubIssues',
+  'IssuesList',
   function()
     local show = require('show')
     show.shell('GitHub', 'gh issue list')
@@ -163,7 +163,7 @@ vim.api.nvim_create_user_command(
 ]] --
 
 vim.api.nvim_create_user_command(
-  'GitHubIssueCreate',
+  'IssueCreate',
   function()
     -- Step 1: Select issue type
     vim.ui.select(
@@ -200,7 +200,7 @@ vim.api.nvim_create_user_command(
                       table.insert(args, '--label')
                       table.insert(args, '"' .. issue_type .. '"')
                     end
-                    show.shell('GitHubIssueCreate', table.concat(args, ' '))
+                    show.shell('IssueCreate', table.concat(args, ' '))
                   else
                     -- Add task and prompt for another
                     table.insert(tasks, task)
@@ -239,47 +239,220 @@ vim.api.nvim_create_user_command(
 
 -- Get issue body for a given issue number
 -- show in scratch buffer
+--
+---
+vim.api.nvim_create_user_command(
+  'IssueFocus',
+  function()
+    local showBuf  = 'bufEdit'
+    local showWhat = 'IssueBody'
+    local showName = showBuf .. showWhat
+    local show     = require('show')
+    local focus    = show.win_is_focused()
+    vim.print(vim.inspect(focus))
+    local bufnr = show.get_bufnr_by_name(showName)
+    vim.print(bufnr)
+  end,
+  { desc = 'An example action that shows output in a edit buffer' }
+)
 
 vim.api.nvim_create_user_command(
-  'GitHubIssueViewBody',
-  function(opts)
-    local name = 'GitHubIssueView'
-    local NUMBER = opts.args
-    if NUMBER == nil or NUMBER == '' then
-      vim.notify('Issue number cannot be empty.', vim.log.levels.WARN)
-      return
-    end
-    vim.system(
-      { 'gh', 'issue', 'view', NUMBER, '--json', 'body', '--template', '{{.body}}' },
-      {},
-      function(result)
-        if result.code ~= 0 then
-          vim.schedule(function()
-            vim.notify('Error fetching issue body: ' .. result.stderr, vim.log.levels.ERROR)
-          end)
-          return
-        end
-        local body = result.stdout
-        vim.schedule(function()
-          -- Create a new scratch buffer to display the issue body
-          vim.notify('Issue Body:\n' .. body, vim.log.levels.INFO)
-          local show = require('show')
-          --local bufName = 'bufScratch' .. name
-          show.scratch('GitHubIssueBody', body)
-          -- local bufnr = show.get_bufnr_by_name(bufName)
-          -- vim.notify('Buffer: ' .. bufName, vim.log.levels.INFO)
-          -- vim.notify('Bufnr: ' .. bufnr, vim.log.levels.INFO)
-          -- -- make the buffer modifiable true
-          -- vim.bo[bufnr].modifiable = true
-          -- local buf = vim.api.nvim_get_current_buf()
-        end)
-      end
-    )
+  'IssueBlur',
+  function()
+    local showBuf  = 'bufEdit'
+    local showWhat = 'IssueBody'
+    local showName = showBuf .. showWhat
+    local show     = require('show')
+    vim.print(vim.t[showName])
+    local bufnr = show.get_bufnr_by_name(showName)
+    vim.print(bufnr)
   end,
-  { desc = 'View GitHub issue body in scratch buffer', nargs = 1 }
+  { desc = 'An example action that shows output in a edit buffer' }
+)
+
+vim.api.nvim_create_user_command(
+  'IssuePushToGitHub',
+  function()
+    local showBuf  = 'bufEdit'
+    local showWhat = 'IssueBody'
+    local showName = showBuf .. showWhat
+    local show     = require('show')
+    vim.print(vim.t[showName])
+    local bufnr = show.get_bufnr_by_name(showName)
+    vim.print(bufnr)
+  end,
+  { desc = 'An example action that shows output in a edit buffer' }
+)
+vim.api.nvim_create_user_command(
+  'IssuePullFromGitHub',
+  function()
+    local showBuf  = 'bufEdit'
+    local showWhat = 'IssueBody'
+    local showName = showBuf .. showWhat
+    local show     = require('show')
+    vim.print(vim.t[showName])
+    local bufnr = show.get_bufnr_by_name(showName)
+    vim.print(bufnr)
+  end,
+  { desc = 'An example action that shows output in a edit buffer' }
 )
 
 
 
 
--- ISSUE_BODY=$(gh issue view "$NUMBER" --json body --template '{{.body}}')
+-- gh pr create \
+--title "$(gh issue view $ISSUE_ID --json title -q .title)" \
+--body "$(gh issue view $ISSUE_ID --json body -q .body)"
+
+vim.api.nvim_create_user_command(
+  'IssueView',
+  function()
+    local bufName = 'IssueBody'
+    -- get the latest issue number
+    local cmd = { 'gh', 'issue', 'list', '--limit', '1', '--json', 'number', '--jq', ".[0].number" }
+    local obj = vim.system(cmd):wait()
+    if obj.code ~= 0 then
+      vim.notify('Error fetching issue: ' .. obj.stderr, vim.log.levels.ERROR)
+      return
+    end
+    local int = vim.trim(obj.stdout)
+    local data = vim.fn.systemlist('gh issue view ' .. int .. ' --json title --template {{.title}}')
+    table.insert(data, '') -- add a blank line between title and body:w
+    local body = vim.fn.systemlist('gh issue view ' .. int .. ' --json body --template {{.body}}')
+    vim.list_extend(data, body)
+    local show = require('show')
+    show.edit(bufName, data)
+    -- the buffer handle is stored in vim.t[bufName]
+    --  create user keymaps specific to this buffer for convenience
+    --  keymaps can be used from main buffer to trigger actions in a 'bufEdit' buffer
+    --  uses show module to get handle  to the buffer
+    --local bufnr = show.get_bufnr_by_name(bufName)
+    --  used keymap module to create keymaps
+    --local keymap = require('keymap')
+    -- mimic behaviour like quickfix buffer `cclose` `copen`
+
+
+    -- <leader>ic : close issue body buffer and return to previous buffer
+    --   local bufnr = show.get_bufnr_by_name(bufName)
+    --   keymap.leader(
+    --     'ic',
+    --     function()
+    --       local delete_opts = { force = true, unload = true }
+    --       vim.api.nvim_buf_delete(bufnr, delete_opts)
+    --     end,
+    --     'Close issue body buffer')
+    -- end,
+    -- { desc = 'View GitHub issue body in scratch buffer', nargs = 1 }
+  end,
+  { desc = 'View GitHub issue body in scratch buffer' }
+)
+
+--[[ Pull request commands:
+   gh pr list
+   gh pr create
+   gh pr checkout <number>
+   gh pr view <number>
+   gh pr status
+]] --
+
+vim.api.nvim_create_user_command(
+  'PRList',
+  function()
+    local show = require('show')
+    show.shell('GitHubPR', 'gh pr list')
+  end,
+  { desc = 'gh pr list' }
+)
+
+vim.api.nvim_create_user_command(
+  'PRCreate',
+  function()
+    local cmd = { 'git', 'commit', '-am', 'Auto commit before creating PR' }
+    local obj = vim.system(cmd):wait()
+    if obj.code ~= 0 then
+      vim.notify('Error committing changes: ' .. obj.stderr, vim.log.levels.ERROR)
+      return
+    end
+    -- get the latest issue number
+    cmd = { 'gh', 'issue', 'list', '--limit', '1', '--json', 'number', '--jq', ".[0].number" }
+    local obj = vim.system(cmd):wait()
+    if obj.code ~= 0 then
+      vim.notify('Error fetching issue: ' .. obj.stderr, vim.log.levels.ERROR)
+      return
+    end
+    local int = vim.trim(obj.stdout)
+    cmd = { 'gh', 'issue', 'view', int, '--json', 'title', '--template', '{{.title}}' }
+    obj = vim.system(cmd):wait()
+    if obj.code ~= 0 then
+      vim.notify('Error fetching issue title: ' .. obj.stderr, vim.log.levels.ERROR)
+      return
+    end
+    local title = vim.trim(obj.stdout)
+    cmd = { 'gh', 'issue', 'view', int, '--json', 'body', '--template', '{{.body}}' }
+    obj = vim.system(cmd):wait()
+    if obj.code ~= 0 then
+      vim.notify('Error fetching issue body: ' .. obj.stderr, vim.log.levels.ERROR)
+      return
+    end
+    local body = vim.trim(obj.stdout)
+    vim.notify('Creating PR with title: ' .. title, vim.log.levels.INFO)
+    cmd = { 'gh', 'pr', 'create', '--title', title, '--body', body }
+    obj = vim.system(cmd):wait()
+    if obj.code ~= 0 then
+      vim.notify('Error creating pull request: ' .. obj.stderr, vim.log.levels.ERROR)
+      return
+    end
+    vim.notify('Pull request created successfully: ' .. obj.stdout, vim.log.levels.INFO)
+    vim.print(obj.stdout)
+    -- view created pull request tin show window
+    --local show = require('show')
+    --show.shell('GitHubPR', 'gh pr view --web')
+    -- local args = { 'gh', 'pr', 'create', '--title', '"' .. title .. '"', '--body', '"' .. body .. '"' }
+    -- show.shell('GitHubPR', table.concat(args, ' '))
+
+    -- local body = vim.fn.systemlist('gh issue view ' .. int .. ' --json body --template {{.body}}')
+    -- local
+    --
+    -- 'gh', 'pr', 'create', '--title' "$(gh issue view 123 --json title -q .title)" \
+    --   --body "$(gh issue view 123 --json body -q .body)
+    --     local show = require('show')
+    --
+    --
+    --
+    --     show.shell('GitHubPR', 'gh pr create --web')
+  end,
+  { desc = 'gh pr create --web' }
+)
+
+
+
+vim.api.nvim_create_user_command(
+  'PRView',
+  function(opts)
+    local name = 'PRView'
+    local pr_number = opts.args
+    if pr_number == nil or pr_number == '' then
+      vim.notify('Pull request number cannot be empty.', vim.log.levels.WARN)
+      return
+    end
+    local show = require('show')
+    show.shell(name, 'gh pr view ' .. pr_number)
+  end,
+  { desc = 'gh pr view <number>', nargs = 1 }
+)
+
+vim.api.nvim_create_user_command(
+  'PRCheckout',
+  function(opts)
+    local name = 'PRCheckout'
+    local pr_number = opts.args
+    if pr_number == nil or pr_number == '' then
+      vim.notify('Pull request number cannot be empty.', vim.log.levels.WARN)
+      return
+    end
+
+    local show = require('show')
+    show.shell(name, 'gh pr checkout ' .. pr_number)
+  end,
+  { desc = 'gh pr checkout <number>', nargs = 1 }
+)

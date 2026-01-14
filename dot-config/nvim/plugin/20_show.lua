@@ -11,6 +11,17 @@ dd
 --]]
 --
 vim.api.nvim_create_user_command(
+  'ShowEdit',
+  function()
+    local bufName = 'bufEditExample'
+    local show    = require('show')
+    local data    = vim.fn.systemlist('ls -al .')
+    show.edit(bufName, data)
+  end,
+  { desc = 'An example action that shows output in a edit buffer' }
+)
+
+vim.api.nvim_create_user_command(
   'ShowScratchExample',
   function()
     local bufName        = 'bufScratchExample'
