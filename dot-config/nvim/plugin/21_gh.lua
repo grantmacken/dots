@@ -31,6 +31,8 @@ working with github using the show module
  - gh issue status
 ]] --
 
+local keymap = require('keymap')
+
 vim.api.nvim_create_user_command(
   'GitAddAll',
   function()
@@ -307,7 +309,7 @@ vim.api.nvim_create_user_command(
 vim.api.nvim_create_user_command(
   'IssueView',
   function()
-    local bufName = 'IssueBody'
+    local bufName = 'IssueView'
     -- get the latest issue number
     local cmd = { 'gh', 'issue', 'list', '--limit', '1', '--json', 'number', '--jq', ".[0].number" }
     local obj = vim.system(cmd):wait()
@@ -363,6 +365,102 @@ vim.api.nvim_create_user_command(
   end,
   { desc = 'gh pr list' }
 )
+
+
+vim.api.nvim_create_user_command(
+  'PRStatus',
+  function()
+    local show = require('show')
+    show.shell('GitHubPR', 'gh pr status')
+  end,
+  { desc = 'gh pr status' }
+)
+
+vim.api.nvim_create_user_command(
+  'PRView',
+  function()
+    local bufName = 'PRView'
+    -- get the latest pr number
+    local gh = require('gh')
+    local int = gh.get_last('pr')
+    if type(int) == 'string' then
+      vim.notify(int, vim.log.levels.ERROR)
+      return
+    end
+    vim.notify('Viewing pull request number: ' .. int, vim.log.levels.INFO)
+    local data = {}        -- vim.fn.systemlist('gh issue view ' .. int .. ' --json title --template {{.title}}')
+    table.insert(data, '') -- add a blank line between title and body
+    local body = vim.fn.systemlist('gh pr view ' .. int .. ' --json body --template {{.body}}')
+    vim.list_extend(data, body)
+    local show = require('show')
+    show.edit(bufName, data)
+    -- the buffer handle is stored in vim.t[bufName]
+    -- create user keymaps specific to this buffer for convenience
+  end,
+  { desc = 'gh pr view' }
+)
+
+
+vim.api.nvim_create_user_command(
+  'PRComments',
+  function()
+    local bufName = 'PRView'
+    -- get the latest pr number
+    local gh = require('gh')
+    local int = gh.get_last('pr')
+    if type(int) == 'string' then
+      vim.notify(int, vim.log.levels.ERROR)
+      return
+    end
+    vim.notify('Viewing pull request number: ' .. int, vim.log.levels.INFO)
+    local data = {}        -- vim.fn.systemlist('gh issue view ' .. int .. ' --json title --template {{.title}}')
+    table.insert(data, '') -- add a blank line between title and body
+    local body = vim.fn.systemlist('gh pr view ' ..
+      int .. ' --json comments --jq ".comments[].body"')
+    vim.list_extend(data, body)
+    local show = require('show')
+    show.edit(bufName, data)
+    -- the buffer handle is stored in vim.t[bufName]
+    -- create user keymaps specific to this buffer for convenience
+  end,
+  { desc = 'gh pr view' }
+)
+
+vim.api.nvim_create_user_command(
+  'PREdit',
+  function()
+    local bufName = 'PRView'
+    local bufnr = vim.t['bufEdit' .. bufName]
+    vim.notify('Buffer number for PR body edit: ' .. bufnr, vim.log.levels.INFO)
+    -- abort if bufnr is nil
+    if bufnr == nil then
+      vim.notify('No PR body edit buffer found.', vim.log.levels.ERROR)
+      return
+    end
+    -- gather buffer lines
+    local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+    local body = table.concat(lines, '\n')
+    local gh = require('gh')
+    local int = gh.get_last('pr')
+    if type(int) == 'string' then
+      vim.notify(int, vim.log.levels.ERROR)
+      return
+    end
+    local cmd = { 'gh', 'pr', 'edit', int, '--body', body }
+    local obj = vim.system(cmd):wait()
+    if obj.code ~= 0 then
+      vim.notify('Error updating pull request: ' .. obj.stderr, vim.log.levels.ERROR)
+      return
+    end
+    if obj.stdout ~= '' then
+      vim.notify(obj.stdout, vim.log.levels.INFO)
+    end
+    vim.notify('Pull request updated successfully.', vim.log.levels.INFO)
+    -- get the latest pr number
+  end,
+  { desc = 'gh pr view' }
+)
+
 
 vim.api.nvim_create_user_command(
   'PRCreate',
@@ -429,23 +527,6 @@ vim.api.nvim_create_user_command(
     --     show.shell('GitHubPR', 'gh pr create --web')
   end,
   { desc = 'gh pr create --web' }
-)
-
-
-
-vim.api.nvim_create_user_command(
-  'PRView',
-  function(opts)
-    local name = 'PRView'
-    local pr_number = opts.args
-    if pr_number == nil or pr_number == '' then
-      vim.notify('Pull request number cannot be empty.', vim.log.levels.WARN)
-      return
-    end
-    local show = require('show')
-    show.shell(name, 'gh pr view ' .. pr_number)
-  end,
-  { desc = 'gh pr view <number>', nargs = 1 }
 )
 
 vim.api.nvim_create_user_command(
