@@ -43,10 +43,11 @@ M.description = [[
  - Only one buffer is visible at a time. all other buffers are hidden.
  - Use `mini.bufremove` plugin to unshow buffers from the show window
 
- Buffer Types are of three types :
+ Buffer Types are of four types :
  - bufScratch:  a scratch buffer for displaying project messages
  - bufShell:    a terminal buffer for running shell commands
  - bufTask:     terminal buffers for running project task commands and sending the output to the terminal task buffer
+ - bufEdit:     a normal vim buffer for editing files
 
  The buffers are named via tab variables: the buffer type *prefix* is used
  to identify the buffer type and the buffer name is used to identify the specific buffer.
@@ -54,17 +55,20 @@ M.description = [[
   - bufScratch{Name} a named scratch buffer for displaying project messages
   - bufShell{Name}  a named terminal buffer for running shell commands in the project terminal
   - bufTask{Name}   a named terminal buffer for displaying project task command output in the  terminal
+  - bufEdit{Name}   a named normal vim buffer for editing files in the project
 
 e.g.
   - bufScratchDefault  -- default scratch buffer
   - bufScratchLogs     -- scratch buffer for displaying log messages
   - bufShellBuild      -- terminal buffer for running build commands
   - bufTaskTest         -- terminal buffer for displaying test command output
+  - bufEditNotes       -- normal vim buffer for editing notes file
 
 Each named buffer is stored in a tab variable:
   - vim.t.bufScratch{Name} -> vim buffer handle
   - vim.t.bufShell{Name}   -> vim buffer handle
   - vim.t.bufTask{Name}    -> vim buffer handle
+  - vim.t.bufEdit{Name}    -> vim buffer handle
 
 The buffer type prefix is used to determine how to create and manage the buffer.
 The tab variable name is used to store the buffer handle i.e the buffer number (bufnr).
@@ -76,6 +80,7 @@ The type of buffer detirmines what can be sent to it..
   bufShell: shell commands is sent to the open bufShell{Name} channel. - a channel created via jobstart()
   bufTask: data an be sent to the open bufTask{Name} channel - a channel created via nvim_open_term()
   bufScratch: data is written to the scratch buffer by appending lines to the bufScratch
+  bufEdit: normal vim buffer for editing files - no channel
 
  API Functions:
 
@@ -83,7 +88,7 @@ The type of buffer detirmines what can be sent to it..
   create a buffer by name if it does not exist
  -[ ] show.buffer(name)       -- get or create buffer by name
   - name: string  a valid vim.t.{} variable name to store the buffer handle
-  - returns: integer bufnr existing or created scratch buffer or zero on failure
+  - returns: integer bufnr existing or created scratch or normal buffer or zero on failure
 
  - kill a buffer by name
  - show.kill_buffer(name)  -- delete buffer by name and remove vim.t.{} variable
@@ -116,22 +121,34 @@ local get_winID = function()
   return windID, ''
 end
 
-
-
-
 --[[ Buffer Utilities
 -- ]]
 --
+--- Extract buffer type prefix from buffer name
+--- @param bufName string buffer name like 'bufScratchLogs'
+--- @return string,string prefix ('bufScratch'|'bufShell'|'bufTask'|'bufEdit') or empty string and error message
+local get_buffer_type = function(bufName)
+  local valid_prefixes = { 'bufScratch', 'bufShell', 'bufTask', 'bufEdit' }
+  for _, prefix in ipairs(valid_prefixes) do
+    if vim.startswith(bufName, prefix) then
+      return prefix, ''
+    end
+  end
+  return '', 'buffer name must start with bufScratch, bufShell, or bufTask'
+end
+
+--
 --- get buffer number by name
 --- @param bufName string buffer name: 'bufScratch'
---- @return integer,string bufnr of buffer or zero and error message
+--- @return integer,string bufnr of buffer or zero, buf or error message
 local get_bufnr_by_name = function(bufName)
   local tabID         = vim.api.nvim_get_current_tabpage()
   local buf_ok, bufnr = pcall(vim.api.nvim_tabpage_get_var, tabID, bufName)
   if not buf_ok then
     return 0, 'buffer named' .. bufName .. ' not found for this tabpage'
   end
-  return bufnr, ''
+  local buf_type, _ = get_buffer_type(bufName)
+  return bufnr, buf_type
 end
 
 --- get bufnr for a window in current tabpage
@@ -228,30 +245,23 @@ end
 
 --- @param bufnr integer buffer number
 local clear_buffer = function(bufnr)
-  -- only clear if modified
-  if not is_buf_modified(bufnr) then
+  local count_ok, line_count = pcall(vim.api.nvim_buf_line_count, bufnr)
+  if not count_ok then
+    vim.notify('Failed to get line count: ' .. tostring(line_count), vim.log.levels.ERROR)
     return
   end
-  vim.schedule(function()
-    if vim.bo[bufnr].modifiable == false then
-      vim.bo[bufnr].modifiable = true
+  vim.bo[bufnr].modifiable = true
+  vim.notify('Buffer is modified, clearing ' .. tostring(line_count) .. ' lines from buffer: ' .. tostring(bufnr),
+    vim.log.levels.INFO)
+  if line_count > 1 then
+    local strict = false
+    local start_line = 0
+    local end_line = -1 -- -1 means end of buffer
+    local set_ok, set_err = pcall(vim.api.nvim_buf_set_lines, bufnr, start_line, end_line, strict, {})
+    if not set_ok then
+      vim.notify('Failed to clear buffer: ' .. tostring(set_err), vim.log.levels.ERROR)
     end
-    local count_ok, line_count = pcall(vim.api.nvim_buf_line_count, bufnr)
-    if not count_ok then
-      vim.notify('Failed to get line count: ' .. tostring(line_count), vim.log.levels.ERROR)
-      return
-    end
-    if line_count > 1 then
-      local strict = false
-      local start_line = 0
-      local end_line = line_count - 1 -- -1 because end_line is exclusive
-      local set_ok, set_err = pcall(vim.api.nvim_buf_set_lines, bufnr, start_line, end_line, strict, {})
-      if not set_ok then
-        vim.notify('Failed to clear buffer: ' .. tostring(set_err), vim.log.levels.ERROR)
-      end
-    end
-    vim.bo[bufnr].modifiable = false
-  end)
+  end
 end
 
 -- append new lines
@@ -299,18 +309,6 @@ local move_cursor_to_end = function(bufName)
   end)
 end
 
---- Extract buffer type prefix from buffer name
---- @param bufName string buffer name like 'bufScratchLogs'
---- @return string,string prefix ('bufScratch'|'bufShell'|'bufTask') or empty string and error message
-local get_buffer_type = function(bufName)
-  local valid_prefixes = { 'bufScratch', 'bufShell', 'bufTask' }
-  for _, prefix in ipairs(valid_prefixes) do
-    if vim.startswith(bufName, prefix) then
-      return prefix, ''
-    end
-  end
-  return '', 'buffer name must start with bufScratch, bufShell, or bufTask'
-end
 
 --- Validate buffer name has valid prefix and optional name suffix
 --- @param bufName string
@@ -338,25 +336,33 @@ end
  - Create a buffer by name if it does not exist
  - if bufName is invalid, return error notification and exit
  - If buffer already exists, return existing buffer number
- - If buffer does not exist, create new scratch buffer and return buffer number
- - A valid buffer type is one of [ 'bufShell', 'bufScratch', or 'bufTask']
+ - If buffer does not exist, create new buffer and return buffer number
+ - A valid buffer type is one of [ 'bufShell', 'bufScratch', or 'bufTask', 'bufEdit' ]
  - the type prefix is used to determine how to create and manage the buffer
   - this happent in the channel() function not here
- - The buffer handle (bufnr) is stored in a tab variable vim.t.{bufName
+ - The buffer handle (bufnr) is stored in a tab variable vim.t.{bufName}
 ]] --
----@param bufName string buffer name like 'bufScratchDefault', 'bufShellBuild', 'bufTaskTest'
+---@param bufName string buffer name like 'bufScratchDefault', 'bufShellBuild', 'bufTaskTest', 'bufEditNotes'
 ---@return integer, string bufnr (or 0 on failure) and status message
 M.buffer = function(bufName)
   local err_msg, buf_type = is_bufname_valid(bufName)
   if err_msg ~= '' then
     return 0, 'BUFFER:' .. tostring(bufName) .. ' - ' .. err_msg
   end
-  local bufnr, _ = get_bufnr_by_name(bufName)
+  local bufnr, bufType = get_bufnr_by_name(bufName)
   if bufnr ~= 0 then
     return bufnr, string.format('BUFFER:%s - use existing %s buffer: %s', bufName, buf_type, tostring(bufnr))
   end
+
+  -- create new buffer
+  -- if buf_type is bufEdit create listed normal buffer
+  -- if buf_type is bufScratch or bufTask or bufShell create unlisted scratch buffer
   local oListed = false
   local oScratch = true
+  if bufType == 'bufEdit' then
+    oListed = true
+    oScratch = false
+  end
   local new_bufnr = vim.api.nvim_create_buf(oListed, oScratch)
   if new_bufnr == 0 then
     return 0, string.format('BUFFER:%s - failed to create buffer', bufName)
@@ -400,8 +406,8 @@ end
 --- The handle for the window is stored in vim.t.winID
 --- The show window is created below the current window with 30% of the screen height
 --- Buffers can be shown in the show window by reusing the window
---- Valid buffer name prefixes: bufScratch, bufShell, bufTask
---- @param bufName string buffer name like 'bufShellBuild', 'bufScratchLogs', 'bufTaskTest'
+--- Valid buffer name prefixes: bufScratch, bufShell, bufTask , bufEdit
+--- @param bufName string buffer name like 'bufShellBuild', 'bufScratchLogs', 'bufTaskTest', 'bufEditNotes'
 --- @return integer,string winID window ID showing the buffer or zero on failure with error message
 M.window = function(bufName)
   local bufnr, _ = get_bufnr_by_name(bufName)
@@ -489,7 +495,6 @@ local channel_create_new_shell = function(bufnr)
   local call_ok, call_err = pcall(vim.api.nvim_buf_call, bufnr, function()
     local env = vim.tbl_extend("force", {}, vim.uv.os_environ(), {
       NVIM = vim.v.servername,
-      NVIM_LISTEN_ADDRESS = false,
       NVIM_LOG_FILE = false,
       VIM = false,
       VIMRUNTIME = false,
@@ -548,15 +553,20 @@ end
 --- @param bufName string buffer name like 'bufShellBuild', 'bufTaskTest'
 --- @return integer,string channel for buffer or zero on failure with error message
 M.channel = function(bufName)
-  local bufnr, err1 = get_bufnr_by_name(bufName)
-  if bufnr == 0 then return 0, err1 end
-  local buf_type, err2 = get_buffer_type(bufName)
-  if buf_type == '' then return 0, err2 end
+  local bufnr, buf_type = get_bufnr_by_name(bufName)
+  if bufnr == 0 then return 0, buf_type end
+  -- vim.notify(string.format('CHANNEL:%s - buffer type: %s', bufName, buf_type), vim.log.levels.INFO)
   if buf_type == 'bufScratch' then
     -- scratch buffer does not have a channel clear buffer content instead
     M.clear_buffer(bufnr)
     return bufnr, string.format('CHANNEL:%s - buffer cleared', bufName)
   end
+  if buf_type == 'bufEdit' then
+    -- edit buffer does not have a channel clear buffer content instead
+    M.clear_buffer(bufnr)
+    return bufnr, string.format('CHANNEL:%s - buffer cleared', bufName)
+  end
+
 
   if buf_type == 'bufShell' then
     if channel_exists(bufnr) then
@@ -588,14 +598,33 @@ M.channel = function(bufName)
 end
 
 --- Send data to channel or write to scratch buffer
---- @param bufName string buffer name like 'bufShellBuild', 'bufScratchLogs', 'bufTaskTest'
+--- @param bufName string buffer name like 'bufShellBuild', 'bufScratchLogs', 'bufTaskTest' , 'bufEditNotes'
 --- @param data string|table string command to send or data to write
 --- @return boolean, string  true on success, false and error message on failure
 M.send = function(bufName, data)
-  local bufnr, err1 = get_bufnr_by_name(bufName)
-  if bufnr == 0 then return false, err1 end
-  local buf_type, err2 = get_buffer_type(bufName)
-  if buf_type == '' then return false, err2 end
+  local bufnr, buf_type = get_bufnr_by_name(bufName)
+  if bufnr == 0 then return false, buf_type end
+  --[[  cleared edit buffer: accept table as a list of lines to write
+  - vim.fn.systemlist() returns a table of lines
+  - vim.readfile() returns a table of lines
+  - so allow table input for bufEdit to write multiple lines
+   example vim.fn.systemlist('ls -al .')
+   local data = vim.fn.systemlist('ls -al .')
+   show.send('bufEditNotes', data)
+  -- ]]
+  if buf_type == 'bufEdit' then
+    if vim.islist(data) then
+      local start_line = 1
+      local strict = false
+      local end_line = start_line + #data - 1 -- -1 because end_line is exclusive
+      local set_ok, set_err = pcall(vim.api.nvim_buf_set_lines, bufnr, start_line, end_line, strict, data)
+      if not set_ok then
+        return false, string.format('SEND:%s - %s', bufName, tostring(set_err))
+      end
+      return true, ''
+    end
+  end
+
   if buf_type == 'bufScratch' then
     local lines = {}
     if type(data) == 'string' then
@@ -723,20 +752,15 @@ end
 -- check if window is focused
 --- @param winID number|nil
 --- @return boolean
-local is_focused = function(winID)
-  return is_open(winID) and vim.api.nvim_get_current_win() == winID
+local win_is_focused = function()
+  local winID, _ = get_winID()
+  if winID == 0 then
+    return false
+  end
+  return vim.api.nvim_win_is_valid(winID) and vim.api.nvim_get_current_win() == winID
 end
 
---[[
-Buffer Utilities
- - clear_buffer(bufnr)            -- clear buffer content
- - get_current_buf_in_show_win()  -- get current buffer in show window
- - local kill_buffer()            --  kill current buffer in show window and remove vim.t.{} variable
--- ]]
 
-M.clear_buffer = clear_buffer
-M.get_buf_in_win = get_buf_in_win
-M.kill_buffer = kill_buffer
 
 --[[ consolidation of 3 types of Send
  - show.task
@@ -776,5 +800,104 @@ M.task = function(name, data)
     end)
   end)
 end
+
+M.shell = function(name, command)
+  local bufName        = 'bufShell' .. name
+  local show           = require('show')
+  -- create or reuse named buffer
+  local bufnr, buf_msg = M.buffer(bufName)
+  if bufnr == 0 then
+    vim.notify(buf_msg, vim.log.levels.ERROR)
+    return
+  end
+  --
+  vim.notify(buf_msg, vim.log.levels.INFO)
+  -- create or reuse show window
+  local winID, win_msg = show.window(bufName)
+  if winID == 0 then
+    vim.notify(win_msg, vim.log.levels.ERROR)
+    return
+  end
+  vim.notify(win_msg, vim.log.levels.INFO)
+  -- create or reuse channel allocated to buffer
+  local chanID, chan_msg = show.channel(bufName)
+  if chanID == 0 then
+    vim.notify(chan_msg, vim.log.levels.ERROR)
+    return
+  end
+  show.send(bufName, command)
+end
+
+M.scratch = function(name, data)
+  local bufName        = 'bufScratch' .. name
+  -- get or create named buffer
+  local bufnr, buf_msg = M.buffer(bufName)
+  if bufnr == 0 then
+    vim.notify(buf_msg, vim.log.levels.ERROR)
+    return
+  end
+  -- create or reuse show window
+  local winID, win_msg = M.window(bufName)
+  if winID == 0 then
+    vim.notify(win_msg, vim.log.levels.ERROR)
+    return
+  end
+  -- clear scratch buffer before sending new data
+  local chanID, chan_msg = M.channel(bufName)
+  if chanID == 0 then
+    vim.notify(chan_msg, vim.log.levels.ERROR)
+    return
+  end
+  -- send new data to scratch buffer
+  local send_ok, send_err = M.send(bufName, data)
+  if not send_ok then
+    vim.notify(send_err, vim.log.levels.ERROR)
+    return
+  end
+end
+
+
+M.edit = function(name, data)
+  local bufName        = 'bufEdit' .. name
+  -- get or create named buffer
+  local bufnr, buf_msg = M.buffer(bufName)
+  if bufnr == 0 then
+    vim.notify(buf_msg, vim.log.levels.ERROR)
+    return
+  end
+  -- create or reuse show window
+  local winID, win_msg = M.window(bufName)
+  if winID == 0 then
+    vim.notify(win_msg, vim.log.levels.ERROR)
+    return
+  end
+  -- clear scratch buffer before sending new data
+  local chanID, chan_msg = M.channel(bufName)
+  if chanID == 0 then
+    vim.notify(chan_msg, vim.log.levels.ERROR)
+    return
+  end
+  -- send new data to edit buffer
+  local send_ok, send_err = M.send(bufName, data)
+  if not send_ok then
+    vim.notify(send_err, vim.log.levels.ERROR)
+    return
+  end
+end
+
+--[[
+Buffer Utilities
+ - clear_buffer(bufnr)            -- clear buffer content
+ - get_current_buf_in_show_win()  -- get current buffer in show window
+ - local kill_buffer()            --  kill current buffer in show window and remove vim.t.{} variable
+-- ]]
+
+M.get_bufnr_by_name = get_bufnr_by_name
+M.clear_buffer = clear_buffer
+M.get_buf_in_win = get_buf_in_win
+M.kill_buffer = kill_buffer
+
+M.win_is_focused = win_is_focused
+
 
 return M

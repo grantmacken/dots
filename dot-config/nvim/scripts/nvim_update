@@ -3,6 +3,7 @@ local path_package = vim.fn.stdpath('data') .. '/site'
 local mini_path = path_package .. '/pack/core/start/mini.nvim'
 local uv = vim.uv
 local stdout = uv.new_tty(1, false)
+local obj = nil
 
 -- local function terminal_echo(text)
 --   -- 2. Write to the terminal
@@ -18,7 +19,8 @@ local stdout = uv.new_tty(1, false)
 -- local obj = vim.system({ 'echo', 'hello' }, { text = true }):wait()
 -- Example Usage
 -- print(obj.stdout)
-
+print('Checking for mini.nvim in path:' .. mini_path)
+vim.print(vim.fn.isdirectory(mini_path .. '/.git'))
 
 local is_created = vim.fn.isdirectory(mini_path)
 if (is_created == 1) then
@@ -26,7 +28,17 @@ if (is_created == 1) then
   vim.cmd('cd ' .. mini_path)
   vim.print(vim.system({ 'pwd' }, { text = true }):wait().stdout)
   vim.print(vim.system({ 'git', 'status' }, { text = true }):wait().stdout)
-  local obj = vim.system({ 'git', 'pull' }, { text = true }):wait()
+  obj = vim.system({ 'git', 'pull' }, { text = true }):wait()
+  print(obj.stdout)
+else
+  print('Cloning mini.nvim...')
+  local clone_cmd = {
+    'git', 'clone', '--filter=blob:none',
+    -- Uncomment next line to use 'stable' branch
+    -- '--branch', 'stable',
+    'https://github.com/nvim-mini/mini.nvim', mini_path
+  }
+  obj = vim.system(clone_cmd):wait(300000)
   print(obj.stdout)
 end
 
@@ -67,13 +79,13 @@ local treesitters = {
   'yaml'
 }
 
-vim.pack.add({
-  {
-    src = 'https://github.com/nvim-treesitter/nvim-treesitter',
-    version = 'main'
-  } })
-
-local ok_ts, ts = pcall(require, 'nvim-treesitter')
-if ok_ts then
-  ts.install(treesitters):wait(300000)
-end
+-- vim.pack.add({
+--   {
+--     src = 'https://github.com/nvim-treesitter/nvim-treesitter',
+--     version = 'main'
+--   } })
+--
+-- local ok_ts, ts = pcall(require, 'nvim-treesitter')
+-- if ok_ts then
+--   ts.install(treesitters):wait(300000)
+-- end
