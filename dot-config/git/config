@@ -16,7 +16,7 @@ pager = no
 [init]
 defaultBranch = main
 
-[core] 
+[core]
 pager = nvim -R
 
 [tag]
@@ -37,3 +37,6 @@ prune = true
   
 [http]
 	postBuffer = 157286400
+
+[url "https://github.com/"]
+    insteadOf = gh:

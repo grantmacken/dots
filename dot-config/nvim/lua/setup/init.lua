@@ -19,7 +19,6 @@ M = {}
 
 local keymap = require('keymap')
 
-
 M.colorscheme = function()
   vim.pack.add({ 'https://github.com/rebelot/kanagawa.nvim' })
   require('kanagawa').setup({})
@@ -28,6 +27,7 @@ end
 
 
 M.icons = function()
+  vim.pack.add({ 'https://github.com/nvim-mini/mini.icons' })
   local miniIcons = require('mini.icons')
   local ext3_blocklist = { scm = true, txt = true, yml = true }
   local ext4_blocklist = { json = true, yaml = true }
@@ -41,6 +41,7 @@ M.icons = function()
 end
 
 M.notify = function()
+  vim.pack.add({ 'https://github.com/nvim-mini/mini.notify' })
   local miniNotify = require('mini.notify')
   local win_config = function()
     local has_statusline = vim.o.laststatus > 0
@@ -52,27 +53,7 @@ M.notify = function()
 end
 
 M.statusline = function()
-  local miniStatusline = require('mini.statusline')
-  miniStatusline.setup({
-    set_vim_settings = true,
-    use_icons = true,
-  })
-end
-
-
-
-M.notify = function()
-  local miniNotify = require('mini.notify')
-  local win_config = function()
-    local has_statusline = vim.o.laststatus > 0
-    local pad = vim.o.cmdheight + (has_statusline and 1 or 0)
-    return { anchor = 'SE', col = vim.o.columns, row = vim.o.lines - pad }
-  end
-  miniNotify.setup({ window = { config = win_config } })
-  vim.notify = miniNotify.make_notify()
-end
-
-M.statusline = function()
+  vim.pack.add({ 'https://github.com/nvim-mini/mini.statusline' })
   local miniStatusline = require('mini.statusline')
   miniStatusline.setup({
     set_vim_settings = true,
@@ -224,6 +205,5 @@ M.tinyCodeAction = function()
   }
   require("tiny-code-action").setup(opts)
 end
-
 
 return M

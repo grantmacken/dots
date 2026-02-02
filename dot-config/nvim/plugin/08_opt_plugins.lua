@@ -22,7 +22,6 @@
 -- end
 
 local setup = require('setup')
-
 setup.tinyInlineDiagnostic()
 setup.tinyCodeAction()
 setup.delimiters()

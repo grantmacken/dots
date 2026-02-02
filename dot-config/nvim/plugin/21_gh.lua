@@ -1,6 +1,52 @@
 --[[
- working with git using the show module
- - git status
+ experimental workflow with git and gh using the show module
+  all work is done on a branch created from an issue title
+  branch is hyphenated and lowercased version of issue title
+  The first thing we do is check if on main branch.
+  If on main branch, we prompt to create an issue for what we want to work on next.
+  A branch is using `gh issue develop nnn --checkout`  command.
+
+  Issue create process:
+   - select issue type (bug, enhancement)
+   - prompt for issue title
+   - prompt for checkbox list items for issue body
+   - assemble issue body from checkbox list
+   - send gh issue create as a task to terminal buffer
+
+  Issue context:
+   - issue title is used to create branch name (hyphenated, lowercased)
+   - issue description: the summary plan for the work to be done.
+     Coding Notes:
+     For the coder and an ai assistant to the coder, the issue description is the planing summary for the work to be done.
+     This should be a brief overview of what needs to be accomplished to resolve the issue and should drive the tasks in the checkbox list.
+     It should provide enough context to understand the purpose of the issue.
+     It should not be too detailed, as the tasks will provide the specifics.
+     It should be written in a way that is easy to understand and follow.
+     Github issue body supports markdown, so we can use that to format the description.
+     Github copilot can help with writing the description.
+
+ Issue checkboxes: The issue checkboxes are tasks to be done in order to resolve a posted gh issue.
+    Each checkbox represents a specific task that needs to be completed via code in the editor.
+
+ Checked checkboxes and commits:
+    When a task is completed, we can check it off in the issue body.
+    The checked task can becomes a git commit. ( use nvim marks to mark checkbox positions in the issue body )
+    On each checkbox completed task we commit and push the Issue body to github to keep it up to date.
+    Coding notes:
+      Each task should be small and manageable, so that it can be completed in a reasonable amount of time.
+      Each task should be specific and actionable, so that it is clear what needs to be done.
+      Each task should be written in a way that is easy to understand and follow.
+      Github issue body supports markdown, so we can use that to format the checkboxes.
+      Github copilot can help with writing the checkboxes.
+
+
+
+
+
+  Then we do git add --all, git commit -am "message from vim.ui.prompt", git push
+  Then we work with github using gh commands via the show module.
+  then create branch from issue title
+ - [ ] git status: using show module to show git status in terminal buffer
  - git commit
    - using vim.ui.prompt
  - git add --all
@@ -19,8 +65,10 @@ working with github using the show module
    - finally, assemble the issue body from the checkbox list and send gh issue create as a task to terminal buffer
  - issue list:
  - issue view <number>
- - issue edit <number>:
+ - issue edit <number>
+ - issue develop <number> --checkout
 
+Pull request commands:
 
  - gh pr view <number>
  - gh pr list
@@ -221,6 +269,20 @@ vim.api.nvim_create_user_command(
   { desc = 'Create GitHub issue with checkbox list' }
 )
 
+vim.api.nvim_create_user_command(
+  'IssueDevelop',
+  function()
+    local gh = require('gh')
+    local show = require('show')
+    local issue_number = gh.get_last('issue')
+    local cmd = 'gh issue develop ' .. issue_number .. ' --checkout'
+    show.shell('IssueDevelop', cmd)
+  end,
+  { desc = 'gh issue develop <number> --checkout' }
+)
+
+
+
 --[[ issue view <number>:
 ]] --
 
@@ -272,6 +334,8 @@ vim.api.nvim_create_user_command(
   { desc = 'An example action that shows output in a edit buffer' }
 )
 
+
+
 vim.api.nvim_create_user_command(
   'IssuePushToGitHub',
   function()
@@ -298,9 +362,6 @@ vim.api.nvim_create_user_command(
   end,
   { desc = 'An example action that shows output in a edit buffer' }
 )
-
-
-
 
 -- gh pr create \
 --title "$(gh issue view $ISSUE_ID --json title -q .title)" \

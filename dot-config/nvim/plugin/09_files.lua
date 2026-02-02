@@ -1,4 +1,3 @@
-
 --@see https://github.com/nvim-mini/MiniMax/blob/main/configs/nvim-0.11/plugin/30_mini.lua
 --[[ DIFF
 -- Work with diff hunks that represent the difference between the buffer text and
@@ -15,12 +14,12 @@ See also:
 - `:h MiniDiff-overview` - overview of how module works
 - `:h MiniDiff-diff-summary` - available summary information
 - `:h MiniDiff.gen_source` - available built-in sources
-]]--
-
-local ok_diff, diff = pcall(require, 'mini.diff')
-if ok_diff then
-  diff.setup()
-end
+]] --
+--
+-- local ok_diff, diff = pcall(require, 'mini.diff')
+-- if ok_diff then
+--   diff.setup()
+-- end
 
 --[[ Navigate and manipulate file system
 
@@ -51,11 +50,11 @@ See also:
 - `:h MiniFiles-navigation` - more details about how to navigate
 - `:h MiniFiles-manipulation` - more details about how to manipulate
 - `:h MiniFiles-examples` - examples of common setups
-
-]]--
+]] --
 
 
 --TODO: marks + autocmd
+vim.pack.add({ 'gh:nvim-mini/mini.files' }, { confirm = false })
 local ok_files, files = pcall(require, 'mini.files')
 if ok_files then
   files.setup({ windows = { preview = true } })
@@ -89,6 +88,6 @@ Example usage:
 See also:
 - `:h MiniVisits-overview` - overview of how module works
 - `:h MiniVisits-examples` - examples of common setups
-]]--
+]] --
 
-require('mini.visits').setup()
+-- require('mini.visits').setup()
