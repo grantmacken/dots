@@ -20,14 +20,14 @@ M = {}
 local keymap = require('keymap')
 
 M.colorscheme = function()
-  vim.pack.add({ 'https://github.com/rebelot/kanagawa.nvim' })
+  vim.pack.add({ 'gh:rebelot/kanagawa.nvim' })
   require('kanagawa').setup({})
   vim.cmd('colorscheme kanagawa-dragon')
 end
 
 
 M.icons = function()
-  vim.pack.add({ 'https://github.com/nvim-mini/mini.icons' })
+  vim.pack.add({ 'gh:nvim-mini/mini.icons' })
   local miniIcons = require('mini.icons')
   local ext3_blocklist = { scm = true, txt = true, yml = true }
   local ext4_blocklist = { json = true, yaml = true }
@@ -41,7 +41,7 @@ M.icons = function()
 end
 
 M.notify = function()
-  vim.pack.add({ 'https://github.com/nvim-mini/mini.notify' })
+  vim.pack.add({ 'gh:nvim-mini/mini.notify' })
   local miniNotify = require('mini.notify')
   local win_config = function()
     local has_statusline = vim.o.laststatus > 0
@@ -53,7 +53,7 @@ M.notify = function()
 end
 
 M.statusline = function()
-  vim.pack.add({ 'https://github.com/nvim-mini/mini.statusline' })
+  vim.pack.add({ 'gh:nvim-mini/mini.statusline' })
   local miniStatusline = require('mini.statusline')
   miniStatusline.setup({
     set_vim_settings = true,
@@ -62,7 +62,7 @@ M.statusline = function()
 end
 
 M.aeriel = function()
-  vim.pack.add({ 'https://github.com/stevearc/aerial.nvim' })
+  vim.pack.add({ 'gh:stevearc/aerial.nvim' })
   local mini_icons = require('mini.icons')
   mini_icons.mock_nvim_web_devicons()
   -- List of symbol kinds that Aerial recognizes
@@ -87,6 +87,9 @@ M.aeriel = function()
   })
   keymap.leader('A', '<cmd>AerialToggle!<CR>', 'Toggle Aerial')
 end
+
+
+
 -- OIL
 --
 -- local open_oil = function(oil)
@@ -120,7 +123,7 @@ local delete_from_argist = function(oil)
 end
 
 M.oil = function()
-  vim.pack.add({ 'https://github.com/stevearc/oil.nvim' })
+  vim.pack.add({ 'gh:stevearc/oil.nvim' })
   local oil = require('oil')
   oil.setup({
     default_file_explorer = true,
@@ -141,18 +144,18 @@ M.oil = function()
 end
 
 M.delimiters = function()
-  vim.pack.add({ 'https://github.com/hiphish/rainbow-delimiters.nvim' })
+  vim.pack.add({ 'gh:hiphish/rainbow-delimiters.nvim' })
 end
 
 M.tinyInlineDiagnostic = function()
-  vim.pack.add({ 'https://github.com/rachartier/tiny-inline-diagnostic.nvim' })
+  vim.pack.add({ 'gh:rachartier/tiny-inline-diagnostic.nvim' })
   require("tiny-inline-diagnostic").setup({ virtual_text = false })
 end
 
 M.tinyCodeAction = function()
   vim.pack.add({
-    'https://github.com/nvim-lua/plenary.nvim',
-    'https://github.com/rachartier/tiny-code-action.nvim'
+    'gh:nvim-lua/plenary.nvim',
+    'gh:rachartier/tiny-code-action.nvim'
   })
   local opts = {
     picker = {

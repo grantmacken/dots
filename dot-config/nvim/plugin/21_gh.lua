@@ -427,7 +427,6 @@ vim.api.nvim_create_user_command(
   { desc = 'gh pr list' }
 )
 
-
 vim.api.nvim_create_user_command(
   'PRStatus',
   function()
