@@ -216,12 +216,10 @@ end
 --- @return boolean
 local is_executable = function(tbl)
   if type(tbl) ~= 'table' or #tbl == 0 then
-    vim.notify('Invalid command table provided: ' .. vim.inspect(tbl), vim.log.levels.ERROR)
     return false
   end
   local cmd_name = tbl[1]
   if not cmd_name or not vim.fn.executable(cmd_name) then
-    vim.notify('Command not found: ' .. tostring(cmd_name), vim.log.levels.ERROR)
     return false
   end
   return true
