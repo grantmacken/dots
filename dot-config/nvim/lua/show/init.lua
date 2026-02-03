@@ -811,14 +811,14 @@ M.shell = function(name, command)
     return
   end
   --
-  vim.notify(buf_msg, vim.log.levels.INFO)
+  vim.notify(buf_msg, vim.log.levels.DEBUG)
   -- create or reuse show window
   local winID, win_msg = show.window(bufName)
   if winID == 0 then
     vim.notify(win_msg, vim.log.levels.ERROR)
     return
   end
-  vim.notify(win_msg, vim.log.levels.INFO)
+  vim.notify(win_msg, vim.log.levels.DEBUG)
   -- create or reuse channel allocated to buffer
   local chanID, chan_msg = show.channel(bufName)
   if chanID == 0 then
