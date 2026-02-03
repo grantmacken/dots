@@ -496,6 +496,7 @@ local channel_create_new_shell = function(bufnr)
       NVIM_LOG_FILE = false,
       VIM = false,
       VIMRUNTIME = false,
+      COPILOT_DISABLE = '1',
       -- TERM = "xterm-256color", -- set by default when term=true
     })
     local shell = vim.o.shell
