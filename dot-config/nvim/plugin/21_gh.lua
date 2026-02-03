@@ -91,9 +91,8 @@ vim.api.nvim_create_user_command(
   { desc = 'Send git add --all as a task to terminal buffer' }
 )
 
---[[ git commit with message from vim.ui.input
-]] --
 
+--- git commit with message from vim.ui.input
 vim.api.nvim_create_user_command(
   'GitCommitMessage',
   function()
@@ -110,6 +109,25 @@ vim.api.nvim_create_user_command(
   end,
   { desc = 'Prompt for commit message and send git commit as a task to terminal buffer' }
 )
+
+--- git commit with copilot cli prompt
+vim.api.nvim_create_user_command(
+  'GitCommitCopilot',
+  function()
+    local cwd = vim.fn.getcwd()
+    local git_root = vim.fn.systemlist('git rev-parse --show-toplevel')[1]
+    if cwd ~= git_root then
+      print('Not in a git repository')
+      return
+    end
+    -- Build the command as a raw string to send directly to the shell
+    local cmd = string.format("copilot -p 'add commit message since last commit' --allow-all-tools --add-dir '%s'", cwd)
+    local show = require('show')
+    show.shell('GitCommitCopilot', cmd)
+  end,
+  { desc = 'Use copilot cli to generate commit message and send git commit as a task to terminal buffer' }
+)
+
 
 
 vim.api.nvim_create_user_command(

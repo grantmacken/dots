@@ -49,10 +49,17 @@ M.split_words = function(str)
   flush()
   return ret
 end
--- Pattern for the source file (e.g., in a 'src' directory)
 
+-- Pattern for the source file (e.g., in a 'src' directory)
 M.get_current_file_name = function()
   return vim.fn.expand("%:t:r") -- :t gets filename, :r removes extension
+end
+
+-- copy relative file path from current working directory to clipboard
+M.get_relative_file_path = function()
+  local path = '@' .. vim.fn.expand("%:p:.")
+  vim.fn.setreg('+', path) -- Copy to system clipboard
+  return path
 end
 
 -- use uv to read a file
@@ -98,26 +105,26 @@ M.is_plugin_loaded = function(module_name)
 end
 
 M.redirect_vim_command_output = function(vim_command, output_file, append)
-    -- Determine the redirection mode (overwrite or append)
-    local redir_mode = append and ">>" or ">"
+  -- Determine the redirection mode (overwrite or append)
+  local redir_mode = append and ">>" or ">"
 
-    -- Construct the full command sequence
-    local command_sequence = string.format(
-        "redir %s %s | silent %s | redir END",
-        redir_mode,
-        output_file,
-        vim_command
-    )
+  -- Construct the full command sequence
+  local command_sequence = string.format(
+    "redir %s %s | silent %s | redir END",
+    redir_mode,
+    output_file,
+    vim_command
+  )
 
-    -- Execute the sequence
-    vim.cmd(command_sequence)
-    
-    -- Optional: Notify the user
-    vim.notify(
-        string.format("Output of ':%s' written to '%s'", vim_command, output_file),
-        vim.log.levels.INFO,
-        { title = "Neovim Redirect" }
-    )
+  -- Execute the sequence
+  vim.cmd(command_sequence)
+
+  -- Optional: Notify the user
+  vim.notify(
+    string.format("Output of ':%s' written to '%s'", vim_command, output_file),
+    vim.log.levels.INFO,
+    { title = "Neovim Redirect" }
+  )
 end
 
 
