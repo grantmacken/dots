@@ -9,9 +9,114 @@ M.description = [[
  - Projects are stored in `~/Projects` directory
  - The plugin provides a FZF based project picker to select and open projects in new tabpages
 ]]
+M.commands = {
+  "ProjectSetRootAndName",
+  "ProjectGetRootAndName",
+  "ProjectSetWindowLayout",
+  "ProjectPicker",
+}
+
+M.keymaps = {
+  { 'n', '<leader>pp', ':ProjectPicker<CR>', 'Open project picker' },
+}
+
+M.autocmds = {
+  {
+    event = 'TabNew',
+    pattern = '*',
+    group = 'projects',
+    callback = function() M.setRootAndName() end,
+    desc = 'Set project root and name when a new tab is opened',
+  },
+}
+
+M.setup = function()
+  for _, cmd in ipairs(M.commands) do
+    -- cmd is a string with the format "ProjectCommandName"
+    -- the function to call is the substring after "Project", with the first letter lowercased
+    -- e.g. "ProjectSetRootAndName" -> "setRootAndName"
+    local func        = cmd:sub(8, 8):lower() .. cmd:sub(9)
+    -- the function to call is M[cmd:sub(8, 8):lower() .. cmd:sub(9)]
+    -- the description for the command is the cmd  split into words, e.g. "ProjectSetRootAndName" -> "Project Set Root And Name"
+    -- the spliting function call is cmd:gsub("%u", " %0"):gsub("^%s+", "")
+    local description = cmd:gsub("%u", " %0"):gsub("^%s+", "")
+    vim.api.nvim_create_user_command(cmd, M[func], { desc = description })
+  end
+  for _, keymap in ipairs(M.keymaps) do
+    -- keymap is a table with the format { mode, lhs, rhs, desc }
+    vim.keymap.set(keymap[1], keymap[2], keymap[3], { desc = keymap[4] })
+  end
+  for _, autocmd in ipairs(M.autocmds) do
+    vim.api.nvim_create_autocmd(autocmd.event, {
+      group = autocmd.group,
+      pattern = autocmd.pattern,
+      callback = autocmd.callback,
+      desc = autocmd.desc,
+    })
+  end
+  -- setup project specific autocommands, keymaps, and plugins here
+  -- this function is called when the project root and name are set
+  vim.notify("Project setup complete for project: " .. vim.t.project_name, vim.log.levels.INFO)
+end
+
+-- get project root and set project name from the root directory name
+M.setRootAndName = function()
+  local t = vim.t
+  local root = vim.fs.root(0, { ".git", "Makefile" })
+  -- set tcd to the project root directory
+  -- this changes the working directory for the current tabpage, but not for other tabpages
+  vim.cmd('tcd ' .. root)
+  if vim.t['project_name'] then return end -- if project is already set, do not override it
+  if root then
+    t['working_dir'] = root
+    t['project_name'] = vim.fs.basename(root)
+  else
+    vim.notify("No project root found. Please run this command from within a git controlled project.",
+      vim.log.levels.WARN)
+  end
+end
+
+M.getRootAndName = function()
+  local root = vim.t.working_dir
+  local name = vim.t.project_name
+  if root and name then
+    return root, name
+  else
+    vim.notify(
+      "Project root and name not set. Please run :SetProjectRootAndName command from within a git controlled project.",
+      vim.log.levels.WARN)
+    return nil, nil
+  end
+end
+
+M.setWindowLayout = function()
+  vim.echo("Setting up window layout for project: " .. vim.t.project_name)
+  --[[
+ layout consists of three windows:
+  - code window: for editing project files
+  - alt window: for editing alternative files (tests, docs, etc.)
+  - show window: for running project related commands and displaying output
+ ------------------------------------------------
+                    |
+  code window       |  alt window
+                    |
+  -----------------------------------------------
+              show window
+ ------------------------------------------------
+
+ --]]
+
+  local tabID = vim.api.nvim_get_current_tabpage()
+  -- close all existing windows (In the tab ? ) except the first one
+  vim.cmd('only')
+  -- open first arg in the arglist in the first window
+  local first_arg = vim.fn.argv(0) or vim.fn.expand('%:p') or ''
+  if first_arg ~= '' then
+    vim.cmd('edit ' .. first_arg)
+  end
+end
 
 --- @see url https://github.com/echasnovski/mini.pick
-
 ---@return string, table project directory and list of names
 local function get_project_directories()
   local projects_dir = vim.g.projects_dir or (vim.fn.expand('~') .. '/Projects')
@@ -32,10 +137,6 @@ M.picker = function()
   -- if vim.api.nvim_buf_get_name(0) ~= "" then return end -- only run on empty buffer
   -- check if Projects directory exists
   local projects_dir, projects = get_project_directories()
-  -- if #projects == 0 then
-  --   vim.notify('No projects found in ~/Projects', vim.log.levels.WARN)
-  --   return
-  -- end
   local MiniPick = require("mini.pick")
   MiniPick.start({
     source = {

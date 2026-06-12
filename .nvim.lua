@@ -12,15 +12,12 @@ In my universe, git contolled projects
 - each project tabpage can define its own arglist for the project files:
 - each project tabpage can define alternarive files for the project fil:es
 --]]
---
 local cwd = vim.fn.getcwd()
 vim.t.working_dir = cwd
 vim.t.project_name = vim.fn.fnamemodify(cwd, ":t") -- Determine project name from cwd
 ---@see file gf dot-config/nvim/lua/projects/init.lua
-
 ---@see gf dot-config/nvim/lua/arglists/init.lua
 require('arglists').setup()
-
 --[[ Test Setup
  - set the test patterns for the project specific tests
  @see dot-config/nvim/lua/alt/init.lua
@@ -33,8 +30,8 @@ vim.t.alt_pairs = {
  - set the window layout for the project specific layout
 --]]
 
---
 local setup_window_layout = function()
+  vim.echo("Setting up window layout for project: " .. vim.t.project_name)
   local tabID = vim.api.nvim_get_current_tabpage()
   -- close all existing windows except the first one
   vim.cmd('only')

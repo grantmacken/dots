@@ -47,106 +47,53 @@ echo " ---------------------------------------"
 echo " Setup the key bind for ptyxis          "
 echo " ---------------------------------------"
 WORKING_DIR=${HOME}/Projects
-DOTS_DIR=${WORKING_DIR}/dots
-TBX_DIR=${WORKING_DIR}/tbx
-# --standalone
-# --tab-with-profile=${PROFILE_UUID} \
 
-# echo " ---------------------------------------"
-# echo " Setup Custom Key Binding Name: ${CUSTOM_0_NAME} "
-# echo " Setup Custom Key Binding: ${CUSTOM_0_BINDING} "
-# echo " The key binding opens Ptyxis with default profile"
-# echo " The following custom command is run in this container: ${CUSTOM_0_COMMAND}"
-
-# Add custom0 to the list of custom keybindings
 custom_keybindings=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings
 custom0=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/
 custom1=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/
-custom2=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/
-custom3=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/
-custom4=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4/
-custom5=/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom5/
 
-# dconf reset -f /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/
-dconf write "${custom_keybindings}" "['$custom0','$custom1','$custom2', '$custom3', '$custom4', '$custom5']"
+# Discover project directories (sorted)
+mapfile -t PROJECT_DIRS < <(find "${WORKING_DIR}" -maxdepth 1 -mindepth 1 -type d -printf '%f\n' | sort)
 
-## TOOLBOX TERMINAL
-# ptyxis to open coding toolbox
-##
-CUSTOM_0_NAME='Toolbox'
-CUSTOM_0_BINDING='<Control><Alt>t'
-CUSTOM_0_COMMAND="ptyxis --working-directory=${WORKING_DIR} --title='toolbox' --tab-with-profile=${PROFILE_UUID}"
-dconf write "${custom0}name" "'${CUSTOM_0_NAME}'"
-dconf write "${custom0}binding" "'${CUSTOM_0_BINDING}'"
-dconf write "${custom0}command" "'${CUSTOM_0_COMMAND}'"
+# Build the full list of custom binding paths: custom0+custom1 fixed, then 2 per project dir
+all_customs=("${custom0}" "${custom1}")
+for i in "${!PROJECT_DIRS[@]}"; do
+  all_customs+=(
+    "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom$((i * 2 + 2))/"
+    "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom$((i * 2 + 3))/"
+  )
+done
+printf -v list_str "'%s'," "${all_customs[@]}"
+dconf write "${custom_keybindings}" "[${list_str%,}]"
 
-# ptyxis to open coding toolbox and invoke host-spawn
-# Will pop into host system shell
-CUSTOM_1_NAME='host_spawn'
-CUSTOM_1_BINDING='<Shift><Alt>t'
-CUSTOM_1_COMMAND="ptyxis  --working-directory=${WORKING_DIR} --title='host' --tab-with-profile=${PROFILE_UUID} -- host-spawn"
-dconf write "${custom1}name" "'${CUSTOM_1_NAME}'"
-dconf write "${custom1}binding" "'${CUSTOM_1_BINDING}'"
-dconf write "${custom1}command" "'${CUSTOM_1_COMMAND}'"
+## TOOLBOX TERMINAL — fixed custom0
+dconf write "${custom0}name" "'Toolbox'"
+dconf write "${custom0}binding" "'<Control><Alt>t'"
+dconf write "${custom0}command" "'ptyxis --working-directory=${WORKING_DIR} --title=toolbox --tab-with-profile=${PROFILE_UUID}'"
 
-## NEOVIM in DOTS directory
-# open an instance of neovim in dots directory
-# ptyxis to open coding toolbox and
-# invoke neovim in dots directory
-CUSTOM_2_NAME='neovim_dots'
-CUSTOM_2_BINDING='<Control><Alt>1'
-CUSTOM_2_COMMAND="ptyxis --working-directory=${DOTS_DIR} --title=nvim_dots --tab-with-profile=${PROFILE_UUID} -- nvim"
-dconf write "${custom2}name" "'${CUSTOM_2_NAME}'"
-dconf write "${custom2}binding" "'${CUSTOM_2_BINDING}'"
-dconf write "${custom2}command" "'${CUSTOM_2_COMMAND}'"
-## COPILOT IN DOTS directory
-# open an instance of copolot in dots directory
+## HOST SPAWN — fixed custom1
+dconf write "${custom1}name" "'host_spawn'"
+dconf write "${custom1}binding" "'<Shift><Alt>t'"
+dconf write "${custom1}command" "'ptyxis --working-directory=${WORKING_DIR} --title=host --tab-with-profile=${PROFILE_UUID} -- host-spawn'"
 
-CUSTOM_3_NAME='copilot_dots'
-CUSTOM_3_BINDING='<Shift><Alt>1'
-CUSTOM_3_COMMAND="ptyxis --working-directory=${DOTS_DIR} --title=copilot_dots --tab-with-profile=${PROFILE_UUID} -- copilot --banner --allow-all-tools"
-dconf write "${custom3}name" "'${CUSTOM_3_NAME}'"
-dconf write "${custom3}binding" "'${CUSTOM_3_BINDING}'"
-dconf write "${custom3}command" "'${CUSTOM_3_COMMAND}'"
+## Per-project: <Control><Alt>{N} → neovim, <Shift><Alt>{N} → copilot
+for i in "${!PROJECT_DIRS[@]}"; do
+  dir="${PROJECT_DIRS[$i]}"
+  dir_lower="${dir,,}"
+  num=$((i + 1))
+  nvim_path="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom$((i * 2 + 2))/"
+  copilot_path="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom$((i * 2 + 3))/"
+  project_dir="${WORKING_DIR}/${dir}"
 
-# TBX DIRECTORY
-# # ptyxis to open coding toolbox and invoke neovim in project tbx
-CUSTOM_4_NAME='neovim_tbx'
-CUSTOM_4_BINDING='<Control><Alt>2'
-CUSTOM_4_COMMAND="ptyxis --working-directory=${TBX_DIR} --title=nvim_tbx --tab-with-profile=${PROFILE_UUID} -- nvim"
-dconf write "${custom4}name" "'${CUSTOM_4_NAME}'"
-dconf write "${custom4}binding" "'${CUSTOM_4_BINDING}'"
-dconf write "${custom4}command" "'${CUSTOM_4_COMMAND}'"
+  dconf write "${nvim_path}name" "'neovim_${dir_lower}'"
+  dconf write "${nvim_path}binding" "'<Control><Alt>${num}'"
+  dconf write "${nvim_path}command" "'ptyxis --working-directory=${project_dir} --title=nvim_${dir_lower} --tab-with-profile=${PROFILE_UUID} -- nvim'"
 
-# # COPILOT IN TBX directory
-CUSTOM_5_NAME='copilot_tbx'
-CUSTOM_5_BINDING='<Shift><Alt>2'
-CUSTOM_5_COMMAND="ptyxis --working-directory=${TBX_DIR} --title=copilot_tbx --tab-with-profile=${PROFILE_UUID} -- copilot --banner --allow-all-tools"
-dconf write "${custom5}name" "'${CUSTOM_5_NAME}'"
-dconf write "${custom5}binding" "'${CUSTOM_5_BINDING}'"
-dconf write "${custom5}command" "'${CUSTOM_5_COMMAND}'"
+  dconf write "${copilot_path}name" "'copilot_${dir_lower}'"
+  dconf write "${copilot_path}binding" "'<Shift><Alt>${num}'"
+  dconf write "${copilot_path}command" "'ptyxis --working-directory=${project_dir} --title=copilot_${dir_lower} --tab-with-profile=${PROFILE_UUID} -- copilot --banner --allow-all-tools'"
+done
 
-# # ptyxis to open coding toolbox and invoke host-spawn
-# CUSTOM_2_NAME='host_spawn'
-# CUSTOM_2_BINDING='<Control><Alt>h'
-# CUSTOM_2_COMMAND="ptyxis --standalone --working-directory=${WORKING_DIR} --tab-with-profile=${PROFILE_UUID} -- host-spawn"
-# dconf write "${custom2}name" "'${CUSTOM_2_NAME}'"
-# dconf write "${custom2}binding" "'${CUSTOM_2_BINDING}'"
-# dconf write "${custom2}command" "'${CUSTOM_2_COMMAND}'"
-#
-# # ptyxis to open My Computer and invoke neovim in project 1 [dots]
-# CUSTOM_3_NAME='my_computer'
-# CUSTOM_3_BINDING='<Control><Alt>m'
-# CUSTOM_3_COMMAND="ptyxis --working-directory=${WORKING_DIR} --tab-with-profile=11e1f02151d1a4f6e435dbf668ed9c16"
-# dconf write "${custom3}name" "'${CUSTOM_3_NAME}'"
-# dconf write "${custom3}binding" "'${CUSTOM_3_BINDING}'"
-# dconf write "${custom3}command" "'${CUSTOM_3_COMMAND}'"
-#
-
-#
-#
-
-#
 echo "==========================================================="
 echo " - view Ptyxis default profile changes made via dconf dump "
 echo "==========================================================="
@@ -155,15 +102,8 @@ echo
 echo "==========================================================="
 echo " - view custom keybinding configuration "
 echo "==========================================================="
-dconf dump $custom0
-echo "==========================================================="
-dconf dump $custom1
-echo "==========================================================="
-dconf dump $custom2
-echo "==========================================================="
-dconf dump $custom3
-echo "==========================================================="
-dconf dump $custom4
-echo "==========================================================="
-dconf dump $custom5
+for path in "${all_customs[@]}"; do
+  echo "==========================================================="
+  dconf dump "${path}"
+done
 echo

@@ -12,7 +12,7 @@ last_updated: 2025-11-18
 <purpose>
 This guide defines the coding style and patterns for creating and maintaining Makefiles
 in projects managed by GitHub Copilot CLI. Follow these conventions to ensure
-consistency, readability, and maintainability across all Makefile-based automation.
+consistency, readability, and maintainability 
 </purpose>
 
 ## Audience
@@ -21,7 +21,7 @@ consistency, readability, and maintainability across all Makefile-based automati
 This guide is intended for:
 - GitHub Copilot CLI agents creating or modifying Makefiles
 - Developers contributing to projects with Makefile-based workflows
-- Anyone maintaining build and deployment automation
+- Anyone maintaining build and deployment automation using Makefiles
 </audience>
 
 ## Core Principles
@@ -37,6 +37,13 @@ This guide is intended for:
 
 ## File Structure
 
+├── inc
+│   └── meta.mk  # Common variables and functions included by Makefiles
+├── Makefile     # Primary Makefile with targets and workflow orchestration
+├── scripts
+│   └── dummy_example # Example script for testing Makefile targets
+└── README.md    # Documentation for the project and Makefile usage
+
 <file_structure>
 ### Standard Order
 
@@ -44,82 +51,9 @@ This guide is intended for:
 2. **Shell configuration** - SHELL, SHELLFLAGS, special targets
 3. **Make configuration** - MAKEFLAGS settings
 4. **Variables** - Project-specific paths and configuration
-5. **Default target** - Primary workflow entry point
-6. **Composite targets** - High-level orchestration targets
 7. **Primary targets** - Core functionality targets
-8. **Pattern rules** - Generic templates (e.g., systemd unit management)
-9. **Test targets** - Testing and verification
-10. **Validation targets** - Check and verify operations
-11. **Utility targets** - Helper and convenience targets
 12. **Help target** - Must be last or near last
 </file_structure>
-
-## Header and Configuration
-
-<header_configuration>
-### File Header
-
-```makefile
-# Project Name Makefile
-# Brief description of orchestration purpose
-# Special environment notes (e.g., toolbox requirements, CI considerations)
-```
-
-### Shell Configuration
-
-**Required shell settings for safety:**
-
-```makefile
-SHELL=/usr/bin/bash
-.SHELLFLAGS := -euo pipefail -c
-# -e Exit immediately if a pipeline fails
-# -u Error if there are unset variables and parameters
-# -o option-name Set the option corresponding to option-name
-.ONESHELL:
-.DELETE_ON_ERROR:
-.SECONDARY:
-```
-
-### Make Configuration
-
-**Required make flags:**
-
-```makefile
-MAKEFLAGS += --warn-undefined-variables
-MAKEFLAGS += --no-builtin-rules
-MAKEFLAGS += --silent
-```
-
-**Purpose:**
-- `--warn-undefined-variables`: Catch typos in variable references
-- `--no-builtin-rules`: Disable implicit rules for predictable behavior
-- `--silent`: Suppress recipe echoing (use explicit echo for output)
-</header_configuration>
-
-## Variables
-
-<variables>
-### Naming Conventions
-
-- **ALL_CAPS**: For user-configurable or important path variables
-- **snake_case**: Avoid; use ALL_CAPS for consistency
-- **Group related variables**: Together with blank line separation
-
-### Common Patterns
-
-```makefile
-# XDG Base Directory paths
-CONFIG_HOME := $(HOME)/.config
-CACHE_HOME  := $(HOME)/.cache
-DATA_HOME   := $(HOME)/.local/share
-STATE_HOME  := $(HOME)/.local/state
-BIN_HOME    := $(HOME)/.local/bin
-
-# Project-specific paths
-PROJECT_DIR := $(HOME)/Projects
-SYSTEMD     := $(CONFIG_HOME)/systemd/user
-QUADLET     := $(CONFIG_HOME)/containers/systemd
-```
 
 ### Assignment Operators
 
@@ -145,27 +79,24 @@ target-name: dependencies ## Short description for help output
 ### Naming Conventions
 
 - **lowercase-with-hyphens**: Primary convention (e.g., `check-tools`)
-- **lowercase_with_underscores**: For systemd/service-related targets (e.g., `backup_enable`)
 - **Descriptive names**: Use verb-noun pairs (e.g., `validate-setup`, `list-workflows`)
 
 ### Target Documentation
 
-**Every target MUST have inline documentation:**
+**Every target SHOULD have inline documentation:**
 
 ```makefile
 target-name: ## Brief description shown in help output
 ```
 
 - Keep descriptions under 60 characters
-- Start with lowercase verb (e.g., "enable and start", "check status")
-- Be specific about what the target does
 
 ### Pattern Rules
 
 Use pattern rules to reduce duplication:
 
 ```makefile
-%_enable: ## enable and start systemd timer (e.g., make myunit_enable)
+run-%: ## script (e.g., make run-script)
 	echo '##[ $@ ]##'
 	systemctl --no-pager --user daemon-reload
 	systemctl --no-pager --user enable --now $*.timer

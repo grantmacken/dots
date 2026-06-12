@@ -1,12 +1,27 @@
 --[[
 Autocommands:
 --]]
-
+local tab_group = vim.api.nvim_create_augroup('tab-config', {})
 local group = vim.api.nvim_create_augroup('custom-config', {})
+
 local au = function(event, pattern, callback, desc)
   local opts = { group = group, pattern = pattern, callback = callback, desc = desc }
   vim.api.nvim_create_autocmd(event, opts)
 end
+
+au(
+  'TextPutPost',
+  '*',
+  function() vim.hl.hl_op({ higroup = 'Visual', timeout = 300 }) end,
+  'Highlight pasted text'
+)
+--autocmd TextPutPost  * silent! lua vim.hl.hl_op {higroup='Visual', timeout=300}
+au(
+  'TextPutPost',
+  '*',
+  function() vim.hl.hl_op({ higroup = 'Visual', timeout = 300 }) end,
+  'Highlight pasted text'
+)
 
 
 -- local group_once = vim.api.nvim_create_augroup('custom-config_once', {})
@@ -37,6 +52,26 @@ au(
   function() vim.hl.on_yank({ higroup = 'Visual', timeout = 200 }) end,
   'Highlight yanked text'
 )
+
+-- set the filetype for .env files to shell script
+-- This is a common convention for .env files, which often contain shell-like syntax.
+au(
+  'BufRead',
+  '*.env',
+  function() vim.bo.filetype = 'sh' end,
+  'Set filetype to sh for .env files'
+)
+
+-- set the filetype for files in the scripts directory to lua.
+-- This is a common convention for 'project' lua scripts, which are written in Lua.
+-- The project root is determined by the presence of a .git directory, so this will work for any project that uses git.
+au(
+  'BufRead',
+  '*/scripts/*',
+  function() vim.bo.filetype = 'lua' end,
+  'Set filetype to lua for files in the scripts directory'
+)
+
 
 au(
   'FileType',
