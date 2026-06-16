@@ -1,6 +1,2 @@
-.nvim.lua
-dot-config/nvim/tests/show_spec.lua
-dot-config/nvim/lua/arglists/init.lua
+dot-config/nvim/lua/arglist/init.lua
 Makefile
-dot-config/nvim/lua/show/init.lua
-dot-config/nvim/plugin/15_show.lua

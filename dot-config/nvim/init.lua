@@ -37,6 +37,12 @@ vim.pack.add({
   'gh:stevearc/oil.nvim',
   -- 'gh:rachartier/tiny-inline-diagnostic.nvim',
 }, { confirm = false })
+
+
+
+-- require('projects').setup()
+-- require('issues').setup()
+-- vim.print('modules loaded')
 -- --[[ markdown
 
 

@@ -1,7 +1,7 @@
 --[[
 Autocommands:
 --]]
-local tab_group = vim.api.nvim_create_augroup('tab-config', {})
+-- local tab_group = vim.api.nvim_create_augroup('tab-config', {})
 local group = vim.api.nvim_create_augroup('custom-config', {})
 
 local au = function(event, pattern, callback, desc)
@@ -44,14 +44,6 @@ if ok_misc then
   miniMisc.setup_auto_root({ '.git', 'Makefile' })
   miniMisc.setup_termbg_sync()
 end
-
--- highlight yanked text
-au(
-  'TextYankPost',
-  '*',
-  function() vim.hl.on_yank({ higroup = 'Visual', timeout = 200 }) end,
-  'Highlight yanked text'
-)
 
 -- set the filetype for .env files to shell script
 -- This is a common convention for .env files, which often contain shell-like syntax.

@@ -39,10 +39,6 @@
       Github issue body supports markdown, so we can use that to format the checkboxes.
       Github copilot can help with writing the checkboxes.
 
-
-
-
-
   Then we do git add --all, git commit -am "message from vim.ui.prompt", git push
   Then we work with github using gh commands via the show module.
   then create branch from issue title
@@ -90,8 +86,6 @@ vim.api.nvim_create_user_command(
   end,
   { desc = 'Send git add --all as a task to terminal buffer' }
 )
-
-
 --- git commit with message from vim.ui.input
 vim.api.nvim_create_user_command(
   'GitCommitMessage',
@@ -109,7 +103,6 @@ vim.api.nvim_create_user_command(
   end,
   { desc = 'Prompt for commit message and send git commit as a task to terminal buffer' }
 )
-
 --- git commit with copilot cli prompt
 vim.api.nvim_create_user_command(
   'GitCommitCopilot',

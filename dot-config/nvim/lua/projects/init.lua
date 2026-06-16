@@ -137,48 +137,34 @@ M.picker = function()
   -- if vim.api.nvim_buf_get_name(0) ~= "" then return end -- only run on empty buffer
   -- check if Projects directory exists
   local projects_dir, projects = get_project_directories()
-  local MiniPick = require("mini.pick")
-  MiniPick.start({
-    source = {
-      items = projects,
-      name = "Projects",
-      choose = function(selected_project)
-        if not selected_project then return end
-        local project_path = projects_dir .. '/' .. selected_project
-        -- check if tabpage variable vim.t.project exists
-        local project = vim.t.project
-        if not project then
-          -- create new tabpage
-          vim.cmd('tabnew')
-          -- this triggers autocommand defined in
-          -- @see dot-config/nvim/lua/projects/init.lua
-          vim.cmd('tcd ' .. project_path)
+  vim.ui.select(
+    projects,
+    { prompt = 'Select a project to open:' },
+    function(selected_project)
+      if not selected_project then return end
+      local project_path = projects_dir .. '/' .. selected_project
+      --TODO: open the selected project in a new tabpage if it is not already open, otherwise switch to the existing tabpage
+      -- TODO: if the project is already open in a tabpage, switch to that tabpage instead of opening a new one
+      -- check if the selected project is already open in a tabpage
+      for _, tab in ipairs(vim.api.nvim_list_tabpages()) do
+        local tab_project = vim.t[tab].project
+        if tab_project == selected_project then
+          vim.api.nvim_set_current_tabpage(tab)
+          return
         end
-      end,
-    },
-    options = {
-      content_from_bottom = false,
-      use_cache = false,
-    },
-    window = {
-      config = function()
-        local height = vim.o.lines
-        local width = vim.o.columns
-        return {
-          anchor = 'NW',
-          height = height,
-          width = width,
-          row = 0,
-          col = 0,
-          border = 'none',
-        }
-      end,
-    },
-  })
-  -- Set initial query to 'dots' after picker starts
-  vim.schedule(function()
-    vim.fn.feedkeys('dots', 'n')
-  end)
+      end
+      -- check if tabpage variable vim.t.project exists
+      -- local project = vim.t.project
+      -- if not project then
+      --   -- if not, set it to the selected project and open it in the current tabpage
+      --   vim.t.project = selected_project
+      --   -- create new tabpage
+      --   vim.cmd('tabnew')
+        -- this triggers autocommand defined in
+        -- @see dot-config/nvim/lua/projects/init.lua
+      end
+    end
+  )
 end
 
 return M
