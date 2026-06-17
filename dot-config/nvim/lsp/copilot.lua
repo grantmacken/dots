@@ -28,6 +28,7 @@ local tbl_filetypes = {
   'make',
   'markdown',
   'yaml',
+  'ledger',
 }
 
 ---@param bufnr integer,

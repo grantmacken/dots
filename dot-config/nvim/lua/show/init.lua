@@ -613,9 +613,9 @@ M.send = function(bufName, data)
   -- ]]
   if buf_type == 'bufEdit' then
     if vim.islist(data) then
-      local start_line = 1
+      local start_line = 0
       local strict = false
-      local end_line = start_line + #data - 1 -- -1 because end_line is exclusive
+      local end_line = start_line + #data -- TODO- 1 -- -1 because end_line is exclusive
       local set_ok, set_err = pcall(vim.api.nvim_buf_set_lines, bufnr, start_line, end_line, strict, data)
       if not set_ok then
         return false, string.format('SEND:%s - %s', bufName, tostring(set_err))

@@ -16,17 +16,17 @@ vim.o.switchbuf      = 'usetab'                         -- Use already opened bu
 vim.o.shada          = "'100,<50,s10,:1000,/100,@100,h" -- Limit ShaDa file (for startup)
 
 -- WINDOW CHROME
-vim.o.signcolumn     = "yes"    -- Always show signcolumn (less flicker)
-vim.o.showmode       = false    -- Dont show mode since we have a statusline
-vim.o.showtabline    = 0        -- Never show tabline
-vim.o.number         = true     -- Show line numbers
-vim.o.relativenumber = true     -- Relative line numbers
-vim.o.laststatus     = 3        -- Global statusline
-vim.o.cmdheight      = 0        -- Hide command line unless needed
-vim.o.ruler          = false    -- Don't show cursor position in command line
-vim.o.winminwidth    = 5        -- Minimum window width
-vim.opt.title        = true     -- Vim will change terminal title
-vim.o.winborder      = 'single' -- Border style for floating windows
+vim.o.signcolumn     = "yes"     -- Always show signcolumn (less flicker)
+vim.o.showmode       = false     -- Dont show mode since we have a statusline
+vim.o.showtabline    = 0         -- Never show tabline
+vim.o.number         = true      -- Show line numbers
+vim.o.relativenumber = true      -- Relative line numbers
+vim.o.laststatus     = 3         -- Global statusline
+vim.o.cmdheight      = 0         -- Hide command line unless needed
+vim.o.ruler          = false     -- Don't show cursor position in command line
+vim.o.winminwidth    = 5         -- Minimum window width
+vim.opt.title        = true      -- Vim will change terminal title
+vim.o.winborder      = 'rounded' -- Border style for floating windows
 -- vim.opt.titlestring    = "%{getpid().':'.getcwd()}"
 -- CLIPBOARD KEYBOARD MOUSE
 vim.o.clipboard      = "unnamedplus" -- Sync with system clipboard
@@ -96,15 +96,16 @@ vim.o.pummaxwidth    = 100                 -- Limit maximum width of popup menu
 -- FOLDING
 --
 -- Folds (see `:h fold-commands`, `:h zM`, `:h zR`, `:h zA`, `:h zj`)
-vim.o.foldmethod = 'expr'
-vim.o.foldexpr   = 'v:lua.vim.lsp.foldexpr()'
-vim.o.foldlevel  = 10       -- Fold nothing by default; set to 0 or 1 to fold
+vim.o.foldmethod     = 'expr'
+vim.o.foldexpr       = 'v:lua.vim.lsp.foldexpr()'
+vim.o.foldlevel      = 10 -- Fold nothing by default; set to 0 or 1 to fold
 --vim.o.foldmethod = 'indent' -- Fold based on indent level
 -- vim.o.foldmethod     = "expr"
 -- vim.o.foldexpr       = "v:lua.vim.treesitter.foldexpr()"
 vim.o.foldnestmax    = 10 -- Limit number of fold levels
 vim.o.foldtext       = '' -- Show text under fold with its highlighting--
+--
 --vim.o.foldcolumn     = "0"
 --vim.o.foldenable     = true
-vim.o.more = false
+vim.o.more           = false
 vim.opt.shortmess:append('WcC') -- Reduce command line messages

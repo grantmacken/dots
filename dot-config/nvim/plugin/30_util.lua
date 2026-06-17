@@ -1,6 +1,4 @@
 -- local keymap = require('keymap')
---
---
 -- copy path to clipboard
 vim.api.nvim_create_user_command(
   'UtilCurrentPath',

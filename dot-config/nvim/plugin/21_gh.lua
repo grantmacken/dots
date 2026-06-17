@@ -39,10 +39,6 @@
       Github issue body supports markdown, so we can use that to format the checkboxes.
       Github copilot can help with writing the checkboxes.
 
-
-
-
-
   Then we do git add --all, git commit -am "message from vim.ui.prompt", git push
   Then we work with github using gh commands via the show module.
   then create branch from issue title
@@ -90,8 +86,6 @@ vim.api.nvim_create_user_command(
   end,
   { desc = 'Send git add --all as a task to terminal buffer' }
 )
-
-
 --- git commit with message from vim.ui.input
 vim.api.nvim_create_user_command(
   'GitCommitMessage',
@@ -109,7 +103,6 @@ vim.api.nvim_create_user_command(
   end,
   { desc = 'Prompt for commit message and send git commit as a task to terminal buffer' }
 )
-
 --- git commit with copilot cli prompt
 vim.api.nvim_create_user_command(
   'GitCommitCopilot',
@@ -233,56 +226,8 @@ vim.api.nvim_create_user_command(
 vim.api.nvim_create_user_command(
   'IssueCreate',
   function()
-    -- Step 1: Select issue type
-    vim.ui.select(
-      { 'fix', 'enhancement' },
-      { prompt = 'Select issue type:' },
-      function(issue_type)
-        if not issue_type then return end
-        -- Step 2: Get issue title
-        vim.ui.input(
-          { prompt = 'Issue title: ' },
-          function(title)
-            if not title or title == '' then return end
-            -- Step 3: Collect checkbox list items
-            local tasks = {}
-            local function prompt_task()
-              vim.ui.input(
-                { prompt = 'Add task (empty to finish): ' },
-                function(task)
-                  if not task or task == '' then
-                    -- Assemble and create issue
-                    if #tasks == 0 then
-                      vim.notify('No tasks added, aborting issue creation', vim.log.levels.WARN)
-                      return
-                    end
-                    local body = table.concat(vim.tbl_map(function(t)
-                      return '- [ ] ' .. t
-                    end, tasks), '\n')
-                    local show = require('show')
-                    -- Create git branch with hyphenated title
-                    local branch_name = title:lower():gsub('%s+', '-'):gsub('[^%w%-]', '')
-                    -- Create GitHub issue
-                    local args = { 'gh', 'issue', 'create', '--title', '"' .. title .. '"', '--body', '"' .. body .. '"' }
-                    if issue_type then
-                      table.insert(args, '--label')
-                      table.insert(args, '"' .. issue_type .. '"')
-                    end
-                    show.shell('IssueCreate', table.concat(args, ' '))
-                  else
-                    -- Add task and prompt for another
-                    table.insert(tasks, task)
-                    prompt_task()
-                  end
-                end
-              )
-            end
-
-            prompt_task()
-          end
-        )
-      end
-    )
+    local issue = require('issues')
+    issue.create()
   end,
   { desc = 'Create GitHub issue with checkbox list' }
 )

@@ -60,6 +60,10 @@
       "rev": "29ec27f60bf4b63e447c851d9061c434d80795a6",
       "src": "https://github.com/nvim-mini/mini.notify"
     },
+    "mini.nvim": {
+      "rev": "a59a9b7fb0a42cbcf022938ee5f0724320b66f63",
+      "src": "gh:nvim-mini/mini.nvim"
+    },
     "mini.splitjoin": {
       "rev": "9fcd8856efb95a505090c3225726466494076127",
       "src": "gh:nvim-mini/mini.splitjoin"

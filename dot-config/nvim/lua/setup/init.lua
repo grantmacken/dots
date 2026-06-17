@@ -10,24 +10,18 @@ INITIAL UI SETUP
  - delimiters (rainbow parentheses)
  - tiny-inline-diagnostic
  - tiny-code-action
- - ariel:   A code outline window for skimming and quick navigation
-
-
 --]]
 
 M = {}
-
 local keymap = require('keymap')
 
 M.colorscheme = function()
-  vim.pack.add({ 'gh:rebelot/kanagawa.nvim' })
   require('kanagawa').setup({})
   vim.cmd('colorscheme kanagawa-dragon')
 end
 
 
 M.icons = function()
-  vim.pack.add({ 'gh:nvim-mini/mini.icons' })
   local miniIcons = require('mini.icons')
   local ext3_blocklist = { scm = true, txt = true, yml = true }
   local ext4_blocklist = { json = true, yaml = true }
@@ -41,7 +35,6 @@ M.icons = function()
 end
 
 M.notify = function()
-  vim.pack.add({ 'gh:nvim-mini/mini.notify' })
   local miniNotify = require('mini.notify')
   local win_config = function()
     local has_statusline = vim.o.laststatus > 0
@@ -53,49 +46,16 @@ M.notify = function()
 end
 
 M.statusline = function()
-  vim.pack.add({ 'gh:nvim-mini/mini.statusline' })
   local miniStatusline = require('mini.statusline')
   miniStatusline.setup({
     set_vim_settings = true,
     use_icons = true,
   })
 end
-
-M.aeriel = function()
-  vim.pack.add({ 'gh:stevearc/aerial.nvim' })
-  local mini_icons = require('mini.icons')
-  mini_icons.mock_nvim_web_devicons()
-  -- List of symbol kinds that Aerial recognizes
-  local aerial_kinds = {
-    'Array', 'Boolean', 'Class', 'Constant', 'Constructor', 'Enum',
-    'EnumMember', 'Event', 'Field', 'File', 'Function', 'Interface',
-    'Key', 'Method', 'Module', 'Namespace', 'Null', 'Number',
-    'Object', 'Operator', 'Package', 'Property', 'String', 'Struct',
-    'TypeParameter', 'Variable',
-  }
-
-  local aerial_icons = {}
-  for _, kind in ipairs(aerial_kinds) do
-    -- icon: the glyph string
-    -- hl: the highlight group (e.g., MiniIconsLspFunction)
-    local icon, _ = mini_icons.get('lsp', kind)
-    aerial_icons[kind] = icon .. ' ' -- Adds a space for padding
-  end
-  require('aerial').setup({
-    icons = aerial_icons,
-    -- highlight_mode = 'full_control', -- Optional: if you want more control over colors
-  })
-  keymap.leader('A', '<cmd>AerialToggle!<CR>', 'Toggle Aerial')
-end
-
-
-
 -- OIL
---
 -- local open_oil = function(oil)
 --   oil.open(vim.fn.expand('%:p:h'))
 -- end
-
 
 -- add to arglist the file under cursor in oil buffer
 local add_to_arglist = function(oil)
@@ -123,7 +83,6 @@ local delete_from_argist = function(oil)
 end
 
 M.oil = function()
-  vim.pack.add({ 'gh:stevearc/oil.nvim' })
   local oil = require('oil')
   oil.setup({
     default_file_explorer = true,
@@ -144,11 +103,11 @@ M.oil = function()
 end
 
 M.delimiters = function()
-  vim.pack.add({ 'gh:hiphish/rainbow-delimiters.nvim' })
+  -- vim.pack.add({ 'gh:hiphish/rainbow-delimiters.nvim' })
+  -- vim.pack.del({ 'rainbow-delimiters' })
 end
 
 M.tinyInlineDiagnostic = function()
-  vim.pack.add({ 'gh:rachartier/tiny-inline-diagnostic.nvim' })
   require("tiny-inline-diagnostic").setup({ virtual_text = false })
 end
 
