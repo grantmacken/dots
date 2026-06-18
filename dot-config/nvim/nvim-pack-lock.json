@@ -4,9 +4,17 @@
       "rev": "535f643b0c3e642465d3cf37b96fc54ddd3b2c1e",
       "src": "https://github.com/stevearc/aerial.nvim"
     },
+    "conform.nvim": {
+      "rev": "619363c30309d29ffa631e67c8183f2a72caa373",
+      "src": "https://github.com/stevearc/conform.nvim"
+    },
     "everforest-nvim": {
       "rev": "557bce922401e247a596583679bc181d4d688554",
       "src": "https://github.com/neanias/everforest-nvim"
+    },
+    "fzf-lua": {
+      "rev": "988416cc782dfe28bff3f0da9b8c943b236cd86a",
+      "src": "https://github.com/ibhagwan/fzf-lua"
     },
     "gitsigns.nvim": {
       "rev": "5813e4878748805f1518cee7abb50fd7205a3a48",
@@ -14,7 +22,7 @@
     },
     "kanagawa.nvim": {
       "rev": "aef7f5cec0a40dbe7f3304214850c472e2264b10",
-      "src": "https://github.com/rebelot/kanagawa.nvim"
+      "src": "gh:rebelot/kanagawa.nvim"
     },
     "lsp_signature.nvim": {
       "rev": "7d3bb0a641f516f1c7fd2e47852580dadbd7a430",
@@ -30,11 +38,11 @@
     },
     "mini.bufremove": {
       "rev": "10857aa39160c127694151828914df3131ba83b6",
-      "src": "https://github.com/nvim-mini/mini.bufremove"
+      "src": "gh:nvim-mini/mini.bufremove"
     },
     "mini.cursorword": {
       "rev": "dda0f57d55bb1fa19423b7201b2ba892c7d2bb3c",
-      "src": "https://github.com/nvim-mini/mini.cursorword"
+      "src": "gh:nvim-mini/mini.cursorword"
     },
     "mini.extra": {
       "rev": "570d18489cf82d435566dc9e94530b67939e95f4",
@@ -46,7 +54,7 @@
     },
     "mini.hipatterns": {
       "rev": "add8d8abad602787377ec5d81f6b248605828e0f",
-      "src": "https://github.com/nvim-mini/mini.hipatterns"
+      "src": "gh:nvim-mini/mini.hipatterns"
     },
     "mini.icons": {
       "rev": "efc85e42262cd0c9e1fdbf806c25cb0be6de115c",
@@ -78,7 +86,7 @@
     },
     "mini.trailspace": {
       "rev": "f8083ca969e1b2098480c10f3c3c4d2ce3586680",
-      "src": "https://github.com/nvim-mini/mini.trailspace"
+      "src": "gh:nvim-mini/mini.trailspace"
     },
     "nvim-treesitter": {
       "rev": "6e42d823ce0a5a76180c473c119c7677738a09d1",
@@ -87,7 +95,7 @@
     },
     "oil.nvim": {
       "rev": "cbcb3f997f6f261c577b943ec94e4ef55108dd95",
-      "src": "https://github.com/stevearc/oil.nvim"
+      "src": "gh:stevearc/oil.nvim"
     },
     "plenary.nvim": {
       "rev": "b9fd5226c2f76c951fc8ed5923d85e4de065e509",

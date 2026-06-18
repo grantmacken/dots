@@ -18,7 +18,6 @@ local ui = {
 }
 
 for _, plugin in ipairs(ui) do
-  vim.pack.add({ 'gh:nvim-mini/mini.' .. plugin }, { confirm = false })
   require('mini.' .. plugin).setup()
 end
 --
@@ -30,13 +29,10 @@ local actions = {
 }
 
 for _, plugin in ipairs(actions) do
-  vim.pack.add({ 'gh:nvim-mini/mini.' .. plugin }, { confirm = false })
   require('mini.' .. plugin).setup()
 end
 
-vim.pack.add({ 'gh:nvim-mini/mini.extra' }, { confirm = false })
 local extra = require('mini.extra')
-vim.pack.add({ 'gh:nvim-mini/mini.ai' }, { confirm = false })
 local ai = require('mini.ai')
 ai.setup({
   -- 'mini.ai' can be extended with custom textobjects
@@ -58,9 +54,7 @@ ai.setup({
   search_method = 'cover',
 })
 -- INDENTSCOPE
-vim.pack.add({ 'gh:nvim-mini/mini.indentscope' }, { confirm = false })
-local indentscope = require('mini.indentscope')
-indentscope.setup({
+require('mini.indentscope').setup({
   symbol = '│', -- Character to use for indentation lines
   options = {
     try_as_border = true, -- Try to use the symbol as a border
@@ -79,7 +73,6 @@ in text. Like `TODO`/`NOTE` or color hex codes.
 -- ]] --
 --
 --
-vim.pack.add({ 'gh:nvim-mini/mini.hipatterns' }, { comfirm = false })
 local hipatterns = require('mini.hipatterns')
 local hi_words = extra.gen_highlighter.words
 hipatterns.setup({
