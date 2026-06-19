@@ -94,21 +94,20 @@ local get_latest = function(what)
   return tonumber(int)
 end
 
-
-
-
---- helper function to get the latest issue number using the GitHub CLI
---- @return number the latest issue number, or 0 if there was an error
-local get_latest_issue_number = function()
-  -- get the latest issue number
-  local cmd = { 'gh', 'issue', 'list', '--limit', '1', '--json', 'number', '--jq', ".[0].number" }
-  local obj = vim.system(cmd):wait()
-  if obj.code ~= 0 then
-    vim.notify('Error fetching issue: ' .. obj.stderr, vim.log.levels.ERROR)
-    return 0
-  end
-  local int = vim.trim(obj.stdout)
-  return tonumber(int)
+--- helper function to get the title and body of an issue or pull request using the GitHub CLI
+--- @param what string the type of item to fetch, either "issue" or "pr"
+--- @param int number the number of the issue or pull request to fetch
+--- @return table a list of lines containing the title and body of the issue or pull request
+M.get_view_data = function(what, int)
+  local data = {}
+  local title = vim.fn.systemlist('gh' .. what .. 'view ' .. tostring(int) .. ' --json title --template {{.title}}')
+  vim.list_extend(data, title)
+  -- the title is the first line of the buffer, and the body is everything after the first line
+  -- add a blank line between the title and the body for better readability
+  table.insert(data, '') -- add a blank line between title and body
+  local body = vim.fn.systemlist('gh issue ' .. what .. 'view ' .. tostring(int) .. ' --json body --template {{.body}}')
+  vim.list_extend(data, body)
+  return data
 end
 
 --[[ section:  public functions here ]] --
@@ -254,7 +253,7 @@ M.issueView = function()
 end
 
 M.createPullRequestCreateFromIssue = function(int)
-  local int = get_latest_issue_number()
+  local int = get_latest('issue')
   if int == 0 then
     vim.notify('No issues found or error fetching issues', vim.log.levels.WARN)
     return
