@@ -855,7 +855,6 @@ M.scratch = function(name, data)
   end
 end
 
-
 M.edit = function(name, data)
   local bufName        = 'bufEdit' .. name
   -- get or create named buffer
@@ -882,6 +881,7 @@ M.edit = function(name, data)
     vim.notify(send_err, vim.log.levels.ERROR)
     return
   end
+  return bufnr
 end
 
 --[[
