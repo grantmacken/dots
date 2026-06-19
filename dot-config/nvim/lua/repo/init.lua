@@ -31,7 +31,7 @@ local commands = {
   'RepoWorkflowRun',     -- workflowRun
   'RepoWorkflowView',    -- workflowView
   'RepoGitPush',         -- gitPush
-  'RepoStatus',          -- status
+  'RepoGitStatus',       -- gitStatus
   'RepoGhHelp',          -- ghHelp
   --'RepoIssueCreate', -- issueCreate
 }
@@ -115,12 +115,12 @@ end
 --[[ Git operations functions here ]] --
 
 -- git status oneliner with branch info and color coding, using git status --short --branch and setting color.status=always to ensure colors are included in the output
-M.status = function()
+M.gitStatus = function()
   show.shell('Repo', 'git -c "color.status=always" status --short --branch')
 end
 
 M.branchList = function()
-  show.shell('Repo', [[git branch -vv --color=always]])
+  show.shell({ 'Repo', 'git branch -vv' })
 end
 
 M.gitCommitAll = function()
