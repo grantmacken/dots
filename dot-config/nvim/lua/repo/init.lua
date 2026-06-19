@@ -79,6 +79,20 @@ M.setup = function()
   vim.notify('Repo module setup complete')
 end
 
+--- helper function to get the latest issue or pull request number using the GitHub CLI
+--- @param what string the type of item to fetch, either "issue" or "pr"
+--- @return number? the latest issue or pull request number, or 0 if there was an error
+local get_latest = function(what)
+  local cmd = { 'gh', what, 'list', '--limit', '1', '--json', 'number', '--jq', ".[0].number" }
+  local obj = vim.system(cmd):wait()
+  if obj.code ~= 0 then
+    vim.notify('Error fetching issue: ' .. obj.stderr, vim.log.levels.ERROR)
+    return 0
+  end
+  -- stdout of the command should be the number of the latest issue or pull request, we can trim it and convert it to a number
+  local int = vim.trim(obj.stdout)
+  return tonumber(int)
+end
 
 
 
@@ -171,7 +185,7 @@ end
   ]]
 
 M.issueView = function()
-  local int = get_latest_issue_number()
+  local int = get_latest('issue')
   if int == 0 then
     vim.notify('No issues found or error fetching issues', vim.log.levels.WARN)
     return
@@ -296,14 +310,31 @@ M.createIssue = function()
                   local body = table.concat(vim.tbl_map(function(t)
                     return '- [ ] ' .. t
                   end, tasks), '\n')
-                  local show = require('show')
+                  show = require('show')
                   -- Create git branch with hyphenated title
                   --local branch_name = title:lower():gsub('%s+', '-'):gsub('[^%w%-]', '')
                   -- Create GitHub issue
                   local prefixed_title = string.format('[%s] %s', issue_type, title)
                   local args = { 'gh', 'issue', 'create', '--title', '"' .. prefixed_title .. '"', '--body', '"' ..
                   body .. '"' }
-                  show.shell('IssueCreate', table.concat(args, ' '))
+                  -- use vim.system to run the command in async just notify if there was an error or if it was successful
+                  -- use vim defer_fn to defer the notification until after the command is done, since vim.system runs asynchronously
+                  vim.system(args, {
+                    on_exit = function(obj)
+                      if obj.code ~= 0 then
+                        vim.defer_fn(function()
+                          vim.notify('Error creating issue: ' .. obj.stderr, vim.log.levels.ERROR)
+                        end, 100) -- defer the notification by 100ms to ensure it happens after the command is done
+                      else
+                        vim.defer_fn(function()
+                          vim.notify('Issue created successfully', vim.log.levels.INFO)
+                          --[[
+                          After creating issue we pull the issue into a bufEdit show window
+                          ]]
+                        end, 100) -- defer the notification by 100ms to ensure it happens after the command is done
+                      end
+                    end,
+                  })
                 else
                   -- Add task and prompt for another
                   table.insert(tasks, task)
