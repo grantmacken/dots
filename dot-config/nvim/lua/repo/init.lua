@@ -35,6 +35,7 @@ local commands = {
   'RepoGitPush',         -- gitPush
   'RepoStatus',          -- status
   'RepoGhHelp',          -- ghHelp
+  'RepoGitCommitAll',    -- gitCommitAll
 }
 -- each keymap is a table with the format { mode, lhs, rhs, desc }
 local keymaps = {
@@ -81,7 +82,7 @@ end
 
 --- helper function to get the latest issue or pull request number using the GitHub CLI
 --- @param what string the type of item to fetch, either "issue" or "pr"
---- @return number? the latest issue or pull request number, or 0 if there was an error
+--- @return number : the latest issue or pull request number, or 0 if there was an error
 local get_latest = function(what)
   local cmd = { 'gh', what, 'list', '--limit', '1', '--json', 'number', '--jq', ".[0].number" }
   local obj = vim.system(cmd):wait()
@@ -91,21 +92,28 @@ local get_latest = function(what)
   end
   -- stdout of the command should be the number of the latest issue or pull request, we can trim it and convert it to a number
   local int = vim.trim(obj.stdout)
-  return tonumber(int)
+  local ok, num = pcall(tonumber, int)
+  if not ok then
+    vim.notify('Error converting issue number to a number: ' .. int, vim.log.levels.ERROR)
+    return 0
+  else
+    vim.notify('Latest ' .. what .. ' number: ' .. num, vim.log.levels.INFO)
+    return num or 0
+  end
 end
 
 --- helper function to get the title and body of an issue or pull request using the GitHub CLI
 --- @param what string the type of item to fetch, either "issue" or "pr"
 --- @param int number the number of the issue or pull request to fetch
 --- @return table a list of lines containing the title and body of the issue or pull request
-M.get_view_data = function(what, int)
+local get_view_data = function(what, int)
   local data = {}
-  local title = vim.fn.systemlist('gh' .. what .. 'view ' .. tostring(int) .. ' --json title --template {{.title}}')
+  local title = vim.fn.systemlist('gh ' .. what .. ' view ' .. tostring(int) .. ' --json title --template {{.title}}')
   vim.list_extend(data, title)
   -- the title is the first line of the buffer, and the body is everything after the first line
   -- add a blank line between the title and the body for better readability
   table.insert(data, '') -- add a blank line between title and body
-  local body = vim.fn.systemlist('gh issue ' .. what .. 'view ' .. tostring(int) .. ' --json body --template {{.body}}')
+  local body = vim.fn.systemlist('gh issue ' .. what .. ' view ' .. tostring(int) .. ' --json body --template {{.body}}')
   vim.list_extend(data, body)
   return data
 end
@@ -185,7 +193,7 @@ end
 ---
 M.issueCreate = function()
   -- Step 1: Select issue type
-  local labels = require('issues').types
+  local labels = { 'fix', 'feat', 'refact', 'chore', 'docs' }
   vim.ui.select(
     labels,
     { prompt = 'Select issue type:' },
@@ -265,21 +273,18 @@ M.issueView = function()
     vim.notify('No issues found or error fetching issues', vim.log.levels.WARN)
     return
   end
-  local data = vim.fn.systemlist('gh issue view ' .. int .. ' --json title --template {{.title}}')
-  -- the title is the first line of the buffer, and the body is everything after the first line
-  -- add a blank line between the title and the body for better readability
-  table.insert(data, '') -- add a blank line between title and body
-  local body = vim.fn.systemlist('gh issue view ' .. int .. ' --json body --template {{.body}}')
-  vim.list_extend(data, body)
-  -- data is now a list of lines
-  show.edit('IssueView', data)
-  local bufnr = show.get_bufnr_by_name('bufEditIssueView')
-  if bufnr == 0 then
-    vim.notify('Error creating buffer for issue view', vim.log.levels.ERROR)
-    return
-  end
+  local data = get_view_data('issue', int)
+  local bufnr = show.edit('IssueView', data)
+  -- if bufnr == 0 then
+  --   vim.notify('Error creating buffer for issue view', vim.log.levels.ERROR)
+  --   return
+  -- end
+end
+--[[
+
+
+
   vim.notify('CTRL + s : to save issue to github', vim.log.levels.INFO)
-  -- vim.api.nvim_buf_set_option(bufnr, 'filetype', 'markdown')
   local mode, rhs, lhs, opt
   opt = { buffer = bufnr, desc = 'Save to github' }
   mode = 'n'
@@ -326,10 +331,10 @@ M.issueView = function()
   func = 'createPullRequestCreateFromIssue'
   description = 'Create a pull request from the current issue'
   vim.api.nvim_buf_create_user_command(bufnr, cmd, function(int) M[func](int) end, { desc = description })
-end
+  ]] --
 
 M.createPullRequestCreateFromIssue = function(int)
-  local int = get_latest('issue')
+  int = get_latest('issue')
   if int == 0 then
     vim.notify('No issues found or error fetching issues', vim.log.levels.WARN)
     return
