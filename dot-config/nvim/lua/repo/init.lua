@@ -169,12 +169,88 @@ M.viewLabels = function()
   show.scratch('Labels', data)
 end
 
---[[ issues management functions here ]] --
+--[[
+CRUD operations for GitHub issues
+ - list issues
+ - create issue with title and body, maybe also with labels and assignees
+ - view:  issue details in a show window,
+-  update: edit the issue in show window and save changes
+ - delete: close issue
+--]] --
 
 M.issueList = function()
   show = require('show')
   show.shell('Git', 'gh issue list')
 end
+---
+M.issueCreate = function()
+  -- Step 1: Select issue type
+  local labels = require('issues').types
+  vim.ui.select(
+    labels,
+    { prompt = 'Select issue type:' },
+    function(issue_type)
+      if not issue_type then return end
+      -- Step 2: Get issue title
+      vim.ui.input(
+        { prompt = 'Issue title: ' },
+        function(title)
+          if not title or title == '' then return end
+          -- Step 3: Collect checkbox list items
+          local tasks = {}
+          local function prompt_task()
+            vim.ui.input(
+              { prompt = 'Add task (empty to finish): ' },
+              function(task)
+                if not task or task == '' then
+                  -- Assemble and create issue
+                  if #tasks == 0 then
+                    vim.notify('No tasks added, aborting issue creation', vim.log.levels.WARN)
+                    return
+                  end
+                  local body = table.concat(vim.tbl_map(function(t)
+                    return '- [ ] ' .. t
+                  end, tasks), '\n')
+                  show = require('show')
+                  -- Create git branch with hyphenated title
+                  --local branch_name = title:lower():gsub('%s+', '-'):gsub('[^%w%-]', '')
+                  -- Create GitHub issue
+                  local prefixed_title = string.format('[%s] %s', issue_type, title)
+                  local args = { 'gh', 'issue', 'create', '--title', '"' .. prefixed_title .. '"', '--body', '"' ..
+                  body .. '"' }
+                  -- use vim.system to run the command in async just notify if there was an error or if it was successful
+                  -- use vim defer_fn to defer the notification until after the command is done, since vim.system runs asynchronously
+                  vim.system(args, {
+                    on_exit = function(obj)
+                      if obj.code ~= 0 then
+                        vim.defer_fn(function()
+                          vim.notify('Error creating issue: ' .. obj.stderr, vim.log.levels.ERROR)
+                        end, 100) -- defer the notification by 100ms to ensure it happens after the command is done
+                      else
+                        vim.defer_fn(function()
+                          vim.notify('Issue created successfully', vim.log.levels.INFO)
+                          --[[
+                          After creating issue we pull the issue into a bufEdit show window
+                          ]]
+                        end, 100) -- defer the notification by 100ms to ensure it happens after the command is done
+                      end
+                    end,
+                  })
+                else
+                  -- Add task and prompt for another
+                  table.insert(tasks, task)
+                  prompt_task()
+                end
+              end
+            )
+          end
+          prompt_task()
+        end
+      )
+    end
+  )
+end
+
 
 --[[ issue view:  fetch the latest issue using the GitHub CLI, then display the title and body in a show window, with the title as the first line and the body as the rest of the lines,
  - the issue view is dispalyed in a bufEdit window
@@ -280,74 +356,6 @@ M.createPullRequestCreateFromIssue = function(int)
   end
 end
 
---- CRUD operations for GitHub issues
-M.createIssue = function()
-  -- Step 1: Select issue type
-  local labels = require('issues').types
-  vim.ui.select(
-    labels,
-    { prompt = 'Select issue type:' },
-    function(issue_type)
-      if not issue_type then return end
-      -- Step 2: Get issue title
-      vim.ui.input(
-        { prompt = 'Issue title: ' },
-        function(title)
-          if not title or title == '' then return end
-          -- Step 3: Collect checkbox list items
-          local tasks = {}
-          local function prompt_task()
-            vim.ui.input(
-              { prompt = 'Add task (empty to finish): ' },
-              function(task)
-                if not task or task == '' then
-                  -- Assemble and create issue
-                  if #tasks == 0 then
-                    vim.notify('No tasks added, aborting issue creation', vim.log.levels.WARN)
-                    return
-                  end
-                  local body = table.concat(vim.tbl_map(function(t)
-                    return '- [ ] ' .. t
-                  end, tasks), '\n')
-                  show = require('show')
-                  -- Create git branch with hyphenated title
-                  --local branch_name = title:lower():gsub('%s+', '-'):gsub('[^%w%-]', '')
-                  -- Create GitHub issue
-                  local prefixed_title = string.format('[%s] %s', issue_type, title)
-                  local args = { 'gh', 'issue', 'create', '--title', '"' .. prefixed_title .. '"', '--body', '"' ..
-                  body .. '"' }
-                  -- use vim.system to run the command in async just notify if there was an error or if it was successful
-                  -- use vim defer_fn to defer the notification until after the command is done, since vim.system runs asynchronously
-                  vim.system(args, {
-                    on_exit = function(obj)
-                      if obj.code ~= 0 then
-                        vim.defer_fn(function()
-                          vim.notify('Error creating issue: ' .. obj.stderr, vim.log.levels.ERROR)
-                        end, 100) -- defer the notification by 100ms to ensure it happens after the command is done
-                      else
-                        vim.defer_fn(function()
-                          vim.notify('Issue created successfully', vim.log.levels.INFO)
-                          --[[
-                          After creating issue we pull the issue into a bufEdit show window
-                          ]]
-                        end, 100) -- defer the notification by 100ms to ensure it happens after the command is done
-                      end
-                    end,
-                  })
-                else
-                  -- Add task and prompt for another
-                  table.insert(tasks, task)
-                  prompt_task()
-                end
-              end
-            )
-          end
-          prompt_task()
-        end
-      )
-    end
-  )
-end
 
 -- Branches management functions here
 -- you can add functions here to create, view, and manage branch
