@@ -61,7 +61,6 @@ require('mini.indentscope').setup({
   },
 })
 
-
 -- HIGHLIGHT PATTERNS
 --[[ MiniHipatterns:
 in text. Like `TODO`/`NOTE` or color hex codes.
