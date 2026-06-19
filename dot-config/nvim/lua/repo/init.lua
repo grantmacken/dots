@@ -24,16 +24,17 @@ local show = require('show')
 -- each command is a string with the format "IssueCommandName"
 local commands = {
   'RepoBranchList',      --  branchList
-  'RepoIssueList',       --  issueList
+  -- ISSUES
+  'RepoIssueList',       -- issueList
+  'RepoIssueCreate',     -- issueCreate
   'RepoIssueView',       -- issueView
   'RepoPullRequestList', -- pullRequestList
   -- 'RepoViewLabels',    -- viewLabels
   'RepoWorkflowRun',     -- workflowRun
   'RepoWorkflowView',    -- workflowView
   'RepoGitPush',         -- gitPush
-  'RepoGitStatus',       -- gitStatus
+  'RepoStatus',          -- status
   'RepoGhHelp',          -- ghHelp
-  --'RepoIssueCreate', -- issueCreate
 }
 -- each keymap is a table with the format { mode, lhs, rhs, desc }
 local keymaps = {
@@ -115,12 +116,12 @@ end
 --[[ Git operations functions here ]] --
 
 -- git status oneliner with branch info and color coding, using git status --short --branch and setting color.status=always to ensure colors are included in the output
-M.gitStatus = function()
+M.status = function()
   show.shell('Repo', 'git -c "color.status=always" status --short --branch')
 end
 
 M.branchList = function()
-  show.shell({ 'Repo', 'git branch -vv' })
+  show.shell('Repo', [[git branch -vv --color=always]])
 end
 
 M.gitCommitAll = function()
