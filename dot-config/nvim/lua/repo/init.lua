@@ -60,7 +60,6 @@ local set_commands = function(commands, bufnr)
     vim.notify('Repo: setting up buffer-local commands for buffer ' .. bufnr)
     local function lowercase_first(s) return (s:gsub("^%u", string.lower)) end
     for _, cmd in ipairs(commands) do
-      -- BranchCreate  branchCreate
       local func = lowercase_first(cmd) -- get the function name by lowercasing first letter
       if M[func] then
         vim.api.nvim_buf_create_user_command(bufnr, cmd, function(opts) M[func](opts) end,
@@ -143,25 +142,45 @@ M.setup = function()
   vim.notify('Repo module setup complete')
 end
 
+-- helper function to auto commit and push changes before creating a branch or pull request, to ensure the branch or pull request is created from the latest commit on the current branch
+-- @param what string the action that is being performed, e.g. "creating branch" or "creating pull request", used for the commit message
+-- @return boolean, string true if the commit and push were successful, false otherwise and a notify message with the result of the operation
+local auto_commit_push = function(what)
+  local cmd = { 'git', 'commit', '-am', 'Auto commit before ' .. what }
+  local obj = vim.system(cmd):wait()
+  local msg = ''
+  if obj.code ~= 0 then
+    return false, string.format('Error committing changes before %s: %s', what, obj.stderr)
+  end
+  cmd = { 'git', 'push' }
+  obj = vim.system(cmd):wait()
+  if obj.code ~= 0 then
+    return false, string.format('Error pushing changes before %s: %s', what, obj.stderr)
+  end
+  return true, 'Changes pushed successfully'
+end
+
 --- helper function to get the latest issue or pull request number using the GitHub CLI
 --- @param what string the type of item to fetch, either "issue" or "pr"
---- @return number : the latest issue or pull request number, or 0 if there was an error
+--- return number the latest issue or pull request number, or 0 if there was an error fetching the data and the std err message
+--- @return number, string: the latest issue or pull request number, or 0 if there was an error fetching the data, and the error message if there was an error
 local get_latest = function(what)
   local cmd = { 'gh', what, 'list', '--limit', '1', '--json', 'number', '--jq', ".[0].number" }
   local obj = vim.system(cmd):wait()
+  local msg = ''
   if obj.code ~= 0 then
-    vim.notify('Error fetching issue: ' .. obj.stderr, vim.log.levels.ERROR)
-    return 0
+    msg = string.format('Error fetching latest %s: %s', what, obj.stderr)
+    return 0, msg
   end
   -- stdout of the command should be the number of the latest issue or pull request, we can trim it and convert it to a number
   local int = vim.trim(obj.stdout)
   local ok, num = pcall(tonumber, int)
   if not ok then
-    vim.notify('Error converting issue number to a number: ' .. int, vim.log.levels.ERROR)
-    return 0
+    msg = string.format('Error converting latest %s number to a number: %s', what, int)
+    return 0, msg
   else
-    vim.notify('Latest ' .. what .. ' number: ' .. num, vim.log.levels.INFO)
-    return num or 0
+    msg = string.format('Latest %s number: %d', what, num)
+    return num or 0, msg
   end
 end
 
@@ -203,15 +222,27 @@ end
 ---@param body string the new body of the issue or pull request
 ---@return boolean, string true if the edit was successful, false otherwise and a notify or error message
 local edit_remote_view = function(what, int, title, body)
-  local msg = ''
   local cmd = { 'gh', what, 'edit', tostring(int), '--title', title, '--body', body }
   local obj = vim.system(cmd):wait()
   if obj.code ~= 0 then
-    msg = string.format('Error saving %s: %s', what, obj.stderr)
-  else
-    msg = string.format('%s saved successfully', what)
+    return false, string.format('Error saving %s: %s', what, obj.stderr)
   end
-  return true, msg
+  return true, string.format('%s #%d saved successfully', what, int)
+end
+
+--- helper function to create a new issue or pull request using the GitHub CLI, with the title and body provided as arguments
+--- @param what string the type of item to create, either "issue" or "pr"
+--- @param title string the title of the issue or pull request to create
+--- @param body string the body of the issue or pull request to create
+--- @return boolean, string true if the creation was successful, false otherwise and a notify or error message
+local createRemote = function(what, title, body)
+  vim.print('Repo: creating ' .. what)
+  local cmd = { 'gh', what, 'create', '--title', title, '--body', body }
+  local obj = vim.system(cmd):wait()
+  if obj.code ~= 0 then
+    return false, string.format('Error creating %s: %s', what, obj.stderr)
+  end
+  return true, string.format('%s created successfully', what)
 end
 
 
@@ -280,26 +311,21 @@ M.branchCreate = function()
    4. create branch using to create a new branch from the current branch, with the name and description derived from the issue
    5. if branch creation is successful, we can also add a comment to the issue with the link to the branch
   ]] --
-  -- vimvim.print('Repo: creating branch' .. bufnr)
-  local cmd = { 'git', 'commit', '-am', 'Auto commit before creating branch' }
-  local obj = vim.system(cmd):wait()
-  if obj.code ~= 0 then
-    vim.notify('Error committing changes: ' .. obj.stderr, vim.log.levels.ERROR)
+  local ok, msg, issue_number, bufnr
+  ok, msg = auto_commit_push('creating branch')
+  if not ok then
+    vim.notify(msg, vim.log.levels.ERROR)
     return
   end
-  vim.notify('Changes committed successfully, now pushing to remote...')
-  cmd = { 'git', 'push' }
-  obj = vim.system(cmd):wait()
-  if obj.code ~= 0 then
-    vim.notify('Error pushing changes: ' .. obj.stderr, vim.log.levels.ERROR)
-    return
-  end
-  local issue_number = get_latest('issue')
+  vim.notify(msg, vim.log.levels.INFO)
+
+  issue_number, msg = get_latest('issue')
   if issue_number == 0 then
-    vim.notify('No issues found or error fetching issues', vim.log.levels.WARN)
+    vim.notify(msg, vim.log.levels.WARN)
     return
   end
-  local bufnr = vim.api.nvim_get_current_buf()
+
+  bufnr = vim.api.nvim_get_current_buf()
   vim.notify('Repo: creating branch from issue view buffer ' .. bufnr, vim.log.levels.INFO)
   local edit_title, _ = get_local_view_data(bufnr)
   local branch_name = string.format('%s-%d-%s', 'issue', issue_number, edit_title:gsub('%s+', '-'):gsub('[^%w%-]', ''))
@@ -320,9 +346,7 @@ M.branchCreate = function()
   vim.notify('Branch ' .. branch_name .. ' pushed to remote successfully', vim.log.levels.INFO)
 end
 
-M.pullRequestCreate = function()
-  vim.print('Repo: creating pull request')
-end
+
 
 M.gitCommitAll = function()
   vim.ui.input({ prompt = 'Enter commit message: ' }, function(input)
@@ -468,12 +492,12 @@ end
   ]]
 
 M.issueView = function()
-  local int = get_latest('issue')
-  if int == 0 then
-    vim.notify('No issues found or error fetching issues', vim.log.levels.WARN)
+  local issue_number, msg = get_latest('issue')
+  if issue_number == 0 then
+    vim.notify(msg, vim.log.levels.WARN)
     return
   end
-  local data = get_remote_view_data('issue', int)
+  local data = get_remote_view_data('issue', issue_number)
   local bufnr = show.edit('IssueView', data)
   if bufnr == 0 then
     vim.notify('Error creating buffer for issue view', vim.log.levels.ERROR)
@@ -482,7 +506,7 @@ M.issueView = function()
   --[[  set buffer specific commands, keymaps, autocommands ]] --
   local km1 = { 'n', '<C-s>', function()
     local edit_title, edit_body = get_local_view_data(bufnr)
-    local ok, msg = edit_remote_view('issue', int, edit_title, edit_body)
+    local ok, msg = edit_remote_view('issue', issue_number, edit_title, edit_body)
     if ok then
       vim.notify(msg, vim.log.levels.INFO)
     else
@@ -492,46 +516,32 @@ M.issueView = function()
     'Save to GitHub' }
   vim.print(string.format('Repo: setting up keymaps for issue view buffer %d', bufnr))
   set_keymaps({ km1 }, bufnr)
-  set_commands({         -- GIT BRANCHES
-    'BranchCreate',      --  branchCreate
-    'PullRequestCreate', --  pullRequestCreate
-  }, bufnr)
-end
-
---[[
-  cmd = 'CreatePullRequest'
-  func = 'createPullRequestCreateFromIssue'
-  description = 'Create a pull request from the current issue'
-  vim.api.nvim_buf_create_user_command(bufnr, cmd, function(int) M[func](int) end, { desc = description })
-  ]] --
-
-M.createPullRequestCreateFromIssue = function(int)
-  int = get_latest('issue')
-  if int == 0 then
-    vim.notify('No issues found or error fetching issues', vim.log.levels.WARN)
-    return
-  end
-  local title = vim.fn.system('gh issue view ' .. int .. ' --json title --template {{.title}}')
-  local body = vim.fn.system('gh issue view ' .. int .. ' --json body --template {{.body}}')
-  local cmd = { 'gh', 'pr', 'create', '--title', title, '--body', body }
+  local cmd = { 'git', 'branch', '--show-current' }
   local obj = vim.system(cmd):wait()
   if obj.code ~= 0 then
-    vim.notify('Error creating pull request: ' .. obj.stderr, vim.log.levels.ERROR)
+    vim.notify('Error fetching current branch: ' .. obj.stderr, vim.log.levels.ERROR)
     return
   end
-  -- stdout of the command should contain the URL of the created pull request, we can extract it using a simple pattern match
-  local pr_url = vim.trim(obj.stdout)
-
-  -- we can now also add a comment to the issue with the link to the pull request, but we would need to get the URL of the pull request from the output of the command,
-  -- which is a bit more complicated since the output is not just the URL but also some other information about the pull request
-  local comment = 'Closed in favor of PR ' .. pr_url
-  cmd = { 'gh', 'issue', 'close', int, '--comment', comment }
-  obj = vim.system(cmd):wait()
-  if obj.code ~= 0 then
-    vim.notify('Error closing issue: ' .. obj.stderr, vim.log.levels.ERROR)
-    return
+  local current_branch = vim.trim(obj.stdout)
+  --[[
+  - if on main then provide a Branch create command
+  - if on a feature branch then provide a Pull request create command,
+  since it's more likely that the user wants to create a pull request
+  from a feature branch rather than creating another branch from a feature branch
+  --]] --
+  if current_branch ~= 'main' then
+    set_commands({
+      'PullRequestCreate', --  pullRequestCreate
+    }, bufnr)
+  else
+    set_commands({
+      'BranchCreate', --  branchCreate
+    }, bufnr)
   end
 end
+
+
+
 
 
 -- Branches management functions here
@@ -548,54 +558,58 @@ M.pullRequestList = function()
   show.shell('GitHub', 'gh pr list')
 end
 
--- M.pullRequestCreate = function()
---   local obj, cmd, int
---   -- commit and push all changes first
---   cmd = { 'git', 'commit', '-am', 'Auto commit before creating PR' }
---   obj = vim.system(cmd):wait()
---   if obj.code ~= 0 then
---     vim.notify('Error committing changes: ' .. obj.stderr, vim.log.levels.ERROR)
---     return
---   end
---   vim.notify('Changes committed successfully, now pushing to remote...')
---   cmd = { 'git', 'push' }
---   obj = vim.system(cmd):wait()
---   if obj.code ~= 0 then
---     vim.notify('Error pushing changes: ' .. obj.stderr, vim.log.levels.ERROR)
---     return
---   end
---   vim.notify('Changes pushed successfully, now creating pull request...')
---   -- get the latest issue number
---   cmd = { 'gh', 'issue', 'list', '--limit', '1', '--json', 'number', '--jq', ".[0].number" }
---   obj = vim.system(cmd):wait()
---   if obj.code ~= 0 then
---     vim.notify('Error fetching issue: ' .. obj.stderr, vim.log.levels.ERROR)
---     vim.notify('Create An issue before creation pull request: ' .. obj.stderr, vim.log.levels.WARN)
---     return
---   end
---   int = vim.trim(obj.stdout)
---   vim.notify('Fetching issue #' .. int .. ' to use as pull request title and body...')
---   cmd = { 'gh', 'issue', 'view', int, '--json', 'title', '--template', '{{.title}}' }
---   obj = vim.system(cmd):wait()
---   if obj.code ~= 0 then
---     vim.notify('Error fetching issue title: ' .. obj.stderr, vim.log.levels.ERROR)
---     return
---   end
---   local title = vim.trim(obj.stdout)
---   cmd = { 'gh', 'issue', 'view', int, '--json', 'body', '--template', '{{.body}}' }
---   obj = vim.system(cmd):wait()
---   if obj.code ~= 0 then
---     vim.notify('Error fetching issue body: ' .. obj.stderr, vim.log.levels.ERROR)
---     return
---   end
---   local body = vim.trim(obj.stdout)
---   cmd = { 'gh', 'pr', 'create', '--title', title, '--body', body }
---   obj = vim.system(cmd):wait()
---   if obj.code ~= 0 then
---     vim.notify('Error creating pull request: ' .. obj.stderr, vim.log.levels.ERROR)
---     return
---   end
---   vim.notify('Created PR with title: ' .. title, vim.log.levels.INFO)
--- end
+M.pullRequestCreate = function()
+  vim.print('Repo: creating pull request')
+  local ok, msg, issue_number, title, body
+  ok, msg = auto_commit_push('creating pull request')
+  if not ok then
+    vim.notify(msg, vim.log.levels.ERROR)
+    return
+  end
+  issue_number, msg = get_latest('issue')
+  if issue_number == 0 then
+    vim.notify(msg, vim.log.levels.WARN)
+    return
+  end
+  title, body = get_local_view_data(vim.api.nvim_get_current_buf())
+  if title == '' then
+    vim.notify('Pull request title cannot be empty', vim.log.levels.WARN)
+    return
+  end
+  if body == '' then
+    vim.notify('Pull request body cannot be empty', vim.log.levels.WARN)
+    return
+  end
+  -- save to remote any current edits to ensure the pull request is created with the latest changes
+  -- ok, msg = edit_remote_view('issue', issue_number, title, body)
+  -- if not ok then
+  --   vim.notify(msg, vim.log.levels.ERROR)
+  --   return
+  -- end
+  ok, msg = createRemote('pr', title, body)
+  if not ok then
+    vim.notify(msg, vim.log.levels.ERROR)
+    return
+  end
+  vim.notify(msg, vim.log.levels.INFO)
+  -- TODO: we can also add a comment to the issue with the link to the pull request, using the GitHub CLI to fetch the pull request URL and then adding a comment to the issue with that URL
+  local pr_number, msg = get_latest('pr')
+  if pr_number == 0 then
+    vim.notify(msg, vim.log.levels.WARN)
+    return
+  end
+  -- show the pull request view after creating the pull request,
+  -- to allow the user to see the details of the pull request they just created
+  -- and to provide an easy way to edit the pull request if needed
+  local data = get_remote_view_data('pr', pr_number)
+  local bufnr = show.edit('PullRequestView', data)
+  if bufnr == 0 then
+    vim.notify('Error creating buffer for issue view', vim.log.levels.ERROR)
+    return
+  end
+  vim.notify(string.format('Opened pull request view in buffer #%d', bufnr), vim.log.levels.INFO)
+end
+
+
 
 return M
