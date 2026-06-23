@@ -124,6 +124,7 @@ M.setup = function()
     'RepoIssueDevelopList', -- issueDevelopList -- list issues that are being developed, i.e. issues that have a branch created from them
     'RepoIssueView',        -- issueView
     'RepoPullRequestList',  -- pullRequestList
+    'RepoPullRequestView',  -- pullRequestView
     -- 'RepoViewLabels',    -- viewLabels
     'RepoWorkflowRun',      -- workflowRun
     'RepoWorkflowView',     -- workflowView
@@ -228,6 +229,22 @@ local edit_remote_view = function(what, int, title, body)
     return false, string.format('Error saving %s: %s', what, obj.stderr)
   end
   return true, string.format('%s #%d saved successfully', what, int)
+end
+
+local update_view = function(what)
+  local bufnr = vim.api.nvim_get_current_buf()
+  local num, msg = get_latest(what)
+  if num == 0 then
+    vim.notify(msg, vim.log.levels.WARN)
+    return
+  end
+  local title, body = get_local_view_data(bufnr)
+  local ok, msg = edit_remote_view(what, num, title, body)
+  if ok then
+    vim.notify(msg, vim.log.levels.INFO)
+  else
+    vim.notify(msg, vim.log.levels.ERROR)
+  end
 end
 
 --- helper function to create a new issue or pull request using the GitHub CLI, with the title and body provided as arguments
@@ -535,17 +552,9 @@ M.issueView = function()
     return
   end
   --[[  set buffer specific commands, keymaps, autocommands ]] --
-  local km1 = { 'n', '<C-s>', function()
-    local edit_title, edit_body = get_local_view_data(bufnr)
-    local ok, msg = edit_remote_view('issue', issue_number, edit_title, edit_body)
-    if ok then
-      vim.notify(msg, vim.log.levels.INFO)
-    else
-      vim.notify(msg, vim.log.levels.ERROR)
-    end
-  end,
-    'Save to GitHub' }
-  vim.print(string.format('Repo: setting up keymaps for issue view buffer %d', bufnr))
+  -- update issue with <C-s> keymap, which will save the changes to GitHub using the GitHub CLI, we can also add a command to save the changes, but I think the keymap is more convenient for this use case
+  local km1 = { 'n', '<C-s>', function() update_view('issue') end, 'Save to GitHub' }
+  -- vim.print(string.format('Repo: setting up keymaps for issue view buffer %d', bufnr))
   set_keymaps({ km1 }, bufnr)
   local cmd = { 'git', 'branch', '--show-current' }
   local obj = vim.system(cmd):wait()
@@ -589,6 +598,23 @@ end
 
 M.pullRequestList = function()
   show.shell('GitHub', 'gh pr list')
+end
+
+-- pull request view:  fetch the latest pull request using the GitHub CLI, then display the title and body in a show window, with the title as the first line and the body as the rest of the lines,
+M.pullRequestView = function()
+  local pr_number, msg = get_latest('pr')
+  if pr_number == 0 then
+    vim.notify(msg, vim.log.levels.WARN)
+    return
+  end
+  local data = get_remote_view_data('pr', pr_number)
+  local bufnr = show.edit('PullRequestView', data)
+  if bufnr == 0 then
+    vim.notify('Error creating buffer for pull request view', vim.log.levels.ERROR)
+    return
+  end
+  local km1 = { 'n', '<C-s>', function() update_view('pr') end, 'Save to GitHub' }
+  set_keymaps({ km1 }, bufnr)
 end
 
 M.pullRequestStatus = function()
