@@ -614,7 +614,6 @@ M.issueView = function()
   end
 end
 
-
 -- Branches management functions here
 -- you can add functions here to create, view, and manage branch
 --- use git to list branches and show them in a show window, maybe with some color coding based on branch type (e.g. feature, bugfix, etc.)
@@ -624,7 +623,6 @@ end
 
 --[[ Pull request management functions here ]] --
 -- you can add functions here to create, view, and manage pull requests using the GitHub CLI and the show module
-
 M.pullRequestList = function()
   show.shell('GitHub', 'gh pr list')
 end
