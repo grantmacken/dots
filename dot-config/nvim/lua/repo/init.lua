@@ -18,7 +18,6 @@ M.repo_owner = 'grantmacken'
 -- these functions can be used internally by the public functions defined below
 -- deps:  this module dependencies
 local show = require('show')
-
 local repo_owner = 'grantmacken'
 
 -- helper function to get the repo owner and name from the current working directory, assuming it's a git repository
@@ -150,7 +149,6 @@ end
 local auto_commit_push = function(what)
   local cmd = { 'git', 'commit', '-am', 'Auto commit before ' .. what }
   local obj = vim.system(cmd):wait()
-  local msg = ''
   if obj.code ~= 0 then
     return false, string.format('Error committing changes before %s: %s', what, obj.stderr)
   end
@@ -228,18 +226,19 @@ local edit_remote_view = function(what, int, title, body)
   if obj.code ~= 0 then
     return false, string.format('Error saving %s: %s', what, obj.stderr)
   end
-  return true, string.format('%s #%d saved successfully', what, int)
+  return true, string.format('%s #%d remote update successfully', what, int)
 end
 
 local update_view = function(what)
+  local num, ok, msg, title, body
   local bufnr = vim.api.nvim_get_current_buf()
-  local num, msg = get_latest(what)
+  num, msg = get_latest(what)
   if num == 0 then
     vim.notify(msg, vim.log.levels.WARN)
     return
   end
-  local title, body = get_local_view_data(bufnr)
-  local ok, msg = edit_remote_view(what, num, title, body)
+  title, body = get_local_view_data(bufnr)
+  ok, msg = edit_remote_view(what, num, title, body)
   if ok then
     vim.notify(msg, vim.log.levels.INFO)
   else
@@ -264,31 +263,63 @@ end
 
 --- helper function to create a new comment on an issue or pull request using the GitHub CLI, with the comment body provided as an argument
 --- @param what string the type of item to comment on, either "issue" or "pr"
---- @return nil the function will prompt the user for the comment body, and then create the comment using the GitHub CLI, and notify the user of the result of the operation
-local create_comment = function(what)
-  local num, msg, prompt
-  num, msg = get_latest(what)
-  if num == 0 then
-    vim.notify(msg, vim.log.levels.WARN)
+--- @param num number the number of the issue or pull request to comment on
+--- @param body string the body of the comment to create
+--- @return boolean, string true if the comment was created successfully, false otherwise and a notify or error message
+local comment_send = function(what, num, body)
+  local cmd = { 'gh', what, 'comment', tostring(num), '--body', body }
+  local obj = vim.system(cmd):wait()
+  if obj.code ~= 0 then
+    return false, string.format('Error creating comment on %s #%d: %s', what, num, obj.stderr)
+  end
+  return true, string.format('Comment created successfully on %s #%d', what, num)
+end
+
+--- helper function to create a new comment on an issue or pull request
+--- @param what string the type of item to comment on, either "issue" or "pr"
+--- @param num number? the number of the issue or pull request to comment on, if not provided the function will fetch the latest issue or pull request number using the GitHub CLI
+--- @param body string? the body of the comment to create, if not provided the function will prompt the user for the comment body using vim.ui.input
+--- @return nil the function will notify the user of the result of the operation, but does not return any value
+local comment_create = function(what, num, body)
+  local msg, prompt
+  if not num then
+    num, msg = get_latest(what)
+    if num == 0 then
+      vim.notify(msg, vim.log.levels.WARN)
+      return
+    end
+  end
+  if body and body ~= '' then
+    comment_send(what, num, body)
+  else
+    prompt = string.format('Enter comment body for %s #%d: ', what, num)
+    vim.ui.input({ prompt = prompt }, function(input)
+      if not input or input == '' then
+        vim.notify(string.format('%s comment body cannot be empty', what), vim.log.levels.WARN)
+        return
+      end
+      comment_send(what, num, input)
+    end)
+  end
+end
+
+--- helper function to close an issue using the GitHub CLI
+--- @param issue_number number the number of the issue to close
+--- @param comment string the comment to add to the issue before closing it, e.g. "Closing issue as it has been resolved in the latest commit"
+--- @param reason string the reason for closing the issue, e.g. "completed", "not planned", "duplicate", etc. this will be added as a label to the issue before closing it
+local issue_close = function(issue_number, comment, reason)
+  local cmd = {
+    'gh', 'issue', 'close', tostring(issue_number), --reason reason, '--comment', comment
+  }
+  local obj = vim.system(cmd):wait()
+  if obj.code ~= 0 then
+    vim.notify('Error closing issue: ' .. obj.stderr, vim.log.levels.ERROR)
     return
   end
-  prompt = string.format('Enter comment body for %s #%d: ', what, num)
-  vim.ui.input({ prompt = prompt }, function(body)
-    if not body or body == '' then
-      vim.notify(string.format('%s comment body cannot be empty', what), vim.log.levels.WARN)
-      return
-    end
-    local cmd = { 'gh', what, 'comment', tostring(num), '--body', body }
-    local obj = vim.system(cmd):wait()
-    if obj.code ~= 0 then
-      vim.notify(string.format('Error creating comment on %s #%d: %s', what, num, obj.stderr), vim.log.levels.ERROR)
-      return
-    else
-      vim.notify(string.format('Comment created successfully on %s #%d', what, num), vim.log.levels.INFO)
-      return
-    end
-  end)
+  local msg = string.format('Issue #%d closed successfully', issue_number)
+  vim.notify(msg, vim.log.levels.INFO)
 end
+
 
 --[[ section:  public functions here ]] --
 -- add any functions here that are exposed as part of the module's public API
@@ -362,13 +393,11 @@ M.issueDevelopWithBranch = function()
     return
   end
   vim.notify(msg, vim.log.levels.INFO)
-
   issue_number, msg = get_latest('issue')
   if issue_number == 0 then
     vim.notify(msg, vim.log.levels.WARN)
     return
   end
-
   bufnr = vim.api.nvim_get_current_buf()
   vim.notify('Repo: creating branch from issue view buffer ' .. bufnr, vim.log.levels.INFO)
   local edit_title, _ = get_local_view_data(bufnr)
@@ -615,6 +644,11 @@ M.pullRequestView = function()
   end
   local km1 = { 'n', '<C-s>', function() update_view('pr') end, 'Save to GitHub' }
   set_keymaps({ km1 }, bufnr)
+  set_commands({
+    'PullRequestUpdate',        -- pullRequestUpdate
+    'PullRequestCommentCreate', --  pullRequestCommentCreate
+    'PullRequestMerge',         -- pullRequestMerge
+  }, bufnr)
 end
 
 M.pullRequestStatus = function()
@@ -624,7 +658,7 @@ end
 
 M.pullRequestCreate = function()
   vim.print('Repo: creating pull request')
-  local ok, msg, issue_number, title, body, pr_number
+  local ok, msg, cmd, obj, issue_number, pr_number, title, body,
   ok, msg = auto_commit_push('creating pull request')
   if not ok then
     vim.notify(msg, vim.log.levels.ERROR)
@@ -644,27 +678,26 @@ M.pullRequestCreate = function()
     vim.notify('Pull request body cannot be empty', vim.log.levels.WARN)
     return
   end
-  -- save to remote any current edits to ensure the pull request is created with the latest changes
-  -- ok, msg = edit_remote_view('issue', issue_number, title, body)
-  -- if not ok then
-  --   vim.notify(msg, vim.log.levels.ERROR)
-  --   return
-  -- end
   ok, msg = createRemote('pr', title, body)
   if not ok then
     vim.notify(msg, vim.log.levels.ERROR)
     return
   end
   vim.notify(msg, vim.log.levels.INFO)
-  -- TODO: we can also add a comment to the issue with the link to the pull request, using the GitHub CLI to fetch the pull request URL and then adding a comment to the issue with that URL
   pr_number, msg = get_latest('pr')
   if pr_number == 0 then
     vim.notify(msg, vim.log.levels.WARN)
     return
   end
+  cmd = { 'gh', 'pr', 'view', tostring(pr_number), '--json', 'url', '--template', '{{.url}}' }
+  obj = vim.system(pr_url_cmd):wait()
+  if obj.code ~= 0 then
+    vim.notify('Error fetching pull request URL: ' .. obj.stderr, vim.log.levels.ERROR)
+    return
+  end
+  local pr_url = vim.trim(obj.stdout)
+  comment_send('pr', pr_number, string.format('Pull request created: %s', pr_url))
   -- show the pull request view after creating the pull request,
-  -- to allow the user to see the details of the pull request they just created
-  -- and to provide an easy way to edit the pull request if needed
   local data = get_remote_view_data('pr', pr_number)
   local bufnr = show.edit('PullRequestView', data)
   if bufnr == 0 then
@@ -674,10 +707,94 @@ M.pullRequestCreate = function()
   vim.notify(string.format('Opened pull request view in buffer #%d', bufnr), vim.log.levels.INFO)
 end
 
+
 M.issueCommentCreate = function()
-  create_comment('issue')
+  comment_create('issue')
 end
 
---TODO! close issue, merge pull request, etc.
+M.pullRequestUpdate = function()
+  update_view('pr')
+end
+
+M.pullRequestCommentCreate = function()
+  comment_create('pr')
+end
+
+M.pullRequestMerge = function()
+  -- Step 1: auto commit and push any changes before merging
+  local ok, msg, pr_number, title, body
+  ok, msg = auto_commit_push('merging pull request')
+  if not ok then
+    vim.notify(msg, vim.log.levels.ERROR)
+    return
+  end
+  vim.notify(msg, vim.log.levels.INFO)
+  -- Step 2: get the latest pull request number using the GitHub CLI, and use the pull request title and body to create a merge commit message for the merge commit that will be created when merging the pull request, we can also use the title and body to update the pull request before merging, to ensure the pull request has the latest title and body before merging
+  pr_number, msg = get_latest('pr')
+  if pr_number == 0 then
+    vim.notify(msg, vim.log.levels.WARN)
+    return
+  end
+  title, body = get_local_view_data(vim.api.nvim_get_current_buf())
+  if title == '' then
+    vim.notify('Pull request title cannot be empty', vim.log.levels.WARN)
+    return
+  end
+  if body == '' then
+    vim.notify('Pull request body cannot be empty', vim.log.levels.WARN)
+    return
+  end
+  ok, msg = edit_remote_view('pr', pr_number, title, body)
+  if not ok then
+    vim.notify(msg, vim.log.levels.ERROR)
+    return
+  end
+  -- Step 3: use the GitHub CLI to merge the pull request
+  local subject = string.format('pr merged #closes %d', pr_number)
+  local cmd = {
+    'gh', 'pr', 'merge', tostring(pr_number), '--squash', '--delete-branch', '--body', body, '--subject', subject
+  }
+  local obj = vim.system(cmd):wait()
+  if obj.code ~= 0 then
+    vim.notify('Error merging pull request: ' .. obj.stderr, vim.log.levels.ERROR)
+    return
+  end
+  vim.notify('Pull request merged successfully', vim.log.levels.INFO)
+  -- step 4: after merging the pull request, we can also close the related issue if there is one, since the pull request has been merged and the issue has been resolved, we can close the issue with a comment indicating that it has been resolved by the pull request
+  local issue_number
+  issue_number, msg = get_latest('issue')
+  if issue_number == 0 then
+    vim.notify(msg, vim.log.levels.WARN)
+    return
+  end
+  local comment = 'Closing issue as it has been resolved by pull request #' ..
+      pr_number .. ' which has been merged successfully.'
+  local reason = 'completed'
+  issue_close(issue_number, comment, reason)
+  -- step 5: switch to main branch after merging, since the pull request branch has been merged and deleted, we can switch back to main to continue working from there
+  local checkout_cmd = { 'git', 'switch', 'main' }
+  obj = vim.system(checkout_cmd):wait()
+  if obj.code ~= 0 then
+    vim.notify('Error checking out main branch: ' .. obj.stderr, vim.log.levels.ERROR)
+    return
+  end
+  vim.notify('Checked out main branch successfully', vim.log.levels.INFO)
+  -- step 6: on main branch, we can also pull the latest changes to ensure we have the latest code after the merge
+  -- this is especially important if the user was on the pull request branch before merging, since that branch has now been merged and deleted, we want to make sure they are on the latest code on main after the merge
+  local pull_cmd = { 'git', 'pull' }
+  obj = vim.system(pull_cmd):wait()
+  if obj.code ~= 0 then
+    vim.notify('Error pulling latest changes on main branch: ' .. obj.stderr, vim.log.levels.ERROR)
+    return
+  end
+  vim.notify('Pulled latest changes on main branch successfully', vim.log.levels.INFO)
+  -- step 7: make sure open files are refreshed after the merge, since the merge may have changed or deleted files that are currently open in the editor, we want to make sure those buffers are refreshed to reflect the latest state of the repository after the merge
+  vim.cmd('checktime')
+  -- step 8: status update after merging, to show the latest status of the repository after the merge, including any changes that were pulled on main after the merge
+  M.status()
+  --TODO the bufEditIssueView and bufEditPullRequestView buffers can be deleted after merging, since the issue and pull request have been resolved and merged, we can close those buffers to clean up the workspace after the merge
+end
+
+
 
 return M

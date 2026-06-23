@@ -9,6 +9,8 @@ local au = function(event, pattern, callback, desc)
   vim.api.nvim_create_autocmd(event, opts)
 end
 
+au("FocusGained", '*', function() vim.cmd.checktime) end, "Check for file changes when focus is gained")
+
 au(
   'TextPutPost',
   '*',
