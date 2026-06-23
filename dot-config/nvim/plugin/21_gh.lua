@@ -268,21 +268,21 @@ vim.api.nvim_create_user_command(
 -- show in scratch buffer
 --
 ---
-vim.api.nvim_create_user_command(
-  'IssueFocus',
-  function()
-    local showBuf  = 'bufEdit'
-    local showWhat = 'IssueBody'
-    local showName = showBuf .. showWhat
-    local show     = require('show')
-    local focus    = show.win_is_focused()
-    vim.print(vim.inspect(focus))
-    local bufnr = show.get_bufnr_by_name(showName)
-    vim.print(bufnr)
-  end,
-  { desc = 'An example action that shows output in a edit buffer' }
-)
-
+-- vim.api.nvim_create_user_command(
+--   'IssueFocus',
+--   function()
+--     local showBuf  = 'bufEdit'
+--     local showWhat = 'IssueBody'
+--     local showName = showBuf .. showWhat
+--     local show     = require('show')
+--     local focus    = show.win_is_focused()
+--     vim.print(vim.inspect(focus))
+--     local bufnr = show.get_bufnr_by_name(showName)
+--     vim.print(bufnr)
+--   end,
+--   { desc = 'An example action that shows output in a edit buffer' }
+-- )
+--
 vim.api.nvim_create_user_command(
   'IssueBlur',
   function()
@@ -299,79 +299,53 @@ vim.api.nvim_create_user_command(
 
 
 
-vim.api.nvim_create_user_command(
-  'IssuePushToGitHub',
-  function()
-    local showBuf  = 'bufEdit'
-    local showWhat = 'IssueBody'
-    local showName = showBuf .. showWhat
-    local show     = require('show')
-    vim.print(vim.t[showName])
-    local bufnr = show.get_bufnr_by_name(showName)
-    vim.print(bufnr)
-  end,
-  { desc = 'An example action that shows output in a edit buffer' }
-)
-vim.api.nvim_create_user_command(
-  'IssuePullFromGitHub',
-  function()
-    local showBuf  = 'bufEdit'
-    local showWhat = 'IssueBody'
-    local showName = showBuf .. showWhat
-    local show     = require('show')
-    vim.print(vim.t[showName])
-    local bufnr = show.get_bufnr_by_name(showName)
-    vim.print(bufnr)
-  end,
-  { desc = 'An example action that shows output in a edit buffer' }
-)
 
--- gh pr create \
---title "$(gh issue view $ISSUE_ID --json title -q .title)" \
---body "$(gh issue view $ISSUE_ID --json body -q .body)"
-
-vim.api.nvim_create_user_command(
-  'IssueView',
-  function()
-    local bufName = 'IssueView'
-    -- get the latest issue number
-    local cmd = { 'gh', 'issue', 'list', '--limit', '1', '--json', 'number', '--jq', ".[0].number" }
-    local obj = vim.system(cmd):wait()
-    if obj.code ~= 0 then
-      vim.notify('Error fetching issue: ' .. obj.stderr, vim.log.levels.ERROR)
-      return
-    end
-    local int = vim.trim(obj.stdout)
-    local data = vim.fn.systemlist('gh issue view ' .. int .. ' --json title --template {{.title}}')
-    table.insert(data, '') -- add a blank line between title and body:w
-    local body = vim.fn.systemlist('gh issue view ' .. int .. ' --json body --template {{.body}}')
-    vim.list_extend(data, body)
-    local show = require('show')
-    show.edit(bufName, data)
-    -- the buffer handle is stored in vim.t[bufName]
-    --  create user keymaps specific to this buffer for convenience
-    --  keymaps can be used from main buffer to trigger actions in a 'bufEdit' buffer
-    --  uses show module to get handle  to the buffer
-    --local bufnr = show.get_bufnr_by_name(bufName)
-    --  used keymap module to create keymaps
-    --local keymap = require('keymap')
-    -- mimic behaviour like quickfix buffer `cclose` `copen`
-
-
-    -- <leader>ic : close issue body buffer and return to previous buffer
-    --   local bufnr = show.get_bufnr_by_name(bufName)
-    --   keymap.leader(
-    --     'ic',
-    --     function()
-    --       local delete_opts = { force = true, unload = true }
-    --       vim.api.nvim_buf_delete(bufnr, delete_opts)
-    --     end,
-    --     'Close issue body buffer')
-    -- end,
-    -- { desc = 'View GitHub issue body in scratch buffer', nargs = 1 }
-  end,
-  { desc = 'View GitHub issue body in scratch buffer' }
-)
+-- -- gh pr create \
+-- --title "$(gh issue view $ISSUE_ID --json title -q .title)" \
+-- --body "$(gh issue view $ISSUE_ID --json body -q .body)"
+--
+-- vim.api.nvim_create_user_command(
+--   'IssueView',
+--   function()
+--     local bufName = 'IssueView'
+--     -- get the latest issue number
+--     local cmd = { 'gh', 'issue', 'list', '--limit', '1', '--json', 'number', '--jq', ".[0].number" }
+--     local obj = vim.system(cmd):wait()
+--     if obj.code ~= 0 then
+--       vim.notify('Error fetching issue: ' .. obj.stderr, vim.log.levels.ERROR)
+--       return
+--     end
+--     local int = vim.trim(obj.stdout)
+--     local data = vim.fn.systemlist('gh issue view ' .. int .. ' --json title --template {{.title}}')
+--     table.insert(data, '') -- add a blank line between title and body:w
+--     local body = vim.fn.systemlist('gh issue view ' .. int .. ' --json body --template {{.body}}')
+--     vim.list_extend(data, body)
+--     local show = require('show')
+--     show.edit(bufName, data)
+--     -- the buffer handle is stored in vim.t[bufName]
+--     --  create user keymaps specific to this buffer for convenience
+--     --  keymaps can be used from main buffer to trigger actions in a 'bufEdit' buffer
+--     --  uses show module to get handle  to the buffer
+--     --local bufnr = show.get_bufnr_by_name(bufName)
+--     --  used keymap module to create keymaps
+--     --local keymap = require('keymap')
+--     -- mimic behaviour like quickfix buffer `cclose` `copen`
+--
+--
+--     -- <leader>ic : close issue body buffer and return to previous buffer
+--     --   local bufnr = show.get_bufnr_by_name(bufName)
+--     --   keymap.leader(
+--     --     'ic',
+--     --     function()
+--     --       local delete_opts = { force = true, unload = true }
+--     --       vim.api.nvim_buf_delete(bufnr, delete_opts)
+--     --     end,
+--     --     'Close issue body buffer')
+--     -- end,
+--     -- { desc = 'View GitHub issue body in scratch buffer', nargs = 1 }
+--   end,
+--   { desc = 'View GitHub issue body in scratch buffer' }
+-- )
 
 --[[ Pull request commands:
    gh pr list
@@ -381,14 +355,7 @@ vim.api.nvim_create_user_command(
    gh pr status
 ]] --
 
-vim.api.nvim_create_user_command(
-  'PRList',
-  function()
-    local show = require('show')
-    show.shell('GitHubPR', 'gh pr list')
-  end,
-  { desc = 'gh pr list' }
-)
+
 
 vim.api.nvim_create_user_command(
   'PRStatus',

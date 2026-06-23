@@ -119,17 +119,18 @@ M.setup = function()
     'RepoBranchList', --  branchList
     --'RepoBranchCreate',    --  branchCreate
     -- ISSUES
-    'RepoIssueList',       -- issueList
-    'RepoIssueCreate',     -- issueCreate
-    'RepoIssueView',       -- issueView
-    'RepoPullRequestList', -- pullRequestList
+    'RepoIssueList',        -- issueList
+    'RepoIssueCreate',      -- issueCreate
+    'RepoIssueDevelopList', -- issueDevelopList -- list issues that are being developed, i.e. issues that have a branch created from them
+    'RepoIssueView',        -- issueView
+    'RepoPullRequestList',  -- pullRequestList
     -- 'RepoViewLabels',    -- viewLabels
-    'RepoWorkflowRun',     -- workflowRun
-    'RepoWorkflowView',    -- workflowView
-    'RepoGitPush',         -- gitPush
-    'RepoStatus',          -- status
-    'RepoGhHelp',          -- ghHelp
-    'RepoGitCommitAll',    -- gitCommitAll
+    'RepoWorkflowRun',      -- workflowRun
+    'RepoWorkflowView',     -- workflowView
+    'RepoGitPush',          -- gitPush
+    'RepoStatus',           -- status
+    'RepoGhHelp',           -- ghHelp
+    'RepoGitCommitAll',     -- gitCommitAll
   })
 
   set_keymaps({
@@ -200,7 +201,6 @@ local get_remote_view_data = function(what, int)
   return data
 end
 
-
 --- @param bufnr integer the buffer number of the issue or pull request view buffer
 --- @return string, string the title and body of the issue or pull request as entered in the buffer, with any markdown formatting removed from the title and leading/trailing whitespace removed from the body
 local get_local_view_data = function(bufnr)
@@ -245,11 +245,36 @@ local createRemote = function(what, title, body)
   return true, string.format('%s created successfully', what)
 end
 
+--- helper function to create a new comment on an issue or pull request using the GitHub CLI, with the comment body provided as an argument
+--- @param what string the type of item to comment on, either "issue" or "pr"
+--- @return nil the function will prompt the user for the comment body, and then create the comment using the GitHub CLI, and notify the user of the result of the operation
+local create_comment = function(what)
+  local num, msg, prompt
+  num, msg = get_latest(what)
+  if num == 0 then
+    vim.notify(msg, vim.log.levels.WARN)
+    return
+  end
+  prompt = string.format('Enter comment body for %s #%d: ', what, num)
+  vim.ui.input({ prompt = prompt }, function(body)
+    if not body or body == '' then
+      vim.notify(string.format('%s comment body cannot be empty', what), vim.log.levels.WARN)
+      return
+    end
+    local cmd = { 'gh', what, 'comment', tostring(num), '--body', body }
+    local obj = vim.system(cmd):wait()
+    if obj.code ~= 0 then
+      vim.notify(string.format('Error creating comment on %s #%d: %s', what, num, obj.stderr), vim.log.levels.ERROR)
+      return
+    else
+      vim.notify(string.format('Comment created successfully on %s #%d', what, num), vim.log.levels.INFO)
+      return
+    end
+  end)
+end
 
 --[[ section:  public functions here ]] --
 -- add any functions here that are exposed as part of the module's public API
---
---
 M.ghHelp = function()
   show.shell('Repo', 'gh help')
 end
@@ -301,9 +326,11 @@ M.branchList = function()
   --[[ TODO:  we can also add some interactivity to the branch list, e.g. keymaps to checkout a branch, delete a branch, etc. using the show module's edit window and buffer-local keymaps ]]
 end
 
-M.branchCreate = function()
-  --[[
-  BranchCreate available in the issue view buffer
+M.issueDevelopWithBranch = function()
+  --[[ develop branch from issue:
+  create a new branch from the current branch, with the name and description derived from the issue,
+  using the GitHub CLI to create the branch and then checking it out,
+  only available in the issue view buffer
   Steps:
    1. commit and push all changes first, to ensure the branch is created from the latest commit on the current branch
    2. get the latest issue number using the GitHub CLI, and use the issue title and body to create a new branch name and description for the branch
@@ -311,7 +338,7 @@ M.branchCreate = function()
    4. create branch using to create a new branch from the current branch, with the name and description derived from the issue
    5. if branch creation is successful, we can also add a comment to the issue with the link to the branch
   ]] --
-  local ok, msg, issue_number, bufnr
+  local ok, msg, cmd, obj, issue_number, bufnr
   ok, msg = auto_commit_push('creating branch')
   if not ok then
     vim.notify(msg, vim.log.levels.ERROR)
@@ -329,24 +356,14 @@ M.branchCreate = function()
   vim.notify('Repo: creating branch from issue view buffer ' .. bufnr, vim.log.levels.INFO)
   local edit_title, _ = get_local_view_data(bufnr)
   local branch_name = string.format('%s-%d-%s', 'issue', issue_number, edit_title:gsub('%s+', '-'):gsub('[^%w%-]', ''))
-  cmd = { 'git', 'checkout', '-b', branch_name }
+  cmd = { 'gh', 'issue', 'develop', issue_number, '--branch', branch_name, '--checkout', '--base', 'main' }
   obj = vim.system(cmd):wait()
   if obj.code ~= 0 then
     vim.notify('Error creating branch: ' .. obj.stderr, vim.log.levels.ERROR)
     return
   end
-  vim.notify('Branch ' .. branch_name .. ' created successfully', vim.log.levels.INFO)
-  -- push the branch to remote
-  cmd = { 'git', 'push', '-u', 'origin', branch_name }
-  obj = vim.system(cmd):wait()
-  if obj.code ~= 0 then
-    vim.notify('Error pushing branch to remote: ' .. obj.stderr, vim.log.levels.ERROR)
-    return
-  end
-  vim.notify('Branch ' .. branch_name .. ' pushed to remote successfully', vim.log.levels.INFO)
+  vim.notify('Branch ' .. branch_name .. ' created and checked out successfully', vim.log.levels.INFO)
 end
-
-
 
 M.gitCommitAll = function()
   vim.ui.input({ prompt = 'Enter commit message: ' }, function(input)
@@ -481,6 +498,20 @@ M.issueCreate = function()
   )
 end
 
+M.issueDevelopList = function()
+  local issue_number, msg = get_latest('issue')
+  if issue_number == 0 then
+    vim.notify(msg, vim.log.levels.WARN)
+    return
+  end
+  local cmd = { 'gh', 'issue', 'develop', issue_number, '--list' }
+  show.shell('BranchesInDevelopment', cmd)
+  -- local obj = vim.system(cmd):wait()
+  -- if obj.code ~= 0 then
+  --   vim.notify('Error fetching issues in development: ' .. obj.stderr, vim.log.levels.ERROR)
+  --   return
+  -- end
+end
 
 --[[ issue view:  fetch the latest issue using the GitHub CLI, then display the title and body in a show window, with the title as the first line and the body as the rest of the lines,
  - the issue view is displyed in a show.edit window
@@ -529,19 +560,21 @@ M.issueView = function()
   since it's more likely that the user wants to create a pull request
   from a feature branch rather than creating another branch from a feature branch
   --]] --
+  --
+  set_commands({
+    'IssueCommentCreate', -- issueCommentCreate
+  }, bufnr)
+
   if current_branch ~= 'main' then
     set_commands({
       'PullRequestCreate', --  pullRequestCreate
     }, bufnr)
   else
     set_commands({
-      'BranchCreate', --  branchCreate
+      'IssueDevelopWithBranch', --  branchCreate
     }, bufnr)
   end
 end
-
-
-
 
 
 -- Branches management functions here
@@ -558,9 +591,14 @@ M.pullRequestList = function()
   show.shell('GitHub', 'gh pr list')
 end
 
+M.pullRequestStatus = function()
+  -- TODO
+  show.shell('GitHub', 'gh pr list')
+end
+
 M.pullRequestCreate = function()
   vim.print('Repo: creating pull request')
-  local ok, msg, issue_number, title, body
+  local ok, msg, issue_number, title, body, pr_number
   ok, msg = auto_commit_push('creating pull request')
   if not ok then
     vim.notify(msg, vim.log.levels.ERROR)
@@ -593,7 +631,7 @@ M.pullRequestCreate = function()
   end
   vim.notify(msg, vim.log.levels.INFO)
   -- TODO: we can also add a comment to the issue with the link to the pull request, using the GitHub CLI to fetch the pull request URL and then adding a comment to the issue with that URL
-  local pr_number, msg = get_latest('pr')
+  pr_number, msg = get_latest('pr')
   if pr_number == 0 then
     vim.notify(msg, vim.log.levels.WARN)
     return
@@ -610,6 +648,10 @@ M.pullRequestCreate = function()
   vim.notify(string.format('Opened pull request view in buffer #%d', bufnr), vim.log.levels.INFO)
 end
 
+M.issueCommentCreate = function()
+  create_comment('issue')
+end
 
+--TODO! close issue, merge pull request, etc.
 
 return M

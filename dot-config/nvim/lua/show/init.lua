@@ -211,6 +211,16 @@ local string_to_table = function(str)
   return vim.split(str, '%s+', { trimempty = true })
 end
 
+--- convert table to string command
+--- @param tbl table
+--- @return string
+local table_to_string = function(tbl)
+  if type(tbl) ~= 'table' then
+    return ''
+  end
+  return table.concat(tbl, ' ')
+end
+
 --- check if command is executable
 --- @param tbl table
 --- @return boolean
@@ -642,6 +652,13 @@ M.send = function(bufName, data)
     append_lines(bufnr, lines)
     return true, ''
   elseif buf_type == 'bufShell' then
+    if type(data) == 'table' then
+      local cmd_str = table_to_string(data)
+      if cmd_str == '' then
+        return false, string.format('SEND:%s - command cannot be empty', bufName)
+      end
+      data = cmd_str
+    end
     if type(data) == 'string' then
       if data == '' then
         return false, string.format('SEND:%s - data cannot be empty', bufName)
