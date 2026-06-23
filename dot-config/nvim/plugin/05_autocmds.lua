@@ -9,13 +9,15 @@ local au = function(event, pattern, callback, desc)
   vim.api.nvim_create_autocmd(event, opts)
 end
 
+au("FocusGained", '*', function() vim.cmd('checktime') end, "Check for file changes when focus is gained")
+
 au(
   'TextPutPost',
   '*',
   function() vim.hl.hl_op({ higroup = 'Visual', timeout = 300 }) end,
   'Highlight pasted text'
 )
---autocmd TextPutPost  * silent! lua vim.hl.hl_op {higroup='Visual', timeout=300}
+--autocmd TextPutPost  * silent! lua vim.hl.hl_op {higroep='Visual', timeout=300}
 au(
   'TextPutPost',
   '*',

@@ -14,6 +14,8 @@ vim.o.mouse          = 'a'                              -- Enable mouse
 vim.o.mousescroll    = 'ver:25,hor:6'                   -- Customize mouse scrolling speed
 vim.o.switchbuf      = 'usetab'                         -- Use already opened buffers when switching
 vim.o.shada          = "'100,<50,s10,:1000,/100,@100,h" -- Limit ShaDa file (for startup)
+vim.o.autoread       = true                             -- Auto read file changes
+vim.o.updatetime     = 200                              -- Faster completion
 
 -- WINDOW CHROME
 vim.o.signcolumn     = "yes"     -- Always show signcolumn (less flicker)
@@ -78,7 +80,6 @@ vim.o.autowrite      = true                            -- Enable auto write
 vim.o.backup         = false                           -- Don't store backup while overwriting the file
 vim.o.undofile       = true                            -- Enable persistent undo (see also `:h undodir`)
 vim.o.undolevels     = 10000                           -- 10x more undo levels
-vim.o.updatetime     = 200
 vim.o.confirm        = true                            -- Confirm to save changes before exiting modified buffer
 vim.o.swapfile       = false                           -- bye bye
 -- COMPLETING
