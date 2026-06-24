@@ -408,6 +408,7 @@ M.issueDevelopWithBranch = function()
     return
   end
   vim.notify(string.format('%s created', vim.trim(obj.stdout)), vim.log.levels.INFO)
+  M.status() -- show git status after creating the branch
 end
 
 M.gitCommitAll = function()
