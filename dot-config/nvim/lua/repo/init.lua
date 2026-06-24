@@ -405,7 +405,6 @@ M.issueDevelopWithBranch = function()
   obj = vim.system(cmd):wait()
   if obj.code ~= 0 then
     vim.notify(string.format('Error creating branch: %s', obj.stderr), vim.log.levels.ERROR)
-    vim.print(obj.stderr)
     return
   end
   vim.notify(string.format('%s created', vim.trim(obj.stdout)), vim.log.levels.INFO)
