@@ -401,7 +401,7 @@ M.issueDevelopWithBranch = function()
   vim.notify('Repo: creating branch from issue view buffer ' .. bufnr, vim.log.levels.INFO)
   local edit_title, _ = get_local_view_data(bufnr)
   local branch_name = string.format('%s-%d-%s', 'issue', issue_number, edit_title:gsub('%s+', '-'):gsub('[^%w%-]', ''))
-  cmd = { 'gh', 'issue', 'develop', issue_number, '--branch', branch_name, '--checkout', '--base', 'main' }
+  cmd = { 'gh', 'issue', 'develop', issue_number, '--name', branch_name, '--checkout', '--base', 'main' }
   obj = vim.system(cmd):wait()
   if obj.code ~= 0 then
     vim.notify(string.format('Error creating branch: %s', obj.stderr), vim.log.levels.ERROR)
