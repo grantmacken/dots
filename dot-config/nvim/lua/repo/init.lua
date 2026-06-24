@@ -406,10 +406,10 @@ M.issueDevelopWithBranch = function()
   cmd = { 'gh', 'issue', 'develop', issue_number, '--branch', branch_name, '--checkout', '--base', 'main' }
   obj = vim.system(cmd):wait()
   if obj.code ~= 0 then
-    vim.notify('Error creating branch: ' .. obj.stderr, vim.log.levels.ERROR)
+    vim.notify(string.format('Error creating branch: %s', obj.stderr), vim.log.levels.ERROR)
     return
   end
-  vim.notify('Branch ' .. branch_name .. ' created and checked out successfully', vim.log.levels.INFO)
+  vim.notify(string.format('%s created', vim.trim(obj.stdout)), vim.log.levels.INFO)
 end
 
 M.gitCommitAll = function()
@@ -578,7 +578,7 @@ M.issueView = function()
     }, bufnr)
   else
     set_commands({
-      'IssueDevelopWithBranch', --  branchCreate
+      'IssueDevelopWithBranch', --  issueDevelopWithBranch
     }, bufnr)
   end
 end

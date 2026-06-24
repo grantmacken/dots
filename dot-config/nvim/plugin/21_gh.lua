@@ -223,66 +223,8 @@ vim.api.nvim_create_user_command(
    - finally, assemble the issue body from the checkbox list and send gh issue create as a task to terminal buffer
 ]] --
 
-vim.api.nvim_create_user_command(
-  'IssueCreate',
-  function()
-    local issue = require('issues')
-    issue.create()
-  end,
-  { desc = 'Create GitHub issue with checkbox list' }
-)
-
-vim.api.nvim_create_user_command(
-  'IssueDevelop',
-  function()
-    local gh = require('gh')
-    local show = require('show')
-    local issue_number = gh.get_last('issue')
-    local cmd = 'gh issue develop ' .. issue_number .. ' --checkout'
-    show.shell('IssueDevelop', cmd)
-  end,
-  { desc = 'gh issue develop <number> --checkout' }
-)
 
 
-
---[[ issue view <number>:
-]] --
-
-vim.api.nvim_create_user_command(
-  'GitHubIssueView',
-  function(opts)
-    local name = 'GitHubIssueView'
-    local issue_number = opts.args
-    if issue_number == nil or issue_number == '' then
-      vim.notify('Issue number cannot be empty.', vim.log.levels.WARN)
-      return
-    end
-    local show = require('show')
-    show.shell(name, 'gh issue view ' .. issue_number)
-  end,
-  { desc = 'gh issue view <number>', nargs = 1 }
-)
-
--- Get issue body for a given issue number
--- show in scratch buffer
---
----
--- vim.api.nvim_create_user_command(
---   'IssueFocus',
---   function()
---     local showBuf  = 'bufEdit'
---     local showWhat = 'IssueBody'
---     local showName = showBuf .. showWhat
---     local show     = require('show')
---     local focus    = show.win_is_focused()
---     vim.print(vim.inspect(focus))
---     local bufnr = show.get_bufnr_by_name(showName)
---     vim.print(bufnr)
---   end,
---   { desc = 'An example action that shows output in a edit buffer' }
--- )
---
 vim.api.nvim_create_user_command(
   'IssueBlur',
   function()
