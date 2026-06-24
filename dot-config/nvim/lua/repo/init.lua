@@ -258,7 +258,7 @@ local createRemote = function(what, title, body)
   if obj.code ~= 0 then
     return false, string.format('Error creating %s: %s', what, obj.stderr)
   end
-  return true, string.format('%s created successfully', what)
+  return true, string.format('%s created: %s', what, obj.stdout)
 end
 
 --- helper function to create a new comment on an issue or pull request using the GitHub CLI, with the comment body provided as an argument
@@ -302,6 +302,7 @@ local comment_create = function(what, num, body)
     end)
   end
 end
+
 
 --- helper function to close an issue using the GitHub CLI
 --- @param issue_number number the number of the issue to close
@@ -458,90 +459,58 @@ M.issueList = function()
 end
 ---
 M.issueCreate = function()
-  -- Step 1: Select issue type
-  local labels = { 'fix', 'feat', 'refact', 'chore', 'docs' }
-  vim.ui.select(
-    labels,
-    { prompt = 'Select issue type:' },
-    function(issue_type)
-      if not issue_type then return end
-      -- Step 2: Get issue title
-      vim.ui.input(
-        { prompt = 'Issue title: ' },
-        function(title)
-          if not title or title == '' then return end
-          -- Step 3: Collect checkbox list items
-          local tasks = {}
-          local function prompt_task()
-            vim.ui.input(
-              { prompt = 'Add task (empty to finish): ' },
-              function(task)
-                if not task or task == '' then
-                  -- Assemble and create issue
-                  if #tasks == 0 then
-                    vim.notify('No tasks added, aborting issue creation', vim.log.levels.WARN)
-                    return
-                  end
-                  local data = {}
-                  table.insert(data, string.format(' %s: %s', issue_type, title)) -- Title as markdown header
-                  table.insert(data, '')                                          -- add a blank line between title and body
-                  local body = vim.tbl_map(
-                    function(t)
-                      return '- [ ] ' .. t
-                    end, tasks)
-                  vim.list_extend(data, body)
-                  vim.print(data)
-                  local bufnr = show.edit('IssueCreated', data)
-                  if bufnr == 0 then
-                    vim.notify('Error creating buffer for issue creation', vim.log.levels.ERROR)
-                    return
-                  end
-                  local opt = { buffer = bufnr, desc = 'Save to github' }
-                  local keybinds = {
-                    { 'n', '<C-s>', function()
-                      local content = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-                      local title = content[1] or ''
-                      title = title:gsub('^%s*%w+:%s*', '')                       -- remove issue type prefix from title
-                      local body = table.concat(vim.list_slice(content, 3), '\n') -- skip title and blank line
-                      body = body:gsub('^%s+', ''):gsub('%s+$', '')
-                      vim.notify('Saving issue with title: ' .. title, vim.log.levels.INFO)
-                      local cmd = { 'gh', 'issue', 'create', '--title', title, '--body', body }
-                      local obj = vim.system(cmd):wait()
-                      if obj.code ~= 0 then
-                        vim.notify('Error creating issue: ' .. obj.stderr, vim.log.levels.ERROR)
-                      else
-                        vim.notify('Issue created successfully', vim.log.levels.INFO)
-                      end
-                    end, opt },
-                    { 'i', '<C-s>', function()
-                      local content = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-                      local title = content[1] or ''
-                      title = title:gsub('^%s*%w+:%s*', '')                       -- remove issue type prefix from title
-                      local body = table.concat(vim.list_slice(content, 3), '\n') -- skip title and blank line
-                      body = body:gsub('^%s+', ''):gsub('%s+$', '')
-                      vim.notify('Saving issue with title: ' .. title, vim.log.levels.INFO)
-                      local cmd = { 'gh', 'issue', 'create', '--title', title, '--body', body }
-                      local obj = vim.system(cmd):wait()
-                      if obj.code ~= 0 then
-                        vim.notify('Error creating issue: ' .. obj.stderr, vim.log.levels.ERROR)
-                      else
-                        vim.notify('Issue created successfully', vim.log.levels.INFO)
-                      end
-                    end, opt },
-                  }
-                else
-                  -- Add task and prompt for another
-                  table.insert(tasks, task)
-                  prompt_task()
-                end
-              end
-            )
+  local ok, msg, prompt, select
+  -- step 1: select issue type from a list of options
+  select = { 'fix', 'feat', 'chore', 'docs' }
+  prompt = 'Select issue type: '
+  local issue = {}
+  vim.ui.select(select, { prompt = prompt }, function(choice)
+    if not choice then return end
+    issue['type'] = choice
+  end)
+  -- step 2: enter issue title, with the issue type as a prefix to the title, e.g. "fix: add login feature"
+  prompt = string.format('Enter a short title for %s : ', issue['type'])
+  vim.ui.input({ prompt = prompt }, function(input)
+    if not input or input == '' then
+      vim.notify(string.format('%s title cannot be empty', issue['type']), vim.log.levels.WARN)
+      return
+    end
+    issue['title'] = input
+  end)
+  -- Step 3: Collect checkbox list items
+  local tasks = {}
+  prompt = 'Add a task for the issue (empty to finish): '
+  local function prompt_task()
+    vim.ui.input(
+      { prompt = prompt },
+      function(task)
+        if not task or task == '' then
+          -- Assemble and create issue
+          if #tasks == 0 then
+            vim.notify('No tasks added, aborting issue creation', vim.log.levels.WARN)
+            return
           end
+          local title = string.format('%s: %s', issue['type'], issue['title'])
+          local task_list = vim.tbl_map(function(t) return '- [ ] ' .. t end, tasks)
+          -- convert task list to a string with newlines between each task
+          ok, msg = createRemote('issue', title, table.concat(task_list, '\n'))
+          if not ok then
+            vim.notify(msg, vim.log.levels.ERROR)
+            return
+          else
+            vim.notify(msg, vim.log.levels.INFO)
+          end
+          M.issueView() -- open the issue view for the newly created issue
+        else
+          -- Add task and prompt for another
+          table.insert(tasks, task)
           prompt_task()
         end
-      )
-    end
-  )
+      end
+    )
+  end
+  -- call recursive function to prompt for tasks until the user enters an empty string
+  prompt_task()
 end
 
 M.issueDevelopList = function()
@@ -688,7 +657,7 @@ M.pullRequestCreate = function()
     return
   end
   cmd = { 'gh', 'pr', 'view', tostring(pr_number), '--json', 'url', '--template', '{{.url}}' }
-  obj = vim.system(pr_url_cmd):wait()
+  obj = vim.system(cmd):wait()
   if obj.code ~= 0 then
     vim.notify('Error fetching pull request URL: ' .. obj.stderr, vim.log.levels.ERROR)
     return
