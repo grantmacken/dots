@@ -321,7 +321,6 @@ local issue_close = function(issue_number, comment, reason)
   vim.notify(msg, vim.log.levels.INFO)
 end
 
-
 --[[ section:  public functions here ]] --
 -- add any functions here that are exposed as part of the module's public API
 M.ghHelp = function()
@@ -337,7 +336,6 @@ M.workflowView = function()
 end
 
 --[[ Git operations functions here ]] --
-
 -- git status oneliner with branch info and color coding, using git status --short --branch and setting color.status=always to ensure colors are included in the output
 M.status = function()
   show.shell('Repo', 'git -c "color.status=always" status --short --branch')
@@ -407,6 +405,7 @@ M.issueDevelopWithBranch = function()
   obj = vim.system(cmd):wait()
   if obj.code ~= 0 then
     vim.notify(string.format('Error creating branch: %s', obj.stderr), vim.log.levels.ERROR)
+    vim.print(obj.stderr)
     return
   end
   vim.notify(string.format('%s created', vim.trim(obj.stdout)), vim.log.levels.INFO)
