@@ -282,18 +282,18 @@ end
 --- @param what string the type of item to comment on, either "issue" or "pr"
 --- @param num number? the number of the issue or pull request to comment on, if not provided the function will fetch the latest issue or pull request number using the GitHub CLI
 --- @param body string? the body of the comment to create, if not provided the function will prompt the user for the comment body using vim.ui.input
---- @return nil the function will notify the user of the result of the operation, but does not return any value
+--- @return boolean, string true if the comment was created successfully, false otherwise and a notify or error message
 local comment_create = function(what, num, body)
-  local msg, prompt
+  local ok, msg, prompt
   if not num then
     num, msg = get_latest(what)
     if num == 0 then
       vim.notify(msg, vim.log.levels.WARN)
-      return
+      return false, msg
     end
   end
   if body and body ~= '' then
-    comment_send(what, num, body)
+    ok, msg = comment_send(what, num, body)
   else
     prompt = string.format('Enter comment body for %s #%d: ', what, num)
     vim.ui.input({ prompt = prompt }, function(input)
@@ -301,9 +301,10 @@ local comment_create = function(what, num, body)
         vim.notify(string.format('%s comment body cannot be empty', what), vim.log.levels.WARN)
         return
       end
-      comment_send(what, num, input)
+      ok, msg = comment_send(what, num, input)
     end)
   end
+  return ok, msg
 end
 
 
@@ -616,7 +617,7 @@ M.pullRequestView = function()
   set_keymaps({ km1 }, bufnr)
   set_commands({
     'PullRequestUpdate',        -- pullRequestUpdate
-    'PullRequestCommentCreate', --  pullRequestCommentCreate
+    'PullRequestCommentCreate', -- pullRequestCommentCreate
     'PullRequestMerge',         -- pullRequestMerge
   }, bufnr)
 end
@@ -659,6 +660,8 @@ M.pullRequestCreate = function()
   end
   -- step 3: send a comment to the issue with the link to the pull request
   local pr_url = msg
+  -- from pr_url extract the pr number using string.match, the pr number is the last part of the url after the last slash
+  pr_number = tonumber(pr_url:match('.*/pull/(%d+)$')) or 0
   ok, msg = comment_send('pr', pr_number, string.format('Pull request created: %s', pr_url))
   if not ok then
     vim.notify(msg, vim.log.levels.ERROR)
@@ -675,18 +678,31 @@ M.pullRequestCreate = function()
   vim.notify(string.format('Opened pull request view in buffer #%d', bufnr), vim.log.levels.INFO)
 end
 
-
+--@return nil
 M.issueCommentCreate = function()
-  comment_create('issue')
+  local ok, msg = comment_create('issue')
+  if not ok then
+    vim.notify(msg, vim.log.levels.ERROR)
+    return
+  end
+  vim.notify(msg, vim.log.levels.INFO)
 end
+
+---@return nil
+M.pullRequestCommentCreate = function()
+  local ok, msg = comment_create('pr')
+  if not ok then
+    vim.notify(msg, vim.log.levels.ERROR)
+    return
+  end
+  vim.notify(msg, vim.log.levels.INFO)
+end
+
 
 M.pullRequestUpdate = function()
   update_view('pr')
 end
 
-M.pullRequestCommentCreate = function()
-  comment_create('pr')
-end
 
 M.pullRequestMerge = function()
   -- Step 1: auto commit and push any changes before merging
