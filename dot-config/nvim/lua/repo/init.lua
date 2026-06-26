@@ -147,7 +147,7 @@ end
 -- @param what string the action that is being performed, e.g. "creating branch" or "creating pull request", used for the commit message
 -- @return boolean, string true if the commit and push were successful, false otherwise and a notify message with the result of the operation
 local auto_commit_push = function(what)
-  local cmd = { 'git', 'commit', '-am', 'Auto commit before ' .. what }
+  local cmd = { 'git', 'commit', '-am', string.format('Auto commit before %s', what) }
   local obj = vim.system(cmd):wait()
   if obj.code ~= 0 then
     return false, string.format('Error committing changes before %s: %s', what, obj.stderr)
@@ -157,7 +157,7 @@ local auto_commit_push = function(what)
   if obj.code ~= 0 then
     return false, string.format('Error pushing changes before %s: %s', what, obj.stderr)
   end
-  return true, 'Changes pushed successfully'
+  return true, string.format('Successfully committed and pushed changes before %s', what)
 end
 
 --- helper function to get the latest issue or pull request number using the GitHub CLI
@@ -256,9 +256,12 @@ local createRemote = function(what, title, body)
   local cmd = { 'gh', what, 'create', '--title', title, '--body', body }
   local obj = vim.system(cmd):wait()
   if obj.code ~= 0 then
+    vim.print(vim.trim(obj.stderr))
     return false, string.format('Error creating %s: %s', what, obj.stderr)
   end
-  return true, string.format('%s created: %s', what, obj.stdout)
+  -- the stdout of the command should be the URL of the newly created issue or pull request, we can trim it and return it
+  local url = vim.trim(obj.stdout)
+  return true, url
 end
 
 --- helper function to create a new comment on an issue or pull request using the GitHub CLI, with the comment body provided as an argument
@@ -279,18 +282,18 @@ end
 --- @param what string the type of item to comment on, either "issue" or "pr"
 --- @param num number? the number of the issue or pull request to comment on, if not provided the function will fetch the latest issue or pull request number using the GitHub CLI
 --- @param body string? the body of the comment to create, if not provided the function will prompt the user for the comment body using vim.ui.input
---- @return nil the function will notify the user of the result of the operation, but does not return any value
+--- @return boolean, string true if the comment was created successfully, false otherwise and a notify or error message
 local comment_create = function(what, num, body)
-  local msg, prompt
+  local ok, msg, prompt
   if not num then
     num, msg = get_latest(what)
     if num == 0 then
       vim.notify(msg, vim.log.levels.WARN)
-      return
+      return false, msg
     end
   end
   if body and body ~= '' then
-    comment_send(what, num, body)
+    ok, msg = comment_send(what, num, body)
   else
     prompt = string.format('Enter comment body for %s #%d: ', what, num)
     vim.ui.input({ prompt = prompt }, function(input)
@@ -298,9 +301,10 @@ local comment_create = function(what, num, body)
         vim.notify(string.format('%s comment body cannot be empty', what), vim.log.levels.WARN)
         return
       end
-      comment_send(what, num, input)
+      ok, msg = comment_send(what, num, input)
     end)
   end
+  return ok, msg
 end
 
 
@@ -392,6 +396,7 @@ M.issueDevelopWithBranch = function()
     return
   end
   vim.notify(msg, vim.log.levels.INFO)
+
   issue_number, msg = get_latest('issue')
   if issue_number == 0 then
     vim.notify(msg, vim.log.levels.WARN)
@@ -408,6 +413,7 @@ M.issueDevelopWithBranch = function()
     return
   end
   vim.notify(string.format('%s created', vim.trim(obj.stdout)), vim.log.levels.INFO)
+  M.status() -- show git status after creating the branch
 end
 
 M.gitCommitAll = function()
@@ -611,7 +617,7 @@ M.pullRequestView = function()
   set_keymaps({ km1 }, bufnr)
   set_commands({
     'PullRequestUpdate',        -- pullRequestUpdate
-    'PullRequestCommentCreate', --  pullRequestCommentCreate
+    'PullRequestCommentCreate', -- pullRequestCommentCreate
     'PullRequestMerge',         -- pullRequestMerge
   }, bufnr)
 end
@@ -622,13 +628,17 @@ M.pullRequestStatus = function()
 end
 
 M.pullRequestCreate = function()
-  vim.print('Repo: creating pull request')
-  local ok, msg, cmd, obj, issue_number, pr_number, title, body,
+  local ok, msg
+  local issue_number, pr_number
+  local title, body
+  -- step 1: auto commit and push any changes before creating a pull request, to ensure the pull request is created from the latest commit on the current branch
   ok, msg = auto_commit_push('creating pull request')
   if not ok then
     vim.notify(msg, vim.log.levels.ERROR)
     return
   end
+  vim.notify(msg, vim.log.levels.INFO)
+  -- step 2: get the latest issue number using the GitHub CLI, and use the issue title and body to create a new pull request with the same title and body
   issue_number, msg = get_latest('issue')
   if issue_number == 0 then
     vim.notify(msg, vim.log.levels.WARN)
@@ -648,20 +658,16 @@ M.pullRequestCreate = function()
     vim.notify(msg, vim.log.levels.ERROR)
     return
   end
+  -- step 3: send a comment to the issue with the link to the pull request
+  local pr_url = msg
+  -- from pr_url extract the pr number using string.match, the pr number is the last part of the url after the last slash
+  pr_number = tonumber(pr_url:match('.*/pull/(%d+)$')) or 0
+  ok, msg = comment_send('pr', pr_number, string.format('Pull request created: %s', pr_url))
+  if not ok then
+    vim.notify(msg, vim.log.levels.ERROR)
+    return
+  end
   vim.notify(msg, vim.log.levels.INFO)
-  pr_number, msg = get_latest('pr')
-  if pr_number == 0 then
-    vim.notify(msg, vim.log.levels.WARN)
-    return
-  end
-  cmd = { 'gh', 'pr', 'view', tostring(pr_number), '--json', 'url', '--template', '{{.url}}' }
-  obj = vim.system(cmd):wait()
-  if obj.code ~= 0 then
-    vim.notify('Error fetching pull request URL: ' .. obj.stderr, vim.log.levels.ERROR)
-    return
-  end
-  local pr_url = vim.trim(obj.stdout)
-  comment_send('pr', pr_number, string.format('Pull request created: %s', pr_url))
   -- show the pull request view after creating the pull request,
   local data = get_remote_view_data('pr', pr_number)
   local bufnr = show.edit('PullRequestView', data)
@@ -672,18 +678,31 @@ M.pullRequestCreate = function()
   vim.notify(string.format('Opened pull request view in buffer #%d', bufnr), vim.log.levels.INFO)
 end
 
-
+--@return nil
 M.issueCommentCreate = function()
-  comment_create('issue')
+  local ok, msg = comment_create('issue')
+  if not ok then
+    vim.notify(msg, vim.log.levels.ERROR)
+    return
+  end
+  vim.notify(msg, vim.log.levels.INFO)
 end
+
+---@return nil
+M.pullRequestCommentCreate = function()
+  local ok, msg = comment_create('pr')
+  if not ok then
+    vim.notify(msg, vim.log.levels.ERROR)
+    return
+  end
+  vim.notify(msg, vim.log.levels.INFO)
+end
+
 
 M.pullRequestUpdate = function()
   update_view('pr')
 end
 
-M.pullRequestCommentCreate = function()
-  comment_create('pr')
-end
 
 M.pullRequestMerge = function()
   -- Step 1: auto commit and push any changes before merging
